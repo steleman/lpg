@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: lpg.javaruntime
+Bundle-ClassPath: lpgjavaruntime.jar
+Bundle-Version: 1.0.45
+Bundle-Vendor: pcharles@us.ibm.com
+Bundle-Localization: plugin
+Export-Package: lpg.runtime.java
