@@ -4,7 +4,7 @@
 
 package expandedjavaparser.Ast;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public abstract class Ast implements IAst
 {

@@ -1,6 +1,6 @@
 package expandedjavaparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class JavaLexer extends LpgLexStream implements JavaParsersym, JavaLexersym, RuleAction
 {

@@ -5,7 +5,7 @@
 package expandedjavaparser;
 
 import expandedjavaparser.Ast.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class JavaParser extends PrsStream implements RuleAction
 {

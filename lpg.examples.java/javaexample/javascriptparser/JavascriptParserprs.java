@@ -1,6 +1,6 @@
 package javascriptparser;
 
-public class JavascriptParserprs implements lpg.javaruntime.ParseTable, JavascriptParsersym {
+public class JavascriptParserprs implements lpg.runtime.java.ParseTable, JavascriptParsersym {
 
     public interface IsNullable {
         public final static byte isNullable[] = {0,

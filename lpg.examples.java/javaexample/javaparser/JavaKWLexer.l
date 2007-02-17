@@ -1,52 +1,51 @@
 
-Options in effect for C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexer.g:
+Options in effect for D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexer.g:
 
-    ACTION-BLOCK=("C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexer.java","/.","./")
+    ACTION-BLOCK=("D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexer.java","/.","./")
 
     AST-DIRECTORY=""  AST-TYPE="Ast"  NOATTRIBUTES  NOAUTOMATIC-AST  NOBACKTRACK
     BYTE  CONFLICTS  
-    DAT-DIRECTORY="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/"
-    BYTE  CONFLICTS  
-    DAT-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexerdcl.data"
-    BYTE  CONFLICTS  
-    DCL-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexerdcl.java"
-    BYTE  CONFLICTS  NODEBUG  
-    DEF-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexerdef.java"
-    BYTE  CONFLICTS  NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  
-    EXPORT-TERMINALS=("C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParsersym.java","TK_","")
-    BYTE  CONFLICTS  NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  
-    EXTENDS-PARSETABLE  FACTORY="new "  FILE-PREFIX="JavaKWLexer"  NOFIRST  
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    GRM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexer.g"
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    IMP-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexerimp.java"
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    INCLUDE-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\;.;C:\eclipse\workspace\lpg.javaruntime.v2\include;C:\eclipse\workspace;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  LALR=1  NOLIST  MARGIN=4  MAX-CASES=1024  
-    NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  
-    OUT-DIRECTORY="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/"
-    NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  PACKAGE="javaparser"  
-    NOPARENT-SAVE  PARSETABLE-INTERFACES="lpg.javaruntime.ParseTable"  
-    PREFIX="Char_"  PRIORITY  PROGRAMMING_LANGUAGE=JAVA  
-    PRS-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexerprs.java"
-    PREFIX="Char_"  PRIORITY  PROGRAMMING_LANGUAGE=JAVA  NOQUIET  READ-REDUCE  
-    REMAP-TERMINALS  NOSCOPES  NOSERIALIZE  NOSHIFT-DEFAULT  
-    NOSINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  NOSTATES  SUFFIX=""  
-    SYM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexersym.java"
-    NOSINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  NOSTATES  SUFFIX=""  
-    TAB-FILE="JavaKWLexer.t"  TABLE  TEMPLATE="KeyWordTemplateD.g"  
-    TRACE=CONFLICTS  NOVARIABLES  NOVERBOSE  NOVISITOR  VISITOR-TYPE="Visitor"
-    WARNINGS  NOXREF  
+    DAT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    DAT-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexerdcl.data"
+    DAT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    DCL-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexerdcl.java"
+    DAT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    NODEBUG  
+    DEF-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexerdef.java"
+    NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  
+    EXPORT-TERMINALS=("D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParsersym.java","TK_","")
+    NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  EXTENDS-PARSETABLE  
+    FACTORY="new "  FILE-PREFIX="JavaKWLexer"  NOFIRST  NOFOLLOW  NOGLR  
+    NOGOTO-DEFAULT  
+    GRM-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexer.g"
+    NOGOTO-DEFAULT  
+    IMP-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexerimp.java"
+    NOGOTO-DEFAULT  
+    INCLUDE-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\;.;D:\eclipse\workspace\lpg.runtime.java\include;D:\eclipse\workspace;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
+    NOGOTO-DEFAULT  LALR=1  NOLIST  MARGIN=4  MAX-CASES=1024  NAMES=OPTIMIZED  
+    NONT-CHECK  OR_MARKER='|'  
+    OUT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    PACKAGE="javaparser"  NOPARENT-SAVE  
+    PARSETABLE-INTERFACES="lpg.javaruntime.ParseTable"  PREFIX="Char_"  PRIORITY
+    PROGRAMMING_LANGUAGE=JAVA  
+    PRS-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexerprs.java"
+    PROGRAMMING_LANGUAGE=JAVA  NOQUIET  READ-REDUCE  REMAP-TERMINALS  NOSCOPES
+    NOSERIALIZE  NOSHIFT-DEFAULT  NOSINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  
+    NOSTATES  SUFFIX=""  
+    SYM-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexersym.java"
+    NOSTATES  SUFFIX=""  TAB-FILE="JavaKWLexer.t"  TABLE  
+    TEMPLATE="KeyWordTemplateD.g"  TRACE=CONFLICTS  NOVARIABLES  NOVERBOSE  
+    NOVISITOR  VISITOR-TYPE="Visitor"  WARNINGS  NOXREF  
 
-C:/eclipse/workspace/lpg.javaruntime.v2/include/KWLexerLowerCaseMap.g:19:24:19:24:538:538: Warning: The macro "$" is undefined. No substitution made
-C:/eclipse/workspace/lpg.javaruntime.v2/include/KWLexerLowerCaseMap.g:2:5:2:14:17:26: Informative: The terminal DollarSign is useless.
-C:/eclipse/workspace/lpg.javaruntime.v2/include/KWLexerLowerCaseMap.g:3:5:3:5:41:41: Informative: The terminal _ is useless.
-C:/eclipse/workspace/lpg.javaruntime.v2/include/KWLexerLowerCaseMap.g:5:50:5:50:99:99: Informative: The terminal j is useless.
-C:/eclipse/workspace/lpg.javaruntime.v2/include/KWLexerLowerCaseMap.g:6:20:6:20:136:136: Informative: The terminal q is useless.
-
+D:/eclipse/workspace/lpg.runtime.java/include/KWLexerLowerCaseMap.g:19:24:19:24:538:538: Warning: The macro "$" is undefined. No substitution made
+D:/eclipse/workspace/lpg.runtime.java/include/KWLexerLowerCaseMap.g:2:5:2:14:17:26: Informative: The terminal DollarSign is useless.
+D:/eclipse/workspace/lpg.runtime.java/include/KWLexerLowerCaseMap.g:3:5:3:5:41:41: Informative: The terminal _ is useless.
+D:/eclipse/workspace/lpg.runtime.java/include/KWLexerLowerCaseMap.g:5:50:5:50:99:99: Informative: The terminal j is useless.
+D:/eclipse/workspace/lpg.runtime.java/include/KWLexerLowerCaseMap.g:6:20:6:20:136:136: Informative: The terminal q is useless.
 
 
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaKWLexer.g is LALR(1).
+
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaKWLexer.g is LALR(1).
 
 
 Number of Terminals: 29

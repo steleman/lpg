@@ -1,39 +1,38 @@
 
-Options in effect for C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g:
+Options in effect for D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g:
 
-    ACTION-BLOCK=("C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParser.java","/.","./")
+    ACTION-BLOCK=("D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParser.java","/.","./")
 
     AST-DIRECTORY=""  AST-TYPE="Ast"  NOATTRIBUTES  AUTOMATIC-AST=NESTED  
     NOBACKTRACK  BYTE  CONFLICTS  
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\"
-    NOBACKTRACK  BYTE  CONFLICTS  
-    DAT-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParserdcl.data"
-    NOBACKTRACK  BYTE  CONFLICTS  
-    DCL-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParserdcl.java"
-    NOBACKTRACK  BYTE  CONFLICTS  NODEBUG  
-    DEF-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParserdef.java"
-    NOBACKTRACK  BYTE  CONFLICTS  NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  
-    EXPORT-TERMINALS=("C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParserexp.java","","")
-    NOBACKTRACK  BYTE  CONFLICTS  NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  
-    EXTENDS-PARSETABLE  FACTORY="new "  FILE-PREFIX="JavaParser"  NOFIRST  
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    GRM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g"
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    IMP-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParserimp.java"
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  IMPORT-TERMINALS="JavaLexer.g"  
-    INCLUDE-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\;.;C:\eclipse\workspace\lpg.javaruntime.v2\include;C:\eclipse\workspace;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
-    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  IMPORT-TERMINALS="JavaLexer.g"  LALR=2  
-    LIST  MARGIN=4  MAX-CASES=1024  NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'
-    OUT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\"
-    LIST  MARGIN=4  MAX-CASES=1024  NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'
+    DAT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\"
+    DAT-FILE="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParserdcl.data"
+    DAT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\"
+    DCL-FILE="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParserdcl.java"
+    DAT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\"
+    NODEBUG  
+    DEF-FILE="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParserdef.java"
+    NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  
+    EXPORT-TERMINALS=("D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParserexp.java","","")
+    NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  EXTENDS-PARSETABLE  FACTORY="new "
+    FILE-PREFIX="JavaParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    GRM-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g"
+    FILE-PREFIX="JavaParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    IMP-FILE="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParserimp.java"
+    FILE-PREFIX="JavaParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    IMPORT-TERMINALS="JavaLexer.g"  
+    INCLUDE-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\;.;D:\eclipse\workspace\lpg.runtime.java\include;D:\eclipse\workspace;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
+    IMPORT-TERMINALS="JavaLexer.g"  LALR=2  LIST  MARGIN=4  MAX-CASES=1024  
+    NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  
+    OUT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\"
     PACKAGE="javaparser"  NOPARENT-SAVE  
     PARSETABLE-INTERFACES="lpg.javaruntime.ParseTable"  PREFIX="TK_"  PRIORITY
     PROGRAMMING_LANGUAGE=JAVA  
-    PRS-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParserprs.java"
+    PRS-FILE="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParserprs.java"
     PROGRAMMING_LANGUAGE=JAVA  NOQUIET  READ-REDUCE  REMAP-TERMINALS  SCOPES  
     NOSERIALIZE  NOSHIFT-DEFAULT  NOSINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  
     NOSTATES  SUFFIX=""  
-    SYM-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParsersym.java"
+    SYM-FILE="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParsersym.java"
     NOSTATES  SUFFIX=""  TAB-FILE="JavaParser.t"  TABLE  
     TEMPLATE="dtParserTemplateD.g"  TRACE=CONFLICTS  VARIABLES=NONTERMINALS  
     NOVERBOSE  VISITOR=DEFAULT  VISITOR-TYPE="Visitor"  WARNINGS  NOXREF  
@@ -746,16 +745,16 @@ Types:
     WhileStatement ::= WhileStatementNoShortIf
     ForStatement ::= ForStatementNoShortIf
 
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g:24:55:24:59:1006:1010: Informative: The terminal const is useless.
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g:26:9:26:12:1092:1095: Informative: The terminal goto is useless.
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.g:24:5:24:13:376:384: Informative: The terminal SlComment is useless.
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.g:25:5:25:13:391:399: Informative: The terminal MlComment is useless.
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.g:26:5:26:14:406:415: Informative: The terminal DocComment is useless.
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g:863:5:863:36:30474:30505: Error: The nonterminal ExplicitConstructorInvocationopt is useless.
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g:902:5:902:28:31840:31863: Error: The nonterminal SwitchBlockStatementsopt is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g:24:55:24:59:1006:1010: Informative: The terminal const is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g:26:9:26:12:1092:1095: Informative: The terminal goto is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.g:24:5:24:13:376:384: Informative: The terminal SlComment is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.g:25:5:25:13:391:399: Informative: The terminal MlComment is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.g:26:5:26:14:406:415: Informative: The terminal DocComment is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g:863:5:863:36:30474:30505: Error: The nonterminal ExplicitConstructorInvocationopt is useless.
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g:902:5:902:28:31840:31863: Error: The nonterminal SwitchBlockStatementsopt is useless.
 
 
- IBM LALR Parser Generator              1.00 (Feb  1 2007)
+ IBM LALR Parser Generator              1.00 (Feb 16 2007)
 
 
 Name map:
@@ -1032,7 +1031,7 @@ CastExpression ::=
 ExplicitConstructorInvocationopt ::= 
 SwitchBlockStatementsopt ::= 
 
- IBM LALR Parser Generator              1.00 (Feb  1 2007)
+ IBM LALR Parser Generator              1.00 (Feb 16 2007)
 
 
 Scopes:
@@ -1116,7 +1115,7 @@ ExplicitConstructorInvocation ::= Primary  .DOT this LPAREN ArgumentListopt
                                   RPAREN SEMICOLON 
 
 
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaParser.g is LALR(2).
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaParser.g is LALR(2).
 
 
 Number of Terminals: 109

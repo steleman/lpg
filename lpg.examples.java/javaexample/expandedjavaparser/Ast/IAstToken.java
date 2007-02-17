@@ -4,7 +4,7 @@
 
 package expandedjavaparser.Ast;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * is always implemented by <b>AstToken</b>. It is also implemented by:

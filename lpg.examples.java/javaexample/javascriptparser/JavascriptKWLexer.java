@@ -1,6 +1,6 @@
 package javascriptparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class JavascriptKWLexer extends JavascriptKWLexerprs implements JavascriptParsersym
 {

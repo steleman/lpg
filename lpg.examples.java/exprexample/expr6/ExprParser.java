@@ -1,7 +1,7 @@
 package expr6;
 
 import expr6.ExprAst.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class ExprParser extends PrsStream implements RuleAction
 {

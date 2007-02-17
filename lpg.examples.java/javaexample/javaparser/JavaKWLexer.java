@@ -1,6 +1,6 @@
 package javaparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class JavaKWLexer extends JavaKWLexerprs implements JavaParsersym
 {

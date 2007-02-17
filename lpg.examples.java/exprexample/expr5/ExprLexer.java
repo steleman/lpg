@@ -1,6 +1,6 @@
 package expr5;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class ExprLexer extends LpgLexStream implements ExprParsersym, ExprLexersym, RuleAction
 {

@@ -1,39 +1,38 @@
 
-Options in effect for C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.g:
+Options in effect for D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.g:
 
-    ACTION-BLOCK=("C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.java","/.","./")
+    ACTION-BLOCK=("D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.java","/.","./")
 
     AST-DIRECTORY=""  AST-TYPE="Ast"  NOATTRIBUTES  NOAUTOMATIC-AST  NOBACKTRACK
     BYTE  CONFLICTS  
-    DAT-DIRECTORY="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/"
-    BYTE  CONFLICTS  
-    DAT-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexerdcl.data"
-    BYTE  CONFLICTS  
-    DCL-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexerdcl.java"
-    BYTE  CONFLICTS  NODEBUG  
-    DEF-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexerdef.java"
-    BYTE  CONFLICTS  NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  
-    EXPORT-TERMINALS=("C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\JavaParsersym.java","TK_","")
-    BYTE  CONFLICTS  NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  
-    EXTENDS-PARSETABLE  FACTORY="new "  FILE-PREFIX="JavaLexer"  
-    FILTER="JavaKWLexer.g"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    GRM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.g"
-    FILTER="JavaKWLexer.g"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    IMP-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexerimp.java"
-    FILTER="JavaKWLexer.g"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    INCLUDE-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\javaexample\javaparser\;.;C:\eclipse\workspace\lpg.javaruntime.v2\include;C:\eclipse\workspace;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
-    FILTER="JavaKWLexer.g"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  LALR=1  
-    NOLIST  MARGIN=4  MAX-CASES=1024  NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'
-    OUT-DIRECTORY="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/"
-    NOLIST  MARGIN=4  MAX-CASES=1024  NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'
+    DAT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    DAT-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexerdcl.data"
+    DAT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    DCL-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexerdcl.java"
+    DAT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
+    NODEBUG  
+    DEF-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexerdef.java"
+    NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  
+    EXPORT-TERMINALS=("D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\JavaParsersym.java","TK_","")
+    NODEBUG  NOEDIT  NOERROR-MAPS  ESCAPE='$'  EXTENDS-PARSETABLE  
+    FACTORY="new "  FILE-PREFIX="JavaLexer"  FILTER="JavaKWLexer.g"  NOFIRST  
+    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    GRM-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.g"
+    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    IMP-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexerimp.java"
+    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    INCLUDE-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\javaexample\javaparser\;.;D:\eclipse\workspace\lpg.runtime.java\include;D:\eclipse\workspace;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
+    NOFOLLOW  NOGLR  NOGOTO-DEFAULT  LALR=1  NOLIST  MARGIN=4  MAX-CASES=1024  
+    NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  
+    OUT-DIRECTORY="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/"
     PACKAGE="javaparser"  NOPARENT-SAVE  
     PARSETABLE-INTERFACES="lpg.javaruntime.ParseTable"  PREFIX="Char_"  PRIORITY
     PROGRAMMING_LANGUAGE=JAVA  
-    PRS-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexerprs.java"
+    PRS-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexerprs.java"
     PROGRAMMING_LANGUAGE=JAVA  NOQUIET  READ-REDUCE  REMAP-TERMINALS  NOSCOPES
     NOSERIALIZE  NOSHIFT-DEFAULT  SINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  NOSTATES
     SUFFIX=""  
-    SYM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexersym.java"
+    SYM-FILE="D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexersym.java"
     SUFFIX=""  TAB-FILE="JavaLexer.t"  TABLE  TEMPLATE="LexerTemplateD.g"  
     TRACE=CONFLICTS  NOVARIABLES  NOVERBOSE  NOVISITOR  VISITOR-TYPE="Visitor"
     WARNINGS  NOXREF  
@@ -41,7 +40,7 @@ Options in effect for C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/
 
 
 
-C:/eclipse/workspace/lpg.javaruntime.examples/javaexample/javaparser/JavaLexer.g is LALR(1).
+D:/eclipse/workspace/lpg.examples.java/javaexample/javaparser/JavaLexer.g is LALR(1).
 
 
 Number of Terminals: 102

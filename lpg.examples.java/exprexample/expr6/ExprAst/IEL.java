@@ -1,6 +1,6 @@
 package expr6.ExprAst;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * is implemented by <b>EList</b>

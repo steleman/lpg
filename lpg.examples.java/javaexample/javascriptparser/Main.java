@@ -1,5 +1,5 @@
 package javascriptparser;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 import javascriptparser.Ast.*;
 
 public class Main

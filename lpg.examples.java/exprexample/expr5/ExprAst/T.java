@@ -1,6 +1,6 @@
 package expr5.ExprAst;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  *<em>

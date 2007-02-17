@@ -1,5 +1,5 @@
 package expandedjavaparser;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 import expandedjavaparser.JavaLexer;
 import expandedjavaparser.JavaParser;
 import expandedjavaparser.JavaResultVisitor;

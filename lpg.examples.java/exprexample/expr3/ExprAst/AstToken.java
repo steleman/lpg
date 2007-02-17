@@ -1,6 +1,6 @@
 package expr3.ExprAst;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class AstToken extends Ast implements IAstToken
 {

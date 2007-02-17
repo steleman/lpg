@@ -13,9 +13,9 @@
 $Headers
     /:
     package $package;
-    import lpg.javaruntime.*;
+    import lpg.runtime.java.*;
 
-    public interface IAst extends lpg.javaruntime.IAst
+    public interface IAst extends lpg.runtime.java.IAst
     {
         public void extra();
     }

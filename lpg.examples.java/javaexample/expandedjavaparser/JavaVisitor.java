@@ -10,8 +10,8 @@ import javaparser.JavaParser.IName;
 import javaparser.JavaParser.ImportDeclarationList;
 import javaparser.JavaParser.PackageDeclaration;
 
-import lpg.javaruntime.IAst;
-import lpg.javaruntime.PrsStream;
+import lpg.runtime.java.IAst;
+import lpg.runtime.java.PrsStream;
 
 /**
  * @author Gerry Fisher

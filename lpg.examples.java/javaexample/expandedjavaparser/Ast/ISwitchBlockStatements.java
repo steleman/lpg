@@ -4,7 +4,7 @@
 
 package expandedjavaparser.Ast;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * is implemented by <b>SwitchBlockStatementList</b>

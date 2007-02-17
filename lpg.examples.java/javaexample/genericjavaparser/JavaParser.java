@@ -3,7 +3,7 @@
 //
 package genericjavaparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 import java.lang.*;
 public class JavaParser extends PrsStream implements RuleAction

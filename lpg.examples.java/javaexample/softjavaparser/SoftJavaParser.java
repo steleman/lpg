@@ -1,6 +1,6 @@
 package softjavaparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class SoftJavaParser extends PrsStream implements RuleAction
 {

@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import genericjavaparser.JavaLexer;
-import lpg.javaruntime.Differ;
-import lpg.javaruntime.DifferLines;
-import lpg.javaruntime.DifferTokens;
-import lpg.javaruntime.LexStream;
-import lpg.javaruntime.PrsStream;
+import lpg.runtime.java.Differ;
+import lpg.runtime.java.DifferLines;
+import lpg.runtime.java.DifferTokens;
+import lpg.runtime.java.LexStream;
+import lpg.runtime.java.PrsStream;
 
 public class Main
 {

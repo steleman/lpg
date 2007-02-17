@@ -5,7 +5,7 @@
 package expandedjavaparser.Ast;
 
 import expandedjavaparser.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  *<b>

@@ -1,6 +1,6 @@
 package xmlparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class XmlParser extends Utf8LpgLexStream implements XmlParsersym, RuleAction
 {

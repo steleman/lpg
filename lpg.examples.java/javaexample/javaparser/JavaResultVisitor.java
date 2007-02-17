@@ -5,7 +5,7 @@
 package javaparser;
 
 import javaparser.JavaParser.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * @author Gerry Fisher

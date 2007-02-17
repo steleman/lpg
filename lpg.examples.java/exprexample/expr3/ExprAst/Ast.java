@@ -1,7 +1,7 @@
 package expr3.ExprAst;
 
 import expr3.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public abstract class Ast implements IAst
 {

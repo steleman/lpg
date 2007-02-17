@@ -1,6 +1,6 @@
 package expr4;
 
-public class ExprLexerprs implements lpg.javaruntime.ParseTable, ExprLexersym {
+public class ExprLexerprs implements lpg.runtime.java.ParseTable, ExprLexersym {
 
     public interface IsNullable {
         public final static byte isNullable[] = {0,

@@ -1,6 +1,6 @@
 package xmlparser;
 
-public class XmlParserprs implements lpg.javaruntime.ParseTable, XmlParsersym {
+public class XmlParserprs implements lpg.runtime.java.ParseTable, XmlParsersym {
 
     public interface IsNullable {
         public final static byte isNullable[] = {0,

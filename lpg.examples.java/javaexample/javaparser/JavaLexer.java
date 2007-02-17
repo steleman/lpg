@@ -1,6 +1,6 @@
 package javaparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class JavaLexer extends LpgLexStream implements JavaParsersym, JavaLexersym, RuleAction
 {
@@ -269,7 +269,7 @@ public class JavaLexer extends LpgLexStream implements JavaParsersym, JavaLexers
             
     public final int getKind(int i)  // Classify character at ith location
     {
-        int c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
+        char c = (i >= getStreamLength() ? '\uffff' : getCharValue(i));
         return (c < 128 // ASCII Character
                   ? tokenKind[c]
                   : c == '\uffff'

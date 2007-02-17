@@ -5,7 +5,7 @@
 package expandedjavaparser;
 
 import expandedjavaparser.Ast.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * @author Gerry Fisher

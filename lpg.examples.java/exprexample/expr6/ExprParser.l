@@ -1,38 +1,37 @@
 
-Options in effect for C:/eclipse/workspace/lpg.javaruntime.examples/exprexample/expr6/ExprParser.g:
+Options in effect for D:/eclipse/workspace/lpg.examples.java/exprexample/expr6/ExprParser.g:
 
-    ACTION-BLOCK=("C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParser.java","/.","./")
+    ACTION-BLOCK=("D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParser.java","/.","./")
 
     AST-DIRECTORY="./ExprAst"  AST-TYPE="Ast"  NOATTRIBUTES  
     AUTOMATIC-AST=TOPLEVEL  NOBACKTRACK  BYTE  CONFLICTS  
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\"
-    DAT-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParserdcl.data"
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\"
-    DCL-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParserdcl.java"
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\"
+    DAT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\"  
+    DAT-FILE="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParserdcl.data"
+    DAT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\"  
+    DCL-FILE="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParserdcl.java"
+    DAT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\"  
     NODEBUG  
-    DEF-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParserdef.java"
+    DEF-FILE="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParserdef.java"
     NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  
-    EXPORT-TERMINALS=("C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParserexp.java","","")
+    EXPORT-TERMINALS=("D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParserexp.java","","")
     NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  EXTENDS-PARSETABLE  FACTORY="new "
     FILE-PREFIX="ExprParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    GRM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/exprexample/expr6/ExprParser.g"
-    FILE-PREFIX="ExprParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    IMP-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParserimp.java"
-    FILE-PREFIX="ExprParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
+    GRM-FILE="D:/eclipse/workspace/lpg.examples.java/exprexample/expr6/ExprParser.g"
+    IMP-FILE="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParserimp.java"
+    GRM-FILE="D:/eclipse/workspace/lpg.examples.java/exprexample/expr6/ExprParser.g"
     IMPORT-TERMINALS="ExprLexer.g"  
-    INCLUDE-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\;.;C:\eclipse\workspace\lpg.javaruntime.v2\include;C:\eclipse\workspace;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
+    INCLUDE-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\;.;D:\eclipse\workspace\lpg.runtime.java\include;D:\eclipse\workspace;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;D:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;D:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
     IMPORT-TERMINALS="ExprLexer.g"  LALR=1  LIST  MARGIN=4  MAX-CASES=1024  
     NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  
-    OUT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\"
+    OUT-DIRECTORY="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\"  
     PACKAGE="expr6"  NOPARENT-SAVE  
-    PARSETABLE-INTERFACES="lpg.javaruntime.ParseTable"  PREFIX="TK_"  PRIORITY
+    PARSETABLE-INTERFACES="lpg.runtime.java.ParseTable"  PREFIX="TK_"  PRIORITY
     PROGRAMMING_LANGUAGE=JAVA  
-    PRS-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParserprs.java"
+    PRS-FILE="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParserprs.java"
     PROGRAMMING_LANGUAGE=JAVA  NOQUIET  READ-REDUCE  REMAP-TERMINALS  SCOPES  
     NOSERIALIZE  NOSHIFT-DEFAULT  NOSINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  
     NOSTATES  SUFFIX=""  
-    SYM-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr6\ExprParsersym.java"
+    SYM-FILE="D:\eclipse\workspace\lpg.examples.java\exprexample\expr6\ExprParsersym.java"
     NOSTATES  SUFFIX=""  TAB-FILE="ExprParser.t"  TABLE  
     TEMPLATE="dtParserTemplateD.g"  TRACE=CONFLICTS  VARIABLES=NONTERMINALS  
     NOVERBOSE  VISITOR=PREORDER  VISITOR-TYPE="Visitor"  WARNINGS  NOXREF  
@@ -239,7 +238,7 @@ Rules:
 8      F$ParenExpr ::= ( E )
 
 
- IBM LALR Parser Generator              1.00 (Feb 14 2007)
+ IBM LALR Parser Generator              1.00 (Feb 16 2007)
 
 
 Name map:
@@ -258,7 +257,7 @@ E ::= E
 T ::= T
 F ::= F
 
- IBM LALR Parser Generator              1.00 (Feb 14 2007)
+ IBM LALR Parser Generator              1.00 (Feb 16 2007)
 
 
 Scopes:
@@ -266,7 +265,7 @@ Scopes:
 F ::= LPAREN E  .RPAREN 
 
 
-C:/eclipse/workspace/lpg.javaruntime.examples/exprexample/expr6/ExprParser.g is LALR(1).
+D:/eclipse/workspace/lpg.examples.java/exprexample/expr6/ExprParser.g is LALR(1).
 
 
 Number of Terminals: 8

@@ -5,7 +5,7 @@
 package expr5;
 
 import expr5.ExprAst.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * @author Gerry Fisher

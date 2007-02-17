@@ -3,7 +3,7 @@ package genericjavaparser;
 import java.io.*;
 import java.util.*;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class Main
 {

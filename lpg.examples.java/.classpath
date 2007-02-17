@@ -4,6 +4,6 @@
 	<classpathentry excluding="test/" path="javaexample" kind="src"/>
 	<classpathentry excluding="test/" path="xmlexample" kind="src"/>
 	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
-	<classpathentry path="/lpgjavaruntime" combineaccessrules="false" kind="src"/>
+	<classpathentry path="/lpg.runtime.java" combineaccessrules="false" kind="src"/>
 	<classpathentry path="bin" kind="output"/>
 </classpath>

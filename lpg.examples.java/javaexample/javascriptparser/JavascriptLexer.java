@@ -1,6 +1,6 @@
 package javascriptparser;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 public class JavascriptLexer extends LexStream implements JavascriptParsersym, JavascriptLexersym, RuleAction
 {

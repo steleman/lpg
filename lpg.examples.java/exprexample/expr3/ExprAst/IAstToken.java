@@ -1,6 +1,6 @@
 package expr3.ExprAst;
 
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 /**
  * is always implemented by <b>AstToken</b>. It is also implemented by:

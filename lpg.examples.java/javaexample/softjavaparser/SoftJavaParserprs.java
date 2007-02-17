@@ -1,6 +1,6 @@
 package softjavaparser;
 
-public class SoftJavaParserprs implements lpg.javaruntime.ParseTable, SoftJavaParsersym {
+public class SoftJavaParserprs implements lpg.runtime.java.ParseTable, SoftJavaParsersym {
 
     public interface IsNullable {
         public final static byte isNullable[] = {0,

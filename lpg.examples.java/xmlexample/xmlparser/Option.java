@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import lpg.javaruntime.IntSegmentedTuple;
+import lpg.runtime.java.IntSegmentedTuple;
 
 public class Option
 {

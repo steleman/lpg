@@ -1,7 +1,7 @@
 package javascriptparser;
 
 import javascriptparser.Ast.*;
-import lpg.javaruntime.*;
+import lpg.runtime.java.*;
 
 import javascriptparser.IAst;
 

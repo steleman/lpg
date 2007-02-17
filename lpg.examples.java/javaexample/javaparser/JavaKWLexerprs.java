@@ -1,6 +1,6 @@
 package javaparser;
 
-public class JavaKWLexerprs implements lpg.javaruntime.ParseTable, JavaKWLexersym {
+public class JavaKWLexerprs implements lpg.runtime.java.ParseTable, JavaKWLexersym {
 
     public interface IsNullable {
         public final static byte isNullable[] = {0,
