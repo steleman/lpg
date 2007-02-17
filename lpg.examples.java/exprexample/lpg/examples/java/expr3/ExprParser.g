@@ -1,7 +1,7 @@
 %options ast_directory=./ExprAst
 %options automatic_ast=toplevel
 %options variables=nt
-%options package=expr3
+%options package=lpg.examples.java.expr3
 %options template=dtParserTemplateD.g
 %options import_terminals=ExprLexer.g
 

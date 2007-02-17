@@ -6,7 +6,7 @@
 %Options fp=ExprLexer,prefix=Char_
 %options single-productions
 %options noserialize
-%options package=expr3
+%options package=lpg.examples.java.expr3
 %options template=LexerTemplateE.g
 %options export_terminals=("ExprParsersym.java", "TK_")
 

@@ -1,6 +1,6 @@
-package expr3.ExprAst;
+package lpg.examples.java.expr3.ExprAst;
 
-import expr3.*;
+import lpg.examples.java.expr3.*;
 import lpg.runtime.java.*;
 
 /**

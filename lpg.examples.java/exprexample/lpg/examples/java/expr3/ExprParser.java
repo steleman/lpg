@@ -1,6 +1,6 @@
-package expr3;
+package lpg.examples.java.expr3;
 
-import expr3.ExprAst.*;
+import lpg.examples.java.expr3.ExprAst.*;
 import lpg.runtime.java.*;
 
 public class ExprParser extends PrsStream implements RuleAction

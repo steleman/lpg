@@ -2,7 +2,7 @@ package softjavaparser;
 
 import expandedjavaparser.JavaLexer;
 import expandedjavaparser.Option;
-import expr3.*;
+import lpg.examples.java.expr3.*;
 
 public class Main
 {

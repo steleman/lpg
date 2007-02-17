@@ -1,4 +1,4 @@
-package expr3;
+package lpg.examples.java.expr3;
 
 public interface ExprParsersym {
     public final static int

@@ -1,4 +1,4 @@
-package expr3.ExprAst;
+package lpg.examples.java.expr3.ExprAst;
 
 import lpg.runtime.java.*;
 

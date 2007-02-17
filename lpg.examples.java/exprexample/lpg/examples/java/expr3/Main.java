@@ -1,5 +1,5 @@
-package expr3;
-import expr3.ExprAst.*;
+package lpg.examples.java.expr3;
+import lpg.examples.java.expr3.ExprAst.*;
 
 public class Main
 {

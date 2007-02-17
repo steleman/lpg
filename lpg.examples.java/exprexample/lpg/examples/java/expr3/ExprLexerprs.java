@@ -1,4 +1,4 @@
-package expr3;
+package lpg.examples.java.expr3;
 
 public class ExprLexerprs implements lpg.runtime.java.ParseTable, ExprLexersym {
 

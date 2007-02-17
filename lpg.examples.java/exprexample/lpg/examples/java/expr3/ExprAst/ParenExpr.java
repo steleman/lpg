@@ -1,37 +1,29 @@
-package expr3.ExprAst;
+package lpg.examples.java.expr3.ExprAst;
 
-import expr3.*;
+import lpg.examples.java.expr3.*;
 import lpg.runtime.java.*;
 
 /**
- *<em>
- *<li>Rule 4:  T ::= F
- *</em>
- *<p>
  *<b>
- *<li>Rule 3:  T ::= T * F
+ *<li>Rule 6:  F ::= ( E )
  *</b>
  */
-public class T extends Ast implements IT
+public class ParenExpr extends Ast implements IF
 {
     private ExprParser environment;
     public ExprParser getEnvironment() { return environment; }
 
-    private IT _T;
-    private IF _F;
+    private IE _E;
 
-    public IT getT() { return _T; }
-    public IF getF() { return _F; }
+    public IE getE() { return _E; }
 
-    public T(ExprParser environment, IToken leftIToken, IToken rightIToken,
-             IT _T,
-             IF _F)
+    public ParenExpr(ExprParser environment, IToken leftIToken, IToken rightIToken,
+                     IE _E)
     {
         super(leftIToken, rightIToken);
 
         this.environment = environment;
-        this._T = _T;
-        this._F = _F;
+        this._E = _E;
         initialize();
     }
 
@@ -45,24 +37,22 @@ public class T extends Ast implements IT
         //
         // if (! super.equals(o)) return false;
         //
-        if (! (o instanceof T)) return false;
-        T other = (T) o;
-        if (! _T.equals(other._T)) return false;
-        if (! _F.equals(other._F)) return false;
+        if (! (o instanceof ParenExpr)) return false;
+        ParenExpr other = (ParenExpr) o;
+        if (! _E.equals(other._E)) return false;
         return true;
     }
 
     public int hashCode()
     {
         int hash = 7;
-        hash = hash * 31 + (_T.hashCode());
-        hash = hash * 31 + (_F.hashCode());
+        hash = hash * 31 + (_E.hashCode());
         return hash;
     }
 
     void initialize()
     {
-        setValue(((Ast) getT()).getValue() * ((Ast) getF()).getValue());
+        setValue(((Ast) getE()).getValue());
     }
 }
 
