@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="test/" path="exprexample" kind="src"/>
+	<classpathentry excluding="test/" path="javaexample" kind="src"/>
+	<classpathentry excluding="test/" path="xmlexample" kind="src"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+	<classpathentry path="/lpgjavaruntime" combineaccessrules="false" kind="src"/>
+	<classpathentry path="bin" kind="output"/>
+</classpath>

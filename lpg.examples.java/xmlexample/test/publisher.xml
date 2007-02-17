@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!DOCTYPE Catalog [
+
+<!ELEMENT Catalog (Publisher+, Thread* , Book+ )>
+<!-- Publisher section -->
+<!ELEMENT Publisher (CorporateName, Address+ , Imprints , Author* )>
+<!ATTLIST Publisher isbn CDATA #REQUIRED >
+<!ELEMENT CorporateName (#PCDATA) >
+
+<!ELEMENT Address (Street+ , City , PoliticalDivision , Country , PostalCode)>
+<!ATTLIST Address headquarters (yes | no) #IMPLIED >
+<!ELEMENT Street (#PCDATA) >
+<!ELEMENT City (#PCDATA)>
+
+<!--State, province, canton, etc.-->
+<!ELEMENT PoliticalDivision (#PCDATA)>
+<!ELEMENT Country (#PCDATA)>
+<!ELEMENT PostalCode (#PCDATA)>
+
+<!ELEMENT Imprints (Imprint+)>
+
+<!ELEMENT Imprint (#PCDATA)>
+<!ATTLIST Imprint shortImprintName ID #IMPLIED>
+
+<!-- Author section -->
+
+<!ELEMENT Author (FirstName, MI?, LastNAme, Biographical, Portrait)>
+<!ATTLIST Author authorCiteID ID #REQUIRED>
+
+<!ELEMENT FirstName (#PCDATA)>
+<!ELEMENT MI (#PCDATA)>
+<!ELEMENT LastNAme (#PCDATA)>
+
+<!ELEMENT Biographical (#PCDATA)>
+
+<!ELEMENT Portrait EMPTY>
+<!ATTLIST Portrait picLink CDATA #IMPLIED>
+
+<!-- Organization of the catalog -->
+<!ELEMENT Thread (#PCDATA)>
+<!ATTLIST Thread threadID ID #IMPLIED>
+
+<!-- Book summary information (no content) -->
+
+<!ELEMENT Book (Title, Abstract, RecSubjCategories, Price? )>
+<!ATTLIST Book ISBN ID #REQUIRED
+        level CDATA #IMPLIED
+        pubDate CDATA #REQUIRED
+        pageCount CDATA #REQUIRED
+        authors IDREFS #IMPLIED
+        threads IDREFS #IMPLIED
+        imprints IDREF #IMPLIED >
+
+<!ELEMENT Title (#PCDATA)>
+<!ELEMENT Abstract (#PCDATA)>
+<!ELEMENT RecSubjCategories (Category, Category, Category)>
+<!ELEMENT Category (#PCDATA)>
+<!ELEMENT Price (#PCDATA)>
+<!ATTLIST Price currency (USD | GBP | CD) #REQUIRED>
+
+]>
+
+<Catalog>
+</Catalog>
