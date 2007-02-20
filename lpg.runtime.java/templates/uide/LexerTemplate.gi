@@ -13,7 +13,7 @@
 %Options programming_language=java,margin=4
 %Options table
 %options action_block=("*.java", "/.", "./")
-%options ParseTable=lpg.javaruntime.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 %Options prefix=Char_
 
 --
@@ -104,7 +104,7 @@ $Define
 $End
 
 $Globals
-    /.import lpg.javaruntime.*;
+    /.import lpg.runtime.*;
     ./
 $End
 

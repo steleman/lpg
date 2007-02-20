@@ -10,7 +10,7 @@
 %Options table,error_maps,scopes
 %options prefix=TK_
 %options action_block=("*.java", "/.", "./")
-%options ParseTable=lpg.javaruntime.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 
 --
 -- This template requires that the name of the EOF token be set
@@ -110,7 +110,7 @@ $Define
 $End
 
 $Globals
-    /.import lpg.javaruntime.*;
+    /.import lpg.runtime.*;
     ./
 $End
 
