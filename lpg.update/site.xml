@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/lpg.runtime.feature_2.0.0.jar" id="lpg.runtime.feature" version="2.0.0">
+      <category name="lpg"/>
+   </feature>
+   <category-def name="lpg" label="LPG Parser Generator"/>
+</site>
