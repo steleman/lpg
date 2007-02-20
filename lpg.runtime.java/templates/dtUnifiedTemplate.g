@@ -13,7 +13,7 @@
 %Options margin=4
 %Options prefix=Char_
 %options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.java.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 
 --
 -- The EOF and ERROR symbols are assigned a default here as a
@@ -89,7 +89,7 @@ $Define
 $End
 
 $Globals
-    /.import lpg.runtime.java.*;
+    /.import lpg.runtime.*;
     ./
 $End
 

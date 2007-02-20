@@ -15,7 +15,7 @@
 %Options programming_language=java,margin=4
 %Options table,error_maps,scopes
 %options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.java.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 %Options prefix=Char_
 -- %Options export_terminals=(*exp.java,"TK_","")
 
@@ -124,7 +124,7 @@ $Define
 $End
 
 $Globals
-    /.import lpg.runtime.java.*;
+    /.import lpg.runtime.*;
     ./
 $End
 

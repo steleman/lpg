@@ -14,7 +14,7 @@
 %Options programming_language=java,margin=4,nobacktrack
 %Options table,error_maps,scopes
 %options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.java.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 
 $Notice /.$copyright./
 
@@ -95,7 +95,7 @@ $Headers
     /.
     $copyright
     $import_classes
-    import lpg.runtime.java.*;
+    import lpg.runtime.*;
 
     public class $action_class implements RuleAction$additional_interfaces
     {

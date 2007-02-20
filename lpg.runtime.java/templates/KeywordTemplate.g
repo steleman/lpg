@@ -20,7 +20,7 @@
 %Options programming_language=java,margin=8
 %Options table
 %options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.java.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 
 $Notice /.$copyright./
 
@@ -53,7 +53,7 @@ $Headers
         /.
         $copyright
         $import_classes
-        import lpg.runtime.java.*;
+        import lpg.runtime.*;
 
         public class $action_class extends $prs_type implements $exp_type
         {

@@ -19,7 +19,7 @@
 %Options Programming_Language=java,margin=4
 %Options table
 %options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.java.ParseTable
+%options ParseTable=lpg.runtime.ParseTable
 
 $Notice /.$copyright./
 

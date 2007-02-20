@@ -6,4 +6,4 @@ Bundle-ClassPath: lpgjavaruntime.jar
 Bundle-Version: 1.0.45
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Localization: plugin
-Export-Package: lpg.runtime.java
+Export-Package: lpg.runtime
