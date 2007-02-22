@@ -263,18 +263,22 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
             char [] buffer = ((LexStream) lexStream).getInputChars();
             return (t1 == t2 && t1.getEndOffset() >= buffer.length
                         ? "$EOF"
-                        : new String(buffer,
-                                     t1.getStartOffset(),
-                                     t2.getEndOffset() - t1.getStartOffset() + 1));
+                        : t2.getTokenIndex() < t1.getTokenIndex()
+                            ? ""
+                            : new String(buffer,
+                                         t1.getStartOffset(),
+                                         t2.getEndOffset() - t1.getStartOffset() + 1));
         }
         else if (lexStream instanceof Utf8LexStream)
         {
             Utf8LexStream stream = (Utf8LexStream) lexStream;
             return (t1 == t2 && t1.getEndOffset() >= stream.getInputBytes().length
                         ? "$EOF"
-                        : stream.getString
+                        : t2.getTokenIndex() < t1.getTokenIndex()
+                            ? ""
+                            : stream.getString
                                 (t1.getStartOffset(),
-                                 t2.getEndOffset() - t1.getStartOffset() + 1));
+                                    t2.getEndOffset() - t1.getStartOffset() + 1));
         }
         else throw new UnknownStreamType("Unknown stream type " +
                                          lexStream.getClass().toString());
@@ -340,7 +344,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     public void dumpTokens()
     {
         if (getSize() <= 2) return;
-        System.out.println(" Kind \tOffset \tLine \tCol \tLen  \tText\n");
+        System.out.println(" Kind \tOffset \tLen \tLine \tCol \tText\n");
         for (int i = 1; i < getSize() - 1; i++) dumpToken(i);
     }
 
@@ -348,9 +352,9 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     {
         System.out.print( " (" + getKind(i) + ")");
         System.out.print(" \t" + getStartOffset(i));
+        System.out.print(" \t" + getTokenLength(i));
         System.out.print(" \t" + getLineNumberOfTokenAt(i));
         System.out.print(" \t" + getColumnOfTokenAt(i));
-        System.out.print(" \t" + getTokenLength(i));
         System.out.print(" \t" + getTokenText(i));
         System.out.println();
     }
