@@ -134,7 +134,7 @@ $Headers
             public int getFirstToken(int i) { return lexParser.getFirstToken(i); }
             public int getLastToken(int i)  { return lexParser.getLastToken(i); }
 
-            public int getLeftSpan() { return lexParser.getFirstToken(); }
+            public int getLeftSpan() { return lexParser.getToken(1); }
             public int getRightSpan() { return lexParser.getLastToken(); }
 
             public $action_class($lex_stream_class lexStream)

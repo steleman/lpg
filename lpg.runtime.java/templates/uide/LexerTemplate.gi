@@ -119,7 +119,7 @@ $Headers
         public int getRhsFirstTokenIndex(int i) { return lexParser.getFirstToken(i); }
         public int getRhsLastTokenIndex(int i) { return lexParser.getLastToken(i); }
 
-        public int getLeftSpan() { return lexParser.getFirstToken(); }
+        public int getLeftSpan() { return lexParser.getToken(1); }
         public int getRightSpan() { return lexParser.getLastToken(); }
   
         public $action_type(String filename, int tab) throws java.io.IOException 
