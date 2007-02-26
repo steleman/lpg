@@ -2,7 +2,7 @@
 <?fileVersion 3.0.0?>
 
 <ManagedProjectBuildInfo>
-<project id="lpg.generator.cplus.cdt.managedbuild.target.gnu.cygwin.exe.264456248" name="Executable (Gnu on Windows)" projectType="cdt.managedbuild.target.gnu.cygwin.exe">
+<project id="lpg.generator.cpp.cdt.managedbuild.target.gnu.cygwin.exe.264456248" name="Executable (Gnu on Windows)" projectType="cdt.managedbuild.target.gnu.cygwin.exe">
 <configuration artifactExtension="exe" artifactName="lpg-cygwin_x86" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.cygwin.exe.debug.532286755" name="Debug" parent="cdt.managedbuild.config.gnu.cygwin.exe.debug">
 <toolChain id="cdt.managedbuild.toolchain.gnu.cygwin.exe.debug.1110781129" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.cygwin.exe.debug">
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.cygwin.exe.debug.1081331162" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.cygwin.exe.debug"/>
