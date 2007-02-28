@@ -1404,14 +1404,14 @@ void JavaAction::GenerateListClass(CTC &ctc,
             {
                 ast_buffer.Put(indentation); ast_buffer.Put("                if (element != null)");
                 ast_buffer.Put(indentation); ast_buffer.Put("                {\n");
-                ast_buffer.Put(indentation); ast_buffer.Put("                    if (! v.preVisit(element)) return;\n");
+                ast_buffer.Put(indentation); ast_buffer.Put("                    if (! v.preVisit(element)) continue;\n");
                 ast_buffer.Put(indentation); ast_buffer.Put("                    element.enter(v);\n");
                 ast_buffer.Put(indentation); ast_buffer.Put("                    v.postVisit(element);\n");
                 ast_buffer.Put(indentation); ast_buffer.Put("                }\n");
             }
             else
             {
-                ast_buffer.Put(indentation); ast_buffer.Put("                if (! v.preVisit(element)) return;\n");
+                ast_buffer.Put(indentation); ast_buffer.Put("                if (! v.preVisit(element)) continue;\n");
                 ast_buffer.Put(indentation); ast_buffer.Put("                element.enter(v);\n");
                 ast_buffer.Put(indentation); ast_buffer.Put("                v.postVisit(element);\n");
             }
