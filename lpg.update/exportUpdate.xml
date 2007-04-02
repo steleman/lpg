@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="lpg.update" default="build.update.zip" basedir=".">
-	<import file="../lpg.runtime.feature/buildCommon.xml"/>
+	<xmlproperty file="../lpg.runtime.feature/feature.xml" prefix="lpg.runtime"/>
+	<property name="lpg.runtime.version" value="${lpg.runtime.feature(version)}"/>
 
 	<property name="update.name"        value="lpg.update"/>
-	<property name="update.version"     value="${lpg.version}"/>
+	<property name="update.version"     value="${lpg.runtime.version}"/>
 	<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
 	<property name="update.destination" value="${basedir}"/>
 	<property name="update.server"      value="orquesta.watson.ibm.com"/>
@@ -24,7 +25,7 @@
 			<param name="feature.version" value="${update.version}"/>
 		</antcall>
 		<zip destfile="${zip.file}" basedir="${update.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
-		<!-- <delete dir="${update.temp.folder}"/> -->
+		<delete dir="${update.temp.folder}"/>
 	</target>
 
 	<target name="copy.feature">
