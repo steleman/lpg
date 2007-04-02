@@ -7,13 +7,13 @@
 	<property name="update.version"     value="${lpg.runtime.version}"/>
 	<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
 	<property name="update.destination" value="${basedir}"/>
-	<property name="update.server"      value="orquesta.watson.ibm.com"/>
-	<property name="update.server.dir"  value="/usr/src/safari"/>
+	<property name="update.server"      value="shell.sourceforge.net"/>
+	<property name="update.server.dir"  value="."/>
 	<property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.zip"/>
 
 	<target name="deploy.zip" description="Copies the update archive to the update server.">
 		<echo message="Copying update zip file to update server ${update.server}"/>
-		<scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${user.name}@${update.server}:${update.server.dir}"></scp>
+		<scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${update.server.username}@${update.server}:${update.server.dir}"></scp>
 	</target>
 
 	<target name="build.update.zip">
