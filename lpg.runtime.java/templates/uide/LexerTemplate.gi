@@ -154,7 +154,7 @@ $Headers
 
             setPrsStream(prsStream);
 
-            prsStream.makeToken(0, 0, -1); // Token list must start with a bad token
+            prsStream.makeToken(0, -1, 0); // Token list must start with a bad token
                 
             lexParser.parseCharacters(monitor);  // Lex the input characters
                 
