@@ -1,5 +1,5 @@
 
-#line 301 "jikespg.g"
+#line 314 "jikespg.g"
 #include "jikespg_act.h"
 #include "control.h"
 
@@ -142,7 +142,7 @@ jikespg_act::jikespg_act(Control *control_,
     rule_action[118] = &jikespg_act::Act118;
     rule_action[119] = &jikespg_act::NoAction;
     rule_action[120] = &jikespg_act::Act120;
-    rule_action[121] = &jikespg_act::NoAction;
+    rule_action[121] = &jikespg_act::Act121;
     rule_action[122] = &jikespg_act::NoAction;
     rule_action[123] = &jikespg_act::NoAction;
     rule_action[124] = &jikespg_act::NoAction;
@@ -151,7 +151,7 @@ jikespg_act::jikespg_act(Control *control_,
     rule_action[127] = &jikespg_act::NoAction;
     rule_action[128] = &jikespg_act::Act128;
 
-#line 1279 "jikespg.g"
+#line 1298 "jikespg.g"
 
     return;
 }

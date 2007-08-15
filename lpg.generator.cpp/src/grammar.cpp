@@ -373,14 +373,14 @@ void Grammar::ProcessTerminals(void)
             assert(symbol);
             if (nterm_set[symbol -> Index()]) // The lhs is a nonterminal?
             {
-                symbol = lex_stream -> GetVariableSymbol(parser.aliases[i].rhs_index); // the left-hand-side symbol
+                symbol = lex_stream -> GetVariableSymbol(parser.aliases[i].rhs_index); // the right-hand-side symbol
                 if (! nterm_set[symbol -> Index()]) // The rhs is NOT a nonterminal?
                 {
                     assert(symbol);
                     changed = true;
                     term_set.RemoveElement(symbol -> Index());
                     nterm_set.AddElement(symbol -> Index());
-                }
+               }
             }
         }
     }
@@ -1319,7 +1319,7 @@ void Grammar::ProcessNames(void)
                 option -> EmitError(parser.names[i].lhs_index, "Undefined symbol");
                 return_code = 12;
             }
-            if (symbol_index[image].external_name_index != OMEGA)
+            else if (symbol_index[image].external_name_index != OMEGA)
             {
                 option -> EmitError(parser.names[i].lhs_index, "This symbol has been named more than once");
                 return_code = 12;
@@ -1514,7 +1514,7 @@ void Grammar::DisplaySymbol(const char *name)
          DisplayString(name, '\'');
     else if (strpbrk(name, "\b\t\n\f\r\' ") != NULL)
          DisplayString(name, '\"');
-    else if (name[0] == option -> escape)   // does name start with escape?
+    else if (name[0] == option -> escape || name[0] == '%') // does name start with user-escape or keyword-escape?
          fprintf(option -> syslis, " \'%s\'", name);
     else fprintf(option -> syslis, " %s", name);
 

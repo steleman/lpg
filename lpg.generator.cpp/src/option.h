@@ -84,6 +84,7 @@ public:
 
     bool attributes,
          backtrack,
+         legacy,
          list,
          glr,
          slr,
@@ -221,6 +222,7 @@ public:
         automatic_ast = NONE;
         attributes = false;
         backtrack = false;
+        legacy = true;
         list = false;
         glr = false;
         slr = false;

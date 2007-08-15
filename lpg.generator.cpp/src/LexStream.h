@@ -2,6 +2,7 @@
 #define stream_INCLUDED
 
 #include "jikespg_sym.h"
+#include "jikespg_prs.h"
 #include "code.h"
 #include "option.h"
 #include "symbol.h"
@@ -44,7 +45,7 @@ public:
     inline void ResetInfoAndSetLocation(InputFileSymbol *file_symbol_, unsigned start_location)
     {
         file_symbol = file_symbol_;
-        assert(start_location <= 0x00FFFFFF);
+        assert(start_location >= 0 && start_location <= 0x00FFFFFF);
         info = (start_location << 8);
         additional_info.symbol = NULL;
         end_location = start_location;
@@ -316,9 +317,26 @@ public:
                                  token_stream(12, 16)
     {
         option_ -> SetLexStream(this);
+
+        keyword_name.Resize(NUM_TOKENS + 1);
+        keyword_name[0] = NULL;
+        for (int k = 1; k < keyword_name.Size(); k++)
+        {
+            int i = jikespg_prs::terminal_index[k],
+                length = jikespg_prs::name_length(i);
+            char *str = new char[length + 1];
+            strncpy(str, &jikespg_prs::string_buffer[jikespg_prs::name_start[i]], length);
+            str[length] = '\0';
+
+            keyword_name[k] = (const char *) str;
+        }
     }
 
-    ~LexStream() {}
+    ~LexStream()
+    {
+        for (int i = 0; i < keyword_name.Size(); i++)
+             delete [] keyword_name[i];
+    }
 
     void Dump(); // temporary function used to dump token stream.
 
@@ -371,8 +389,9 @@ private:
     Tuple<int> imported_terminals,
                imported_filters;
     Tuple<FilterMacroElement> filter_macros;
+    Array<const char*> keyword_name;
 
-    const char *KeywordName(int);
+    const char *KeywordName(int i) { return keyword_name[i]; }
 };
 
 typedef LexStream::TokenIndex TokenObject;

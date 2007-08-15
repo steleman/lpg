@@ -13,8 +13,8 @@ public:
           ERROR_SYMBOL      = 37,
           SCOPE_UBOUND      = -1,
           SCOPE_SIZE        = 0,
-          MAX_NAME_LENGTH   = 27,
-          MAX_TERM_LENGTH   = 27,
+          MAX_NAME_LENGTH   = 24,
+          MAX_TERM_LENGTH   = 24,
           NUM_STATES        = 84,
 
           NT_OFFSET         = 37,

@@ -69,37 +69,50 @@ $End
 
 $Terminals
 
-    DROPSYMBOLS_KEY DROPACTIONS_KEY DROPRULES_KEY
-    NOTICE_KEY AST_KEY GLOBALS_KEY
-    DEFINE_KEY TERMINALS_KEY SOFTKEYWORDS_KEY EOL_KEY
-    EOF_KEY ERROR_KEY IDENTIFIER_KEY ALIAS_KEY
-    EMPTY_KEY START_KEY TYPES_KEY RULES_KEY NAMES_KEY END_KEY
-    HEADERS_KEY TRAILERS_KEY EXPORT_KEY IMPORT_KEY INCLUDE_KEY
-    RECOVER_KEY DISJOINTPREDECESSORSETS_KEY
-    MACRO_NAME SYMBOL BLOCK EQUIVALENCE PRIORITY_EQUIVALENCE
-    ARROW PRIORITY_ARROW OR_MARKER 
+    DROPSYMBOLS_KEY             ::= "%DropSymbols"
+    DROPACTIONS_KEY             ::= "%DropActions"
+    DROPRULES_KEY               ::= "%DropRules"
+    NOTICE_KEY                  ::= "%Notice"
+    AST_KEY                     ::= "%Ast"
+    GLOBALS_KEY                 ::= "%Globals"
+    DEFINE_KEY                  ::= "%Define"
+    TERMINALS_KEY               ::= "%Terminals"
+    SOFTKEYWORDS_KEY            ::= "%SoftKeywords"
+    EOL_KEY                     ::= "%Eol"
+    EOF_KEY                     ::= "%Eof"
+    ERROR_KEY                   ::= "%Error"
+    IDENTIFIER_KEY              ::= "%Identifier"
+    ALIAS_KEY                   ::= "%Alias"
+    EMPTY_KEY                   ::= "%Empty"
+    START_KEY                   ::= "%Start"
+    TYPES_KEY                   ::= "%Types"
+    RULES_KEY                   ::= "%Rules"
+    NAMES_KEY                   ::= "%Names"
+    END_KEY                     ::= "%End"
+    HEADERS_KEY                 ::= "%Headers"
+    TRAILERS_KEY                ::= "%Trailers"
+    EXPORT_KEY                  ::= "%Export"
+    IMPORT_KEY                  ::= "%Import"
+    INCLUDE_KEY                 ::= "%Include"
+    RECOVER_KEY                 ::= "%Recover"
+    DISJOINTPREDECESSORSETS_KEY ::= "%DisjointPredecessorSets"
+    EQUIVALENCE                 ::= "::="
+    PRIORITY_EQUIVALENCE        ::= "::=?"
+    ARROW                       ::= "->"
+    PRIORITY_ARROW              ::= "->?"
+    OR_MARKER                   ::= "|"
 
-    EOF ERROR_SYMBOL
-
+    MACRO_NAME
+    SYMBOL 
+    BLOCK
 $End
 
-$Alias
+$EOF
+   EOF
+$END
 
-    '::='  ::= EQUIVALENCE
-    '::=?' ::= PRIORITY_EQUIVALENCE
-    '->'   ::= ARROW
-    '->?'  ::= PRIORITY_ARROW
-    '|'    ::= OR_MARKER
-    $EOF   ::= EOF
-    $ERROR ::= ERROR_SYMBOL
-
-$End
-
-$Names
-
-    produces ::= '::='
-    OR_MARKER ::= '|'
-
+$Error
+    ERROR_SYMBOL
 $End
 
 $Start
@@ -735,8 +748,8 @@ $Rules
             Scanner scanner(option, lex_stream, variable_table, macro_table);
             scanner.Scan(Token(2));
 
-            if (scanner.NumBadTokens() > 0)
-                exit(12);
+            if (scanner.NumErrorTokens() > 0)
+                control -> Exit(12);
             else // file found and scanned with no errors?
             {
                 //
@@ -1235,8 +1248,14 @@ $Rules
         $DefaultHeader { ChangeMacroToVariable(Token(1)); }
         ./
 
-    name ::= EMPTY_KEY 
-        /.$NoAction./
+    name ::= EMPTY_KEY
+        /.$Action
+        $DefaultHeader
+        {
+            option -> EmitError(Token(1), "Illegal use of empty name or empty keyword");
+            control -> Exit(12);
+        }
+        ./
 
     name ::= ERROR_KEY 
         /.$NoAction./

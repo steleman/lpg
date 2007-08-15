@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 #ifdef TEST
         lex_stream.Dump(); // TODO: REMOVE THIS !!!
 #endif
-        if (lex_stream.NumTokens() == 0 || scanner -> NumBadTokens() > 0)
+        if (lex_stream.NumTokens() == 0 || scanner -> NumErrorTokens() > 0)
         {
             delete macro_table;
         }

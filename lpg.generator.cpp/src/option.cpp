@@ -798,7 +798,8 @@ const char *Option::ClassifyI(const char *start, bool flag)
 }
 
 //
-// lalr_level
+// lalr
+// legacy
 // list
 //
 const char *Option::ClassifyL(const char *start, bool flag)
@@ -815,7 +816,7 @@ const char *Option::ClassifyL(const char *start, bool flag)
                 slr = ! flag;
                 lalr_level = 1;
             }
-            else ReportAmbiguousOption((flag ? start : start - 2), "LALR, LIST");
+            else ReportAmbiguousOption((flag ? start : start - 2), "LALR, LEGACY, LIST");
         }
         else if (flag) // Cannot assign a value to "nolalr"
         {
@@ -824,11 +825,20 @@ const char *Option::ClassifyL(const char *start, bool flag)
 
             slr = false;
             if (verify(value))
-                lalr_level = atoi(value);
+                 lalr_level = atoi(value);
             else InvalidValueError(start, value, i + 1);
-
-            return p;
         }
+
+        return p;
+    }
+
+    i = strxsub(start + 1, "egacy");
+    if (start[i + 1] == '=' || IsDelimiter(start[i + 1]))
+    {
+        legacy = flag;
+        const char *p = start + i + 1;
+        return (i < 1 ? ReportAmbiguousOption(start, "LEGACY, LIST")
+                      : ValuedOption(p) ? ReportValueNotRequired(start, "LEGACY") : p);
     }
 
     i = strxsub(start + 1, "ist");
@@ -3095,6 +3105,7 @@ void Option::PrintOptionsInEffect()
     opt_string.Next() = AllocateString("INCLUDE-DIRECTORY", include_directory);
     if (! slr)
         opt_string.Next() = AllocateString("LALR", lalr_level);
+    opt_string.Next() = AllocateString(legacy ? "LEGACY" : "NOLEGACY");
     opt_string.Next() = AllocateString(list ? "LIST" : "NOLIST");
     opt_string.Next() = AllocateString("MARGIN", margin);
     opt_string.Next() = AllocateString("MAX-CASES", max_cases);
@@ -3173,7 +3184,7 @@ void Option::PrintOptionsInEffect()
     strcpy(output_line, "    ");
     for (int k = 0; k < opt_string.Length(); k++)
     {
-        if (strlen(opt_string[k]) > 80)
+        if (strlen(opt_string[k]) > 80 - 4)
         {
             report.Put(output_line);
             report.PutChar('\n');
@@ -3245,7 +3256,8 @@ void Option::PrintOptionsList(void)
                "-imp-file=string                                      " "\n"
                "-import-terminals=string                              " "\n"
                "-include-directory=string                             " "\n"
-               "-lalr-level[=integer]                                 " "\n"
+               "-lalr[=integer]                                       " "\n"
+               "-legacy                                               " "\n"
                "-list                                                 " "\n"
                "-margin=integer                                       " "\n"
                "-max_cases=integer                                    " "\n"

@@ -2051,6 +2051,15 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
                     int symbol = grammar -> rhs_sym[offset + position[i]];
                     if (grammar -> IsTerminal(symbol))
                     {
+                        const char *actual_type = ctc.FindBestTypeFor(type_index[i]);
+
+		        if (strcmp(actual_type, grammar -> Get_ast_token_classname()) != 0)
+                        {
+                            GenerateCode(&ast_buffer, lparen, rule_no);
+                            GenerateCode(&ast_buffer, actual_type, rule_no);
+                            GenerateCode(&ast_buffer, rparen, rule_no);
+                        }
+
                         GenerateCode(&ast_buffer, newkey, rule_no);
                         GenerateCode(&ast_buffer, grammar -> Get_ast_token_classname(), rule_no);
                         GenerateCode(&ast_buffer, lparen, rule_no);

@@ -116,7 +116,7 @@ public:
     void Scan();
     void Scan(int);
 
-    inline int NumBadTokens() { return bad_tokens.Length(); }
+    inline int NumErrorTokens() { return error_tokens.Length(); }
 
 private:
     enum StreamErrorKind
@@ -125,6 +125,7 @@ private:
         NO_INPUT,
         NO_TEMPLATE,
         NO_INCLUDE,
+        LEGACY_KEYWORD,
         RECURSIVE_INCLUDE,
         BAD_UNICODE,
         BAD_OCTAL_ASCII_CODE,
@@ -135,7 +136,7 @@ private:
         UNTERMINATED_BLOCK
     };
 
-    class BadToken
+    class ProblemToken
     {
     public:
         int msg_code,
@@ -191,6 +192,7 @@ private:
     void (Scanner::*classify_token[256])();
 
     void ClassifyBadToken();
+    void ClassifyKeyword();
     void ClassifyEscapedSymbol();
     void ClassifySingleQuotedSymbol();
     void ClassifyDoubleQuotedSymbol();
@@ -202,12 +204,15 @@ private:
     void ClassifyEof();
 
     void ImportFiles(int, int);
+    char *ProcessInclude(const char *);
     int IncludeFile(const char *);
 
-    void ResetBadTokens() { bad_tokens.Reset(); }
-    void AddBadToken(int error_kind, LexStream::TokenIndex index) { bad_tokens.Next().Initialize(error_kind, index); }
+    void ResetProblemTokens() { error_tokens.Reset(); warning_tokens.Reset(); }
+    void AddErrorToken(int error_kind, LexStream::TokenIndex index) { error_tokens.Next().Initialize(error_kind, index); }
+    void AddWarningToken(int warning_kind, LexStream::TokenIndex index) { warning_tokens.Next().Initialize(warning_kind, index); }
 
-    Tuple<BadToken> bad_tokens;
+    Tuple<ProblemToken> error_tokens,
+                        warning_tokens;
 };
 
 #endif

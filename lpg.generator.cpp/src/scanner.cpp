@@ -49,6 +49,7 @@ void Scanner::Setup()
     classify_token[(int) option -> escape] = &Scanner::ClassifyEscapedSymbol;
     classify_token[(int) option -> or_marker] = &Scanner::ClassifyOr;
 
+    classify_token[(int) '%']  = &Scanner::ClassifyKeyword;
     classify_token[(int) ':']  = &Scanner::ClassifyEquivalence;
     classify_token[(int) '-']  = &Scanner::ClassifyArrow;
     classify_token[(int) '\''] = &Scanner::ClassifySingleQuotedSymbol;
@@ -64,70 +65,101 @@ void Scanner::Setup()
 //
 void Scanner::ReportErrors()
 {
-    if (bad_tokens.Length() == 0)
-        return;
-
     Tuple <const char *> msg;
+    char escape[2] = { option -> escape, '\0' };
 
-    for (int i = 0; i < bad_tokens.Length(); i++)
+    for (int i = 0; i < warning_tokens.Length(); i++)
     {
         msg.Reset();
-        int token_index = bad_tokens[i].token_index;
-        switch(bad_tokens[i].msg_code)
+        int token_index = warning_tokens[i].token_index;
+        switch(warning_tokens[i].msg_code)
         {
-            case NO_INPUT:
-                 msg.Next() = "No input file specified";
-                 break;
-            case NO_TEMPLATE:
-                 msg.Next() = "The template file ";
-                 msg.Next() = option -> template_name;
-                 msg.Next() = " could not be read.";
-                 break;
-            case NO_INCLUDE:
-                 msg.Next() = "The include file ";
-                 msg.Next() = lex_stream -> NameString(token_index);
-                 msg.Next() = " could not be read.";
-                 break;
-            case RECURSIVE_INCLUDE:
-                 msg.Next() = "Attempt to recursively include file ";
-                 msg.Next() = lex_stream -> NameString(token_index);
-                 break;
-            case BAD_UNICODE:
-                 msg.Next() = "Symbol \"";
-                 msg.Next() = lex_stream -> NameString(token_index);
-                 msg.Next() = "\" contains an invalid unicode character.";
-                 break;
-            case BAD_OCTAL_ASCII_CODE:
-                 msg.Next() = "Symbol \"";
-                 msg.Next() = lex_stream -> NameString(token_index);
-                 msg.Next() = "\" contains an invalid ASCII octal code.";
-                 break;
-            case ISOLATED_BACKSLASH:
-                 msg.Next() = "Symbol \"";
-                 msg.Next() = lex_stream -> NameString(token_index);
-                 msg.Next() = "\" contains an isolated backslash.";
-                 break;
-            case UNDELIMITED_STRING_SYMBOL:
-                 msg.Next() = "Quoted symbol not properly delimited. The closing quote must be followed by a space";
-                 break;
-            case UNTERMINATED_STRING_SYMBOL:
-                 msg.Next() = "Quoted symbol not properly terminated";
-                 break;
-            case UNTERMINATED_BRACKET_SYMBOL:
-                 msg.Next() = "Symbol enclosed in angular brackets not properly terminated";
-                 break;
-            case UNTERMINATED_BLOCK:
-                 msg.Next() = "Block not properly terminated";
+            case LEGACY_KEYWORD:
+                 msg.Next() = "The use of the escaped symbol \"";
+                 msg.Next() = escape;
+                 msg.Next() = lex_stream -> NameString(token_index) + 1;
+                 msg.Next() = "\" as a keyword has been deprecated. The proper spelling is %";
+                 msg.Next() = lex_stream -> NameString(token_index) + 1;
+                 option -> EmitWarning(token_index, msg);
                  break;
             default:
                  assert(false);
         }
-
-        option -> EmitError(token_index, msg);
     }
 
-    exit(12);
- 
+    if (error_tokens.Length() > 0)
+    {
+        for (int i = 0; i < error_tokens.Length(); i++)
+        {
+            msg.Reset();
+            int token_index = error_tokens[i].token_index;
+
+            switch(error_tokens[i].msg_code)
+            {
+                case NO_INPUT:
+                     msg.Next() = "No input file specified";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case NO_TEMPLATE:
+                     msg.Next() = "The template file ";
+                     msg.Next() = option -> template_name;
+                     msg.Next() = " could not be read.";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case NO_INCLUDE:
+                     msg.Next() = "The include file ";
+                     msg.Next() = lex_stream -> NameString(token_index);
+                     msg.Next() = " could not be read.";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case RECURSIVE_INCLUDE:
+                     msg.Next() = "Attempt to recursively include file ";
+                     msg.Next() = lex_stream -> NameString(token_index);
+                     option -> EmitError(token_index, msg);
+                     break;
+                case BAD_UNICODE:
+                     msg.Next() = "Symbol \"";
+                     msg.Next() = lex_stream -> NameString(token_index);
+                     msg.Next() = "\" contains an invalid unicode character.";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case BAD_OCTAL_ASCII_CODE:
+                     msg.Next() = "Symbol \"";
+                     msg.Next() = lex_stream -> NameString(token_index);
+                     msg.Next() = "\" contains an invalid ASCII octal code.";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case ISOLATED_BACKSLASH:
+                     msg.Next() = "Symbol \"";
+                     msg.Next() = lex_stream -> NameString(token_index);
+                     msg.Next() = "\" contains an isolated backslash.";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case UNDELIMITED_STRING_SYMBOL:
+                     msg.Next() = "Quoted symbol not properly delimited. The closing quote must be followed by a space";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case UNTERMINATED_STRING_SYMBOL:
+                     msg.Next() = "Quoted symbol not properly terminated";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case UNTERMINATED_BRACKET_SYMBOL:
+                     msg.Next() = "Symbol enclosed in angular brackets not properly terminated";
+                     option -> EmitError(token_index, msg);
+                     break;
+                case UNTERMINATED_BLOCK:
+                     msg.Next() = "Block not properly terminated";
+                     option -> EmitError(token_index, msg);
+                     break;
+                default:
+
+                     assert(false);
+            }
+        }
+
+        exit(12);
+    }
+
     return;
 }
 
@@ -211,7 +243,7 @@ void Scanner::Scan()
             // If we could not open the template file, issue an error.
             //
             if (template_file == NULL)
-                AddBadToken(NO_TEMPLATE, current_token_index);
+                AddErrorToken(NO_TEMPLATE, current_token_index);
             else
             {
                 template_file -> Lock();
@@ -278,7 +310,7 @@ void Scanner::Scan()
     }
 
     //
-    // If any bad tokens were scanned, flag them.
+    // If any problem tokens were scanned, flag them.
     //
     ReportErrors();
 
@@ -295,13 +327,13 @@ void Scanner::Scan(int file_index)
 
     int error_code = IncludeFile(lex_stream -> NameString(file_index));
     if (error_code != NO_ERROR)
-        AddBadToken(error_code, file_index);
+        AddErrorToken(error_code, file_index);
     current_token_index = lex_stream -> GetNextToken(input_file, cursor - input_buffer);
     current_token = lex_stream -> GetTokenReference(current_token_index);
     current_token -> SetKind(TK_EOF);
 
     //
-    // If any bad tokens were scanned, flag them.
+    // If any problem tokens were scanned, flag them.
     //
     ReportErrors();
 
@@ -309,7 +341,7 @@ void Scanner::Scan(int file_index)
 }
 
 //
-// This is one of the main entry point for the Java lexical analyser.
+// This is one of the main entry point for the lexical analyser.
 // Its input is the name of a regular text file. Its output is a stream
 // of tokens.
 //
@@ -412,7 +444,7 @@ void Scanner::ImportTerminals(const char *filename)
     Scanner scanner(&option, &lex_stream, &variable_table, &macro_table);
     scanner.Scan();
 
-    if (lex_stream.NumTokens() == 0 || NumBadTokens() > 0)
+    if (lex_stream.NumTokens() == 0 || scanner.NumErrorTokens() > 0)
         exit(12);
     else
     {
@@ -519,7 +551,7 @@ void Scanner::ProcessFilters(const char *filename)
     Scanner scanner(&option, &lex_stream, &variable_table, &macro_table);
     scanner.Scan();
 
-    if (lex_stream.NumTokens() == 0 || NumBadTokens() > 0)
+    if (lex_stream.NumTokens() == 0 || scanner.NumErrorTokens() > 0)
         exit(12);
     else
     {
@@ -651,7 +683,7 @@ void Scanner::SkipSpaces()
 //
 int Scanner::ScanKeyword0(char *p1)
 {
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword4(char *p1)
@@ -674,7 +706,7 @@ int Scanner::ScanKeyword4(char *p1)
              (p1[3] == 't' || p1[3] == 'T'))
          return TK_AST_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword6(char *p1)
@@ -730,7 +762,7 @@ int Scanner::ScanKeyword6(char *p1)
             break;
     }
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword7(char *p1)
@@ -764,7 +796,7 @@ int Scanner::ScanKeyword7(char *p1)
              (p1[6] == 'e' || p1[6] == 'E'))
         return TK_NOTICE_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword8(char *p1)
@@ -802,7 +834,7 @@ int Scanner::ScanKeyword8(char *p1)
             (p1[7] == 'r' || p1[7] == 'R'))
         return TK_RECOVER_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword9(char *p1)
@@ -826,7 +858,7 @@ int Scanner::ScanKeyword9(char *p1)
             (p1[8] == 's' || p1[8] == 'S'))
         return TK_TRAILERS_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword10(char *p1)
@@ -852,7 +884,7 @@ int Scanner::ScanKeyword10(char *p1)
        (p1[9] == 's' || p1[9] == 'S'))
         return TK_TERMINALS_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword11(char *p1)
@@ -869,7 +901,7 @@ int Scanner::ScanKeyword11(char *p1)
        (p1[10] == 'r' || p1[10] == 'R'))
         return TK_IDENTIFIER_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 
@@ -900,7 +932,7 @@ int Scanner::ScanKeyword12(char *p1)
        (p1[11] == 's' || p1[11] == 'S'))
         return TK_DROPACTIONS_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 
@@ -920,7 +952,7 @@ int Scanner::ScanKeyword13(char *p1)
        (p1[12] == 's' || p1[12] == 'S'))
         return TK_SOFTKEYWORDS_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 int Scanner::ScanKeyword24(char *p1)
@@ -950,7 +982,7 @@ int Scanner::ScanKeyword24(char *p1)
        (p1[23] == 's' || p1[23] == 'S'))
         return TK_DISJOINTPREDECESSORSETS_KEY;
 
-    return TK_MACRO_NAME;
+    return TK_SYMBOL;
 }
 
 
@@ -975,7 +1007,7 @@ void Scanner::ClassifyBlock(Tuple<BlockSymbol *> &blocks)
             }
 
             if (*cursor == NULL_CHAR)
-                 AddBadToken(UNTERMINATED_BLOCK, current_token_index);
+                 AddErrorToken(UNTERMINATED_BLOCK, current_token_index);
             else cursor = cursor + length;
 
             current_token -> SetKind(TK_BLOCK);
@@ -1001,80 +1033,48 @@ void Scanner::ClassifyEscapedSymbol()
 
     while (IsAlnum(*ptr) && *ptr != option -> escape)
         ptr++;
+    int len = ptr - cursor,
+        kind = (scan_keyword[len < SCAN_KEYWORD_SIZE ? len : 0])(cursor);
+    current_token -> SetEndLocation((ptr - 1) - input_buffer);
+
+    if (kind == TK_SYMBOL || (! (option -> legacy))) // not a keyword?
+    {
+        current_token -> SetKind(TK_MACRO_NAME); // ... then it's a macro
+        current_token -> SetSymbol(macro_table -> FindOrInsertName(cursor, len));
+    }
+    else // if legacy option is on treat as keyword only
+    {
+        assert(option -> legacy);
+
+        AddWarningToken(LEGACY_KEYWORD, current_token_index);
+        current_token -> SetKind(kind); // it's a keyword
+        if (kind == TK_INCLUDE_KEY)
+            ptr = ProcessInclude(ptr);
+    }
+
+    cursor = ptr;
+
+    return;
+}
+
+
+//
+//
+//
+void Scanner::ClassifyKeyword()
+{
+    char *ptr = cursor + 1;
+
+    while ((! IsSpace(*ptr)) && (*ptr != option -> escape))
+        ptr++;
     int len = ptr - cursor;
 
     current_token -> SetKind((scan_keyword[len < SCAN_KEYWORD_SIZE ? len : 0])(cursor));
     current_token -> SetEndLocation((ptr - 1) - input_buffer);
-    if (current_token -> Kind() == TK_MACRO_NAME)
-        current_token -> SetSymbol(macro_table -> FindOrInsertName(cursor, len));
+    if (current_token -> Kind() == TK_SYMBOL)
+         current_token -> SetSymbol(macro_table -> FindOrInsertName(cursor, len));
     else if (current_token -> Kind() == TK_INCLUDE_KEY)
-    {
-        //
-        // . Save position of INCLUDE keyword token 
-        // . Scan the include section
-        // . Include the files specified in the include section
-        //
-        int include_key_index = current_token_index;
-        cursor = ptr;
-        SkipSpaces();
-        if (*cursor != option -> escape)
-        {
-            current_token_index = lex_stream -> GetNextToken(input_file, cursor - input_buffer);
-            current_token = lex_stream -> GetTokenReference(current_token_index);
-            Tuple<BlockSymbol *> &blocks = action_blocks -> ActionBlocks((unsigned char) *cursor);
-            if (blocks.Length())
-                 ClassifyBlock(blocks);
-            else (this ->* classify_token[(unsigned char) *cursor])();
-            SkipSpaces();
-            ptr = cursor;
-            if (current_token -> Kind() == TK_SYMBOL)
-            {
-                char *filename = new char[lex_stream -> NameStringLength(current_token_index) + 1];
-                strcpy(filename, lex_stream -> NameString(current_token_index));
-
-                Token save_include_key = *(lex_stream -> GetTokenReference(include_key_index)),
-                      save_filename = *current_token;
-                char *save_cursor = cursor;
-
-                lex_stream -> ResetTokenStream(include_key_index);
-                if (*cursor == option -> escape)
-                {
-                    char *p = cursor + 1;
-                    while (IsAlnum(*p) && *p != option -> escape)
-                        p++;
-                    int len = p - cursor;
-                    if ((scan_keyword[len < SCAN_KEYWORD_SIZE ? len : 0])(cursor) == TK_END_KEY)
-                        ptr = p; // move the pointer
-                }
-
-                InputFileSymbol *save_current_input_file = input_file;
-
-                int error_code = IncludeFile(filename);
-                if (error_code != NO_ERROR)
-                {
-                    current_token_index = lex_stream -> GetNextToken(input_file, save_include_key.StartLocation());
-                    current_token = lex_stream -> GetTokenReference(current_token_index);
-                    *current_token = save_include_key;
-
-                    current_token_index = lex_stream -> GetNextToken(input_file, save_filename.StartLocation());
-                    current_token = lex_stream -> GetTokenReference(current_token_index);
-                    *current_token = save_filename;
-
-                    AddBadToken(error_code, current_token_index);
-                    ptr = save_cursor;
-                }
-
-                //
-                // Restore the enclosing (saved) input file environment.
-                //
-                input_file = save_current_input_file;
-                input_buffer = input_file -> Buffer();
-                line_location = input_file -> LineLocationReference();
-
-                delete [] filename;
-            }
-        }
-    }
+         ptr = ProcessInclude(ptr);
 
     cursor = ptr;
 
@@ -1094,8 +1094,8 @@ void Scanner::ClassifySymbol()
     int len = ptr - cursor;
 
     current_token -> SetKind(TK_SYMBOL);
-    current_token -> SetSymbol(variable_table -> FindOrInsertName(cursor, len));
     current_token -> SetEndLocation((ptr - 1) - input_buffer);
+    current_token -> SetSymbol(variable_table -> FindOrInsertName(cursor, len));
 
     cursor = ptr;
 
@@ -1216,12 +1216,12 @@ void Scanner::ClassifySingleQuotedSymbol()
         // reevaluated.
         //
         // if (! IsSpace(*cursor))
-        //     AddBadToken(UNDELIMITED_STRING_SYMBOL, current_token_index);
+        //     AddErrorToken(UNDELIMITED_STRING_SYMBOL, current_token_index);
     }
     else
     {
         cursor = ptr;
-        AddBadToken(UNTERMINATED_STRING_SYMBOL, current_token_index);
+        AddErrorToken(UNTERMINATED_STRING_SYMBOL, current_token_index);
     }
 
     return;
@@ -1317,7 +1317,7 @@ void Scanner::ClassifyDoubleQuotedSymbol()
                             else
                             {
                                 *(p1++) = *(p2++);
-                                AddBadToken(BAD_OCTAL_ASCII_CODE, current_token_index);
+                                AddErrorToken(BAD_OCTAL_ASCII_CODE, current_token_index);
                             }
                         }
                         break;
@@ -1369,13 +1369,13 @@ void Scanner::ClassifyDoubleQuotedSymbol()
                             else
                             {
                                 *(p1++) = *(p2++);
-                                AddBadToken(BAD_UNICODE, current_token_index);
+                                AddErrorToken(BAD_UNICODE, current_token_index);
                             }
                         }
                         break;
                     default:
                         *(p1++) = *(p2++);
-                        AddBadToken(ISOLATED_BACKSLASH, current_token_index);
+                        AddErrorToken(ISOLATED_BACKSLASH, current_token_index);
                         break;
                 }
             }
@@ -1402,12 +1402,12 @@ void Scanner::ClassifyDoubleQuotedSymbol()
         // reevaluated.
         //
         //if (! IsSpace(*cursor))
-        //    AddBadToken(UNDELIMITED_STRING_SYMBOL, current_token_index);
+        //    AddErrorToken(UNDELIMITED_STRING_SYMBOL, current_token_index);
     }
     else
     {
         cursor = ptr;
-        AddBadToken(UNTERMINATED_STRING_SYMBOL, current_token_index);
+        AddErrorToken(UNTERMINATED_STRING_SYMBOL, current_token_index);
     }
 
     return;
@@ -1424,7 +1424,7 @@ void Scanner::ClassifyLess()
             ;
         if (*ptr == '>')
              ptr++;
-        else AddBadToken(UNTERMINATED_BRACKET_SYMBOL, current_token_index);
+        else AddErrorToken(UNTERMINATED_BRACKET_SYMBOL, current_token_index);
 
         current_token -> SetKind(TK_SYMBOL);
         current_token -> SetSymbol(variable_table -> FindOrInsertName(cursor, ptr - cursor));
@@ -1455,9 +1455,85 @@ void Scanner::ClassifyBadToken()
 }
 
 
+char *Scanner::ProcessInclude(const char *start)
+{
+    //
+    // . Save position of INCLUDE keyword token 
+    // . Scan the include section
+    // . Include the files specified in the include section
+    //
+    int include_key_index = current_token_index;
+    char *ptr = (char *) start;
+    cursor = ptr;
+    SkipSpaces();
+    if (*cursor != option -> escape)
+    {
+        current_token_index = lex_stream -> GetNextToken(input_file, cursor - input_buffer);
+        current_token = lex_stream -> GetTokenReference(current_token_index);
+        Tuple<BlockSymbol *> &blocks = action_blocks -> ActionBlocks((unsigned char) *cursor);
+        if (blocks.Length())
+             ClassifyBlock(blocks);
+        else (this ->* classify_token[(unsigned char) *cursor])();
+        SkipSpaces();
+        ptr = cursor;
+        if (current_token -> Kind() == TK_SYMBOL)
+        {
+            char *filename = new char[lex_stream -> NameStringLength(current_token_index) + 1];
+            strcpy(filename, lex_stream -> NameString(current_token_index));
+
+            Token save_include_key = *(lex_stream -> GetTokenReference(include_key_index)),
+                  save_filename = *current_token;
+            char *save_cursor = cursor;
+
+            lex_stream -> ResetTokenStream(include_key_index);
+            if (*cursor == '%' || (*cursor == option -> escape && option -> legacy))
+            {
+                char *p = cursor + 1;
+                while (IsAlnum(*p) && *p != option -> escape)
+                    p++;
+                int len = p - cursor;
+                if ((scan_keyword[len < SCAN_KEYWORD_SIZE ? len : 0])(cursor) == TK_END_KEY)
+                    ptr = p; // move the pointer
+            }
+
+            InputFileSymbol *save_current_input_file = input_file;
+
+            int error_code = IncludeFile(filename);
+            if (error_code != NO_ERROR)
+            {
+                current_token_index = lex_stream -> GetNextToken(input_file, save_include_key.StartLocation());
+                current_token = lex_stream -> GetTokenReference(current_token_index);
+                *current_token = save_include_key;
+
+                current_token_index = lex_stream -> GetNextToken(input_file, save_filename.StartLocation());
+                current_token = lex_stream -> GetTokenReference(current_token_index);
+                *current_token = save_filename;
+
+                AddErrorToken(error_code, current_token_index);
+                ptr = save_cursor;
+            }
+
+            //
+            // Restore the enclosing (saved) input file environment.
+            //
+            input_file = save_current_input_file;
+            input_buffer = input_file -> Buffer();
+            line_location = input_file -> LineLocationReference();
+
+            delete [] filename;
+        }
+    }
+
+    return ptr;
+}
+
+
 int Scanner::IncludeFile(const char *filename)
 {
     input_file = lex_stream -> FindOrInsertFile(option -> include_search_directory, filename);
+
+    input_buffer = NULL;
+    cursor = NULL;
 
     //
     // If we could not open the include file, issue an error.
@@ -1479,11 +1555,11 @@ int Scanner::IncludeFile(const char *filename)
             input_file -> Lock();
             input_file -> ReadInput();
             input_buffer = input_file -> Buffer();
+            cursor = input_buffer;
             if (input_buffer == NULL)
                 return NO_INCLUDE;
             line_location = input_file -> LineLocationReference();
             line_location -> Next() = 0; // mark starting location of line # 0
-            cursor = input_buffer;
             SkipOptions();
             Scan(cursor, &(input_buffer[input_file -> BufferLength()]));
             while(lex_stream -> Kind(current_token_index) == TK_EOF)
