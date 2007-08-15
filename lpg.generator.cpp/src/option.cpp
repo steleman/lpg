@@ -1741,7 +1741,7 @@ const char *Option::ReportValueNotRequired(const char *start, const char *option
 //
 bool Option::IsDelimiter(char c)
 {
-    return (c == NULL_CHAR || c == ',' || c == ' ');
+    return (c == NULL_CHAR || c == ',' || Code::IsSpace(c));
 }
 
 //

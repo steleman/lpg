@@ -393,7 +393,10 @@ void Grammar::ProcessTerminals(void)
     {
         VariableSymbol *symbol = lex_stream -> GetVariableSymbol(parser.recovers[i]);
         if (! nterm_set[symbol -> Index()])
+        {
             term_set.AddElement(symbol -> Index());
+            declared_terminals.Next() = AssignSymbolIndex(symbol);
+        }
     }
 
     //
