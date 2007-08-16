@@ -335,7 +335,7 @@ public:
     ~LexStream()
     {
         for (int i = 0; i < keyword_name.Size(); i++)
-             delete [] keyword_name[i];
+             delete [] ((char *) keyword_name[i]);
     }
 
     void Dump(); // temporary function used to dump token stream.
