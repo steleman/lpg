@@ -82,6 +82,12 @@ void Scanner::ReportErrors()
                  msg.Next() = lex_stream -> NameString(token_index) + 1;
                  option -> EmitWarning(token_index, msg);
                  break;
+            case SYMBOL_WITH_KEYWORD_MARKER:
+                 msg.Next() = "The symbol \"";
+                 msg.Next() = lex_stream -> NameString(token_index);
+                 msg.Next() = "\" starts with the keyword marker %. It should be quoted.";
+                 option -> EmitWarning(token_index, msg);
+                 break;
             default:
                  assert(false);
         }
@@ -1072,7 +1078,10 @@ void Scanner::ClassifyKeyword()
     current_token -> SetKind((scan_keyword[len < SCAN_KEYWORD_SIZE ? len : 0])(cursor));
     current_token -> SetEndLocation((ptr - 1) - input_buffer);
     if (current_token -> Kind() == TK_SYMBOL)
-         current_token -> SetSymbol(macro_table -> FindOrInsertName(cursor, len));
+    {
+         AddWarningToken(SYMBOL_WITH_KEYWORD_MARKER, current_token_index);
+         current_token -> SetSymbol(variable_table -> FindOrInsertName(cursor, len));
+    }
     else if (current_token -> Kind() == TK_INCLUDE_KEY)
          ptr = ProcessInclude(ptr);
 

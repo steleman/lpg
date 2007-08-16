@@ -126,6 +126,7 @@ private:
         NO_TEMPLATE,
         NO_INCLUDE,
         LEGACY_KEYWORD,
+        SYMBOL_WITH_KEYWORD_MARKER,
         RECURSIVE_INCLUDE,
         BAD_UNICODE,
         BAD_OCTAL_ASCII_CODE,
