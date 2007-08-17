@@ -2,7 +2,7 @@
 <feature
       id="lpg.runtime"
       label="LPG runtime"
-      version="2.0.5"
+      version="2.0.6"
       provider-name="pcharles@us.ibm.com">
 
    <description url="http://www.example.com/description">
@@ -21,6 +21,6 @@
          id="lpg.runtime"
          download-size="0"
          install-size="0"
-         version="2.0.5"/>
+         version="2.0.6"/>
 
 </feature>
