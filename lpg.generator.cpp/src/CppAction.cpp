@@ -22,7 +22,7 @@ void CppAction::GenerateNoResultVisitorAbstractClass(TextBuffer &, const char *,
 void CppAction::GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &) {}
 
 void CppAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
-void CppAction::GenerateAstListType(TextBuffer &, const char *, const char *) {}
+void CppAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void CppAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void CppAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
 void CppAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}

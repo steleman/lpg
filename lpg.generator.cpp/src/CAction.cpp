@@ -22,7 +22,7 @@ void CAction::GenerateNoResultVisitorAbstractClass(TextBuffer &, const char *, c
 void CAction::GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &) {}
 
 void CAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
-void CAction::GenerateAstListType(TextBuffer &, const char *, const char *) {}
+void CAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void CAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void CAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
 void CAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}

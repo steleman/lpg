@@ -22,7 +22,7 @@ void XmlAction::GenerateNoResultVisitorAbstractClass(TextBuffer &, const char *,
 void XmlAction::GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &) {}
 
 void XmlAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
-void XmlAction::GenerateAstListType(TextBuffer &, const char *, const char *) {}
+void XmlAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void XmlAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void XmlAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
 void XmlAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}

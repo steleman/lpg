@@ -235,7 +235,7 @@ protected:
     virtual void GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &) = 0;
 
     virtual void GenerateAstType(TextBuffer &, const char *, const char *) = 0;
-    virtual void GenerateAstListType(TextBuffer &, const char *, const char *) = 0;
+    virtual void GenerateAbstractAstListType(TextBuffer &, const char *, const char *) = 0;
     virtual void GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) = 0;
     virtual void GenerateInterface(bool,
                                    TextBuffer &,

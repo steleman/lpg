@@ -119,9 +119,11 @@ public:
         return is_terminal_class;
     }
 
-    char *FindUniqueTypeFor(int interface)
+    const char *FindUniqueTypeFor(int interface)
     {
-        if (interface < interface_map.Lbound()) // a terminal symbol?
+        if (interface == 0) // Not a grammar symbol?
+             return typestring[0]; // The default (root) Ast
+        else if (interface < interface_map.Lbound()) // a terminal symbol?
              return classname[0].real_name; //ast_token_classname
         else if (interface_map[interface].Length() == 1)
              return classname[interface_map[interface][0]].real_name;

@@ -22,7 +22,7 @@ void PlxAction::GenerateNoResultVisitorAbstractClass(TextBuffer &, const char *,
 void PlxAction::GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &) {}
 
 void PlxAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
-void PlxAction::GenerateAstListType(TextBuffer &, const char *, const char *) {}
+void PlxAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void PlxAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void PlxAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
 void PlxAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}

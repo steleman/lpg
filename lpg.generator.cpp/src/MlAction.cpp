@@ -22,7 +22,7 @@ void MlAction::GenerateNoResultVisitorAbstractClass(TextBuffer &, const char *, 
 void MlAction::GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &) {}
 
 void MlAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
-void MlAction::GenerateAstListType(TextBuffer &, const char *, const char *) {}
+void MlAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void MlAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void MlAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
 void MlAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}

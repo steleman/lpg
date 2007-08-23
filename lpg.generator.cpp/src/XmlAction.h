@@ -43,7 +43,7 @@ public:
     virtual void GenerateResultVisitorAbstractClass(TextBuffer &, const char *, const char *, SymbolLookupTable &);
 
     virtual void GenerateAstType(TextBuffer &, const char *, const char *);
-    virtual void GenerateAstListType(TextBuffer &, const char *, const char *);
+    virtual void GenerateAbstractAstListType(TextBuffer &, const char *, const char *);
     virtual void GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *);
     virtual void GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &);
     virtual void GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &);
