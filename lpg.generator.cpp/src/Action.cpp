@@ -923,7 +923,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
         if (option -> automatic_ast == Option::NESTED)
         {
             GenerateAstType(ast_buffer, "    ", option -> ast_type);
-            GenerateAstListType(ast_buffer, "    ", ast_list_classname);
+            GenerateAbstractAstListType(ast_buffer, "    ", ast_list_classname);
             GenerateAstTokenType(ntc, ast_buffer, "    ", grammar -> Get_ast_token_classname());
         }
         else
@@ -938,7 +938,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
             file_symbol -> Flush();
 
             file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, ast_list_classname, false);
-            GenerateAstListType(*file_symbol -> BodyBuffer(), "", ast_list_classname);
+            GenerateAbstractAstListType(*file_symbol -> BodyBuffer(), "", ast_list_classname);
             file_symbol -> Flush();
 
             file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, grammar -> Get_ast_token_classname(), false);

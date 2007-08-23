@@ -805,9 +805,9 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
 //
 // Generate the the Ast list class
 //
-void JavaAction::GenerateAstListType(TextBuffer &ast_buffer,
-                                     const char *indentation,
-                                     const char *classname)
+void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
+                                             const char *indentation,
+                                             const char *classname)
 {
     /*
      * Generate the List root class
@@ -1393,7 +1393,7 @@ void JavaAction::GenerateListClass(CTC &ctc,
         ast_buffer.Put(indentation); ast_buffer.Put("            {\n");
         ast_buffer.Put(indentation); ast_buffer.Put("                ");
 
-        char *element_typename = ctc.FindUniqueTypeFor(element.array_element_type_symbol -> SymbolIndex());
+        const char *element_typename = ctc.FindUniqueTypeFor(element.array_element_type_symbol -> SymbolIndex());
         if (element_typename != NULL)
         {
             ast_buffer.Put(element_typename);
