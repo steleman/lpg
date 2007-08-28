@@ -126,6 +126,9 @@ void Grammar::Process()
 
     option -> FlushReport();
 
+    if (action -> return_code > 0)
+        control -> Exit(action -> return_code);
+
     delete this -> action;
     this -> action = NULL;
 
@@ -793,9 +796,11 @@ void Grammar::ProcessRules(void)
     // side of certain rules, keep track of such macro names and their position
     // in processed_rule_map.
     //
+    Array< Tuple<int> > special_nonterminal_array(variable_table -> Size());
     Tuple< Tuple<ProcessedRuleElement> > processed_rule_map;
     processed_rule_map.Next(); // rule 0 with no macros has already been allocated.
-    SymbolLookupTable classname_set;
+    SymbolLookupTable classname_set,
+                      special_array_classname_set;
     Tuple<ClassnameElement> classname;
 
     //
@@ -859,12 +864,15 @@ void Grammar::ProcessRules(void)
                                                           ? separator_token_kind
                                                           : rules[rule_index - 1].produces_token_kind);
 
+        bool rule_contains_action_block = false;
         for (int i = lex_stream -> Next(parser.rules[k].separator_index);
                  i < parser.rules[k].end_rhs_index;
                  i = lex_stream -> Next(i))
         {
             if (lex_stream -> Kind(i) == TK_BLOCK)
             {
+                rule_contains_action_block = true;
+
                 //
                 // Check whether or not the rule is a single production
                 // and if so, issue an error and stop.
@@ -1002,74 +1010,21 @@ void Grammar::ProcessRules(void)
             num_single_productions++;
 
         //
-        // If we will be generating Ast classes, we update the classname info.
+        // Keep track of all pairs (nonterminal X arry_type) that are associated with
+        // a rule that contain actions.
         //
-        if (option -> automatic_ast != Option::NONE)
+        int array_element_type_index = parser.rules[k].array_element_type_index;
+        if (array_element_type_index != 0 && rule_contains_action_block)
         {
-            int classname_index = parser.rules[k].classname_index,
-                array_element_type_index = parser.rules[k].array_element_type_index;
-            Symbol *symbol;
+            VariableSymbol *array_element_type_symbol = lex_stream -> GetVariableSymbol(array_element_type_index);
+            int i;
+            for (i = 0; i < special_nonterminal_array[array_element_type_symbol -> Index()].Length(); i++)
             {
-                const char *name = (classname_index > 0
-                                       ? lex_stream -> NameString(classname_index)
-                                       : RetrieveString(rules[rule_index].lhs));
-                if (! Code::IsValidVariableName(name))
-                {
-                    option -> EmitError((classname_index > 0 ? classname_index
-                                                             : parser.rules[k].lhs_index),
-                                        "Illegal variable name");
-                    return_code = 12;
-                }
-
-                if (array_element_type_index != 0 &&
-                    lex_stream -> GetVariableSymbol(array_element_type_index) -> NameLength() > 0 &&
-                    lex_stream -> NameStringLength(classname_index) == 1) // The classname is the null macro?
-                {
-                    char *array_element_name = lex_stream -> GetVariableSymbol(array_element_type_index) -> Name();
-                    int length = 1 + lex_stream -> GetVariableSymbol(array_element_type_index) -> NameLength() + strlen("List");
-                    char *list_name = new char[length + 1];
-                         *list_name = option -> escape;
-                         strcpy(list_name + 1, array_element_name);
-                         strcat(list_name, "List");
-                         symbol = classname_set.FindOrInsertName(list_name, length);
-                    delete [] list_name;
-                }
-                else symbol = classname_set.FindOrInsertName(name, strlen(name));
+                if (special_nonterminal_array[array_element_type_symbol -> Index()][i] == lhs_image)
+                    break;
             }
-
-            int index = symbol -> Index();
-            if (index == classname.Length())
-            {
-                ClassnameElement &element = classname.Next();
-                element.specified_name = symbol -> Name();
-                element.real_name = (*(symbol -> Name()) == option -> escape
-                                               ? symbol -> Name() + 1
-                                               : symbol -> Name());
-                element.array_element_type_symbol = (array_element_type_index == 0
-                                                          ? NULL
-                                                          : lex_stream -> GetVariableSymbol(array_element_type_index));
-            }
-            else if (array_element_type_index != 0 &&
-                     lex_stream -> GetVariableSymbol(array_element_type_index) -> NameLength() > 0)
-            {
-                if (classname[index].array_element_type_symbol != lex_stream -> GetVariableSymbol(array_element_type_index))
-                {
-                    option -> EmitError(classname_index, "Respecification of an array with a different element type");
-                    return_code = 12;
-                }
-            }
-
-            //
-            // Process rules that are explicitly associated with a non-null classname
-            // or are not empty rules or are not single productions with a nonterminal
-            // on the right-hand side.
-            //
-            int rule_size = rhs_sym.Length() - FirstRhsIndex(rule_index);
-            if (rule_size > 1 ||
-                (classname[index].specified_name != classname[index].real_name) ||
-                (rule_size == 1 && IsTerminal(rhs_sym[FirstRhsIndex(rule_index)])))
-                 classname[index].rule.Next() = rule_index;
-            else classname[index].ungenerated_rule.Next() = rule_index;
+            if (i == special_nonterminal_array[array_element_type_symbol -> Index()].Length())
+                special_nonterminal_array[array_element_type_symbol -> Index()].Next() = lhs_image;
         }
     }
 
@@ -1127,6 +1082,130 @@ void Grammar::ProcessRules(void)
     num_items = rhs_sym.Length() + (num_rules + 1);
 
     assert(num_rules == rules.Length() - 2);
+
+    //
+    // If we will be generating Ast classes, we update the classname info.
+    //
+    if (option -> automatic_ast != Option::NONE)
+    {
+        for (int rule_index = 1; rule_index <= num_rules; rule_index++)
+        {
+            int k = rules[rule_index].source_index,
+                lhs_image = rules[rule_index].lhs,
+                classname_index = parser.rules[k].classname_index,
+                array_element_type_index = parser.rules[k].array_element_type_index;
+            Symbol *symbol;
+            {
+                const char *name = (classname_index > 0
+                                       ? lex_stream -> NameString(classname_index)
+                                       : RetrieveString(rules[rule_index].lhs));
+                if (! Code::IsValidVariableName(name))
+                {
+                    option -> EmitError((classname_index > 0 ? classname_index
+                                                             : parser.rules[k].lhs_index),
+                                        "Illegal variable name");
+                    return_code = 12;
+                }
+
+                //
+                // If we are dealing with an array (typed or untyped) without an explicit
+                // classname specified for it, we compose its name here. Otherwise, we accept 
+                // "name" as the name of the class.
+                //
+                if (array_element_type_index != 0 && lex_stream -> NameStringLength(classname_index) == 1) // The classname is the null macro?
+                {
+                    const char *array_element_name = (lex_stream -> GetVariableSymbol(array_element_type_index) -> NameLength() > 0
+                                                                  ? lex_stream -> GetVariableSymbol(array_element_type_index) -> Name()
+                                                                  : option -> ast_type);
+                    int length = 1 + strlen(array_element_name) + strlen("List");
+                    char *list_name = new char[length + 1];
+                         list_name[0] = option -> escape;
+                         list_name[1] = '\0';
+                         strcat(list_name, array_element_name);
+                         strcat(list_name, "List");
+                         symbol = classname_set.FindOrInsertName(list_name, length);
+                    delete [] list_name;
+                }
+                else symbol = classname_set.FindOrInsertName(name, strlen(name));
+            }
+
+            int index = symbol -> Index();
+            if (index == classname.Length())
+            {
+                ClassnameElement &element = classname.Next();
+                element.specified_name = symbol -> Name();
+                element.real_name = (*(symbol -> Name()) == option -> escape
+                                               ? symbol -> Name() + 1
+                                               : symbol -> Name());
+                element.array_element_type_symbol = (array_element_type_index == 0
+                                                          ? NULL
+                                                          : lex_stream -> GetVariableSymbol(array_element_type_index));
+            }
+            else if (array_element_type_index != 0 &&
+                     lex_stream -> GetVariableSymbol(array_element_type_index) -> NameLength() > 0)
+            {
+                if (classname[index].array_element_type_symbol != lex_stream -> GetVariableSymbol(array_element_type_index))
+                {
+                    option -> EmitError(classname_index, "Respecification of an array with a different element type");
+                    return_code = 12;
+                }
+            }
+
+            //
+            // If we are dealing with an array (typed or untyped) without an explicit
+            // classname specified for the nonterminal in question and an action block
+            // is present then we will be creating a unique subclass of the generic list
+            // for this nonterminal. Here, we keep track of such instances.
+            //
+            VariableSymbol *array_element_type_symbol = lex_stream -> GetVariableSymbol(array_element_type_index);
+            int i;
+            for (i = 0; i < special_nonterminal_array[array_element_type_symbol -> Index()].Length(); i++)
+            {
+                if (special_nonterminal_array[array_element_type_symbol -> Index()][i] == lhs_image)
+                    break;
+            }
+            if (i < special_nonterminal_array[array_element_type_symbol -> Index()].Length()) // add nonterminal name to make class unique
+            {
+                Tuple<SpecialArrayElement> &special_arrays = classname[index].special_arrays;
+                int i;
+                for (i = 0; i < special_arrays.Length(); i++)
+                {
+                    if (special_arrays[i].lhs_image == lhs_image)
+                        break;
+                }
+
+                if (i < special_arrays.Length())
+                    special_arrays[i].rules.Next() = rule_index;
+                else // first encounter of lhs_image
+                {
+                    const char *lhs_name = RetrieveString(lhs_image);
+                    char *extended_classname = new char[strlen(classname[index].real_name) + strlen(lhs_name) + 2];
+                    strcpy(extended_classname, lhs_name);
+                    strcat(extended_classname, "_");
+                    strcat(extended_classname, classname[index].real_name);
+
+                    SpecialArrayElement &special_array = special_arrays.Next();
+                    special_array.lhs_image = lhs_image;
+                    special_array.name = extended_classname;
+                    special_array.rules.Next() = rule_index;
+
+
+                }
+            }
+
+            //
+            // Process rules that are explicitly associated with a non-null classname
+            // or are not empty rules or are not single productions with a nonterminal
+            // on the right-hand side.
+            //
+            int rule_size = RhsSize(rule_index); // rhs_sym.Length() - FirstRhsIndex(rule_index);
+            if (rule_size > 1 ||
+                (classname[index].specified_name != classname[index].real_name) ||
+                (rule_size == 1 && IsTerminal(rhs_sym[FirstRhsIndex(rule_index)])))
+                 classname[index].rule.Next() = rule_index;
+            else classname[index].ungenerated_rule.Next() = rule_index;
+        }
+    }
 
     //
     // Compute the set of "recover" symbols identified by the user.

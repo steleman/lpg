@@ -420,6 +420,7 @@ void JavaAction::GenerateSimpleVisitorInterface(TextBuffer &ast_buffer,
                                  ast_buffer.Put(interface_name);
                                  ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
+
     for (int i = 0; i < type_set.Size(); i++)
     {
         Symbol *symbol = type_set[i];
@@ -428,6 +429,12 @@ void JavaAction::GenerateSimpleVisitorInterface(TextBuffer &ast_buffer,
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(" n);\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    void visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n);\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 }
@@ -444,6 +451,7 @@ void JavaAction::GenerateArgumentVisitorInterface(TextBuffer &ast_buffer,
                                  ast_buffer.Put(interface_name);
                                  ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
+
     for (int i = 0; i < type_set.Size(); i++)
     {
         Symbol *symbol = type_set[i];
@@ -452,6 +460,12 @@ void JavaAction::GenerateArgumentVisitorInterface(TextBuffer &ast_buffer,
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(" n, Object o);\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    void visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n, Object o);\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 }
@@ -468,6 +482,7 @@ void JavaAction::GenerateResultVisitorInterface(TextBuffer &ast_buffer,
                                  ast_buffer.Put(interface_name);
                                  ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
+
     for (int i = 0; i < type_set.Size(); i++)
     {
         Symbol *symbol = type_set[i];
@@ -476,6 +491,12 @@ void JavaAction::GenerateResultVisitorInterface(TextBuffer &ast_buffer,
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(" n);\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    Object visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n);\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 }
@@ -492,6 +513,7 @@ void JavaAction::GenerateResultArgumentVisitorInterface(TextBuffer &ast_buffer,
     ast_buffer.Put(interface_name);
     ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
+
     for (int i = 0; i < type_set.Size(); i++)
     {
         Symbol *symbol = type_set[i];
@@ -500,6 +522,12 @@ void JavaAction::GenerateResultArgumentVisitorInterface(TextBuffer &ast_buffer,
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(" n, Object o);\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    Object visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n, Object o);\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 }
@@ -526,6 +554,7 @@ void JavaAction::GeneratePreorderVisitorInterface(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("    void postVisit(");
                                  ast_buffer.Put(option -> ast_type);
                                  ast_buffer.Put(" element);\n\n");
+
     for (int i = 0; i < type_set.Size(); i++)
     {
         Symbol *symbol = type_set[i];
@@ -537,9 +566,17 @@ void JavaAction::GeneratePreorderVisitorInterface(TextBuffer &ast_buffer,
                                      ast_buffer.Put("(");
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(" n);\n");
-        if (i + 1 < type_set.Size())
-            ast_buffer.Put("\n");
+        ast_buffer.Put("\n");
     }
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    boolean visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    void endVisit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n);\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
@@ -580,9 +617,52 @@ void JavaAction::GenerateNoResultVisitorAbstractClass(TextBuffer &ast_buffer,
                                      ast_buffer.Put(" n, Object o) { unimplementedVisitor(\"visit(");
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(", Object)\"); }\n");
-        if (i + 1 < type_set.Size())
-            ast_buffer.Put("\n");
+        ast_buffer.Put("\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    for (int i = 0; i < type_set.Size(); i++)
+    {
+        Symbol *symbol = type_set[i];
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(i == 0 ? "" : "else ");
+                                     ast_buffer.Put("if (n instanceof ");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") visit((");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") n);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n, Object o)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    for (int i = 0; i < type_set.Size(); i++)
+    {
+        Symbol *symbol = type_set[i];
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(i == 0 ? "" : "else ");
+                                     ast_buffer.Put("if (n instanceof ");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") visit((");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") n, o);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 }
@@ -618,9 +698,52 @@ void JavaAction::GenerateResultVisitorAbstractClass(TextBuffer &ast_buffer,
                                      ast_buffer.Put(" n, Object o) { return  unimplementedVisitor(\"visit(");
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(", Object)\"); }\n");
-        if (i + 1 < type_set.Size())
-            ast_buffer.Put("\n");
+        ast_buffer.Put("\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public Object visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    for (int i = 0; i < type_set.Size(); i++)
+    {
+        Symbol *symbol = type_set[i];
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(i == 0 ? "" : "else ");
+                                     ast_buffer.Put("if (n instanceof ");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") return visit((");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") n);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public Object visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n, Object o)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    for (int i = 0; i < type_set.Size(); i++)
+    {
+        Symbol *symbol = type_set[i];
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(i == 0 ? "" : "else ");
+                                     ast_buffer.Put("if (n instanceof ");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") return visit((");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") n, o);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 }
@@ -664,9 +787,51 @@ void JavaAction::GeneratePreorderVisitorAbstractClass(TextBuffer &ast_buffer,
                                      ast_buffer.Put(" n) { unimplementedVisitor(\"endVisit(");
                                      ast_buffer.Put(symbol -> Name());
                                      ast_buffer.Put(")\"); }\n");
-        if (i + 1 < type_set.Size())
-            ast_buffer.Put("\n");
+        ast_buffer.Put("\n");
     }
+
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean visit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    for (int i = 0; i < type_set.Size(); i++)
+    {
+        Symbol *symbol = type_set[i];
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(i == 0 ? "" : "else ");
+                                     ast_buffer.Put("if (n instanceof ");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") return visit((");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") n);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void endVisit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    for (int i = 0; i < type_set.Size(); i++)
+    {
+        Symbol *symbol = type_set[i];
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(i == 0 ? "" : "else ");
+                                     ast_buffer.Put("if (n instanceof ");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") endVisit((");
+                                     ast_buffer.Put(symbol -> Name());
+                                     ast_buffer.Put(") n);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
 
@@ -814,7 +979,7 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
      */
     ast_buffer.Put(indentation); ast_buffer.Put(option -> automatic_ast == Option::NESTED ? "static " : "");
                                  ast_buffer.Put("public abstract class ");
-                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put(this -> abstract_ast_list_classname);
                                  ast_buffer.Put(" extends ");
                                  ast_buffer.Put(option -> ast_type);
                                  ast_buffer.Put("\n");
@@ -885,30 +1050,15 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
     }
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean equals(Object o)\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        if (o == this) return true;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        if (this.getClass() != o.getClass()) return false;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        ");
-                                 ast_buffer.Put(classname);
-                                 ast_buffer.Put(" other = (");
-                                 ast_buffer.Put(classname);
-                                 ast_buffer.Put(") o;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        if (size() != other.size()) return false;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        for (int i = 0; i < size(); i++)\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            ");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" element = getElementAt(i);\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            if (element == null)\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("                if (other.getElementAt(i) != null) return false;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("                else;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            else if (! element.equals(other.getElementAt(i)))\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("                return false;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return true;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+    //
+    //
+    //
+    ast_buffer.Put(indentation); ast_buffer.Put("    public abstract boolean equals(Object o);\n");
 
+    //
+    // Generate the "hashCode" method
+    //
+    ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
@@ -922,11 +1072,7 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    //
-    // TODO: REMOVE THIS ... no longer needed.
-    //
-    //    ast_buffer.Put(indentation); ast_buffer.Put("    public abstract boolean equals(Object o);\n");
-    //    ast_buffer.Put(indentation); ast_buffer.Put("    public abstract int hashCode();\n");
+
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
     return;
@@ -990,10 +1136,6 @@ void JavaAction::GenerateAstTokenType(NTC &ntc, TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        return toString().hashCode();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    //
-    // TODO: REMOVE THIS ... no longer needed.
-    //
-    // GenerateHashcodeMethod(ntc, ast_buffer, indentation, element, optimizable_symbol_set);
     GenerateVisitorMethods(ntc, ast_buffer, indentation, element, optimizable_symbol_set);
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
@@ -1007,19 +1149,20 @@ void JavaAction::GenerateAstTokenType(NTC &ntc, TextBuffer &ast_buffer,
 //
 void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
                                        const char *indentation,
-                                       ClassnameElement &element)
+                                       Tuple<int> &ungenerated_rule,
+                                       Tuple<int> &generated_rule)
 {
     const char *rule_info = " *<li>Rule $rule_number:  $rule_text",
                *ungenerated_rule_info = " *<li>Rule $rule_number:  $rule_text";
     ast_buffer.Put(indentation); ast_buffer.Put("/**");
-    if (element.ungenerated_rule.Length() > 0)
+    if (ungenerated_rule.Length() > 0)
     {
         ast_buffer.Put("\n");
         ast_buffer.Put(indentation);
         ast_buffer.Put(" *<em>");
-        for (int i = 0; i < element.ungenerated_rule.Length(); i++)
+        for (int i = 0; i < ungenerated_rule.Length(); i++)
         {
-            int rule_no = element.ungenerated_rule[i];
+            int rule_no = ungenerated_rule[i];
             ast_buffer.Put("\n");
             ast_buffer.Put(indentation);
             ProcessActionLine(ActionBlockElement::BODY,
@@ -1039,9 +1182,9 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
     ast_buffer.Put("\n");
     ast_buffer.Put(indentation);
     ast_buffer.Put(" *<b>");
-    for (int i = 0; i < element.rule.Length(); i++)
+    for (int i = 0; i < generated_rule.Length(); i++)
     {
-        int rule_no = element.rule[i];
+        int rule_no = generated_rule[i];
         ast_buffer.Put("\n");
         ast_buffer.Put(indentation);
         ProcessActionLine(ActionBlockElement::BODY,
@@ -1061,122 +1204,20 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
 }
 
 
-//
-//
-//
-void JavaAction::GenerateListClass(CTC &ctc,
-                                   NTC &ntc,
-                                   TextBuffer &ast_buffer,
-                                   const char *indentation,
-                                   ClassnameElement &element,
-                                   Array<const char *> &typestring)
+void JavaAction::GenerateListMethods(CTC &ctc,
+                                     NTC &ntc,
+                                     TextBuffer &ast_buffer,
+                                     const char *indentation,
+                                     const char *classname,
+                                     ClassnameElement &element,
+                                     Array<const char *> &typestring)
 {
-    Tuple<int> &interface = element.interface;
-    assert(element.array_element_type_symbol != NULL);
-    const char *classname = element.real_name,
-               *element_name = element.array_element_type_symbol -> Name(),
+    const char *element_name = element.array_element_type_symbol -> Name(),
                *element_type = ctc.FindBestTypeFor(element.array_element_type_symbol -> SymbolIndex());
 
-    GenerateCommentHeader(ast_buffer, indentation, element);
-
-    ast_buffer.Put(indentation); ast_buffer.Put(option -> automatic_ast == Option::NESTED ? "static " : "");
-                                 ast_buffer.Put("public class ");
-                                 ast_buffer.Put(classname);
-                                 ast_buffer.Put(" extends ");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put("List implements ");
-    for (int i = 0; i < interface.Length() - 1; i++)
-    {
-        ast_buffer.Put(typestring[element.interface[i]]);
-        ast_buffer.Put(", ");
-    }
-    ast_buffer.Put(typestring[element.interface[interface.Length() - 1]]);
-    ast_buffer.Put("\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("{\n");
-
-    if (element.needs_environment)
-        GenerateEnvironmentDeclaration(ast_buffer, indentation);
-
-    if (ntc.CanProduceNullAst(element.array_element_type_symbol -> SymbolIndex()))
-    {
-        ast_buffer.Put(indentation); ast_buffer.Put("    /**\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("     * The value returned by <b>get");
-                                     ast_buffer.Put(element_name);
-                                     ast_buffer.Put("At</b> may be <b>null</b>\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("     */\n");
-    }
-    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
-                                 ast_buffer.Put(element_type);
-                                 ast_buffer.Put(" get");
-                                 ast_buffer.Put(element_name);
-                                 ast_buffer.Put("At(int i) { return (");
-                                 ast_buffer.Put(element_type);
-                                 ast_buffer.Put(") getElementAt(i); }\n\n");
-
     //
-    // generate constructors
+    // Generate ADD method
     //
-    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
-                                 ast_buffer.Put(classname);
-                                 ast_buffer.Put("(");
-                                 if (element.needs_environment)
-                                 {
-                                     ast_buffer.Put(option -> action_type);
-                                     ast_buffer.Put(" environment, ");
-                                 }
-                                 ast_buffer.Put("IToken leftIToken, IToken rightIToken, boolean leftRecursive)\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        super(leftIToken, rightIToken, leftRecursive);\n");
-    if (element.needs_environment)
-    {
-        ast_buffer.Put(indentation);
-        ast_buffer.Put("        this.environment = environment;\n");
-    }
-    ast_buffer.Put(indentation); ast_buffer.Put("        initialize();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
-
-    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
-                                 ast_buffer.Put(classname);
-                                 ast_buffer.Put("(");
-                                 if (element.needs_environment)
-                                 {
-                                     ast_buffer.Put(option -> action_type);
-                                     ast_buffer.Put(" environment, ");
-                                 }
-                                 ast_buffer.Put(element_type);
-                                 ast_buffer.Put(" _");
-                                 ast_buffer.Put(element_name);
-                                 ast_buffer.Put(", boolean leftRecursive)\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        super((");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(") _");
-                                 ast_buffer.Put(element_name);
-                                 ast_buffer.Put(", leftRecursive);\n");
-    if (option -> parent_saved)
-    {
-        ast_buffer.Put(indentation); ast_buffer.Put("        ");
-        if (ntc.CanProduceNullAst(element.array_element_type_symbol -> SymbolIndex()))
-        {
-            ast_buffer.Put("if (_");
-            ast_buffer.Put(element_name);
-            ast_buffer.Put(" != null) ");
-        }
-        ast_buffer.Put("((");
-        ast_buffer.Put(option -> ast_type);
-        ast_buffer.Put(") _");
-        ast_buffer.Put(element_name);
-        ast_buffer.Put(").setParent(this);\n");
-    }
-    if (element.needs_environment)
-    {
-        ast_buffer.Put(indentation);
-        ast_buffer.Put("        this.environment = environment;\n");
-    }
-    ast_buffer.Put(indentation); ast_buffer.Put("        initialize();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
-    ast_buffer.Put("\n");
-
     ast_buffer.Put(indentation); ast_buffer.Put("    public ");
                                  ast_buffer.Put("void add(");
                                  ast_buffer.Put(element_type);
@@ -1209,10 +1250,6 @@ void JavaAction::GenerateListClass(CTC &ctc,
     //
     // Generate the "equals" method
     //
-    //
-    // TODO: REMOVE THIS ... no longer needed.
-    //
-    /*
     ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public boolean equals(Object o)\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
@@ -1229,7 +1266,7 @@ void JavaAction::GenerateListClass(CTC &ctc,
     ast_buffer.Put(indentation); ast_buffer.Put("        for (int i = 0; i < size(); i++)\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("            ");
-    char *element_typename = ctc.FindUniqueTypeFor(element.array_element_type_symbol -> SymbolIndex());
+    const char *element_typename = ctc.FindUniqueTypeFor(element.array_element_type_symbol -> SymbolIndex());
     if (element_typename != NULL)
          ast_buffer.Put(element_typename);
     else ast_buffer.Put(typestring[element.array_element_type_symbol -> SymbolIndex()]);
@@ -1269,7 +1306,6 @@ void JavaAction::GenerateListClass(CTC &ctc,
     ast_buffer.Put("At(i).hashCode());\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
-    */
 
     //
     // Generate visitor methods.
@@ -1438,6 +1474,184 @@ void JavaAction::GenerateListClass(CTC &ctc,
 
 
 //
+//
+//
+void JavaAction::GenerateListClass(CTC &ctc,
+                                   NTC &ntc,
+                                   TextBuffer &ast_buffer,
+                                   const char *indentation,
+                                   ClassnameElement &element,
+                                   Array<const char *> &typestring)
+{
+    Tuple<int> &interface = element.interface;
+    assert(element.array_element_type_symbol != NULL);
+    const char *classname = element.real_name,
+               *element_name = element.array_element_type_symbol -> Name(),
+               *element_type = ctc.FindBestTypeFor(element.array_element_type_symbol -> SymbolIndex());
+
+    GenerateCommentHeader(ast_buffer, indentation, element.ungenerated_rule, element.rule);
+
+    ast_buffer.Put(indentation); ast_buffer.Put(option -> automatic_ast == Option::NESTED ? "static " : "");
+                                 ast_buffer.Put("public class ");
+                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put(" extends ");
+                                 ast_buffer.Put(this -> abstract_ast_list_classname);
+                                 ast_buffer.Put(" implements ");
+    for (int i = 0; i < interface.Length() - 1; i++)
+    {
+        ast_buffer.Put(typestring[element.interface[i]]);
+        ast_buffer.Put(", ");
+    }
+    ast_buffer.Put(typestring[element.interface[interface.Length() - 1]]);
+    ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("{\n");
+
+    if (ntc.CanProduceNullAst(element.array_element_type_symbol -> SymbolIndex()))
+    {
+        ast_buffer.Put(indentation); ast_buffer.Put("    /**\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("     * The value returned by <b>get");
+                                     ast_buffer.Put(element_name);
+                                     ast_buffer.Put("At</b> may be <b>null</b>\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("     */\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(element_type);
+                                 ast_buffer.Put(" get");
+                                 ast_buffer.Put(element_name);
+                                 ast_buffer.Put("At(int i) { return (");
+                                 ast_buffer.Put(element_type);
+                                 ast_buffer.Put(") getElementAt(i); }\n\n");
+
+    //
+    // generate constructors
+    //
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put("IToken leftIToken, IToken rightIToken, boolean leftRecursive)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        super(leftIToken, rightIToken, leftRecursive);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(element_type);
+                                 ast_buffer.Put(" _");
+                                 ast_buffer.Put(element_name);
+                                 ast_buffer.Put(", boolean leftRecursive)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        super((");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(") _");
+                                 ast_buffer.Put(element_name);
+                                 ast_buffer.Put(", leftRecursive);\n");
+    if (option -> parent_saved)
+    {
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+        if (ntc.CanProduceNullAst(element.array_element_type_symbol -> SymbolIndex()))
+        {
+            ast_buffer.Put("if (_");
+            ast_buffer.Put(element_name);
+            ast_buffer.Put(" != null) ");
+        }
+        ast_buffer.Put("((");
+        ast_buffer.Put(option -> ast_type);
+        ast_buffer.Put(") _");
+        ast_buffer.Put(element_name);
+        ast_buffer.Put(").setParent(this);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+    ast_buffer.Put("\n");
+
+    GenerateListMethods(ctc, ntc, ast_buffer, indentation, classname, element, typestring);
+
+    return;
+}
+
+
+//
+// Generate a class that extends a basic list class. This is necessary when the user
+// specifies action blocks to be associated with a generic list class - in which case,
+// we have to generate a (new) unique class (that extends the generic class) to hold the content
+// of the action blocks.
+//
+void JavaAction::GenerateListExtensionClass(CTC &ctc,
+                                            NTC &ntc,
+                                            TextBuffer &ast_buffer,
+                                            const char *indentation,
+                                            SpecialArrayElement &special_array,
+                                            ClassnameElement &element,
+                                            Array<const char *> &typestring)
+
+{
+    const char *classname = element.real_name,
+               *element_name = element.array_element_type_symbol -> Name(),
+               *element_type = ctc.FindBestTypeFor(element.array_element_type_symbol -> SymbolIndex());
+
+    GenerateCommentHeader(ast_buffer, indentation, element.ungenerated_rule, special_array.rules);
+
+    ast_buffer.Put(indentation); ast_buffer.Put(option -> automatic_ast == Option::NESTED ? "static " : "");
+                                 ast_buffer.Put("public class ");
+                                 ast_buffer.Put(special_array.name);
+                                 ast_buffer.Put(" extends ");
+                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put("\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("{\n");
+
+    GenerateEnvironmentDeclaration(ast_buffer, indentation);
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(special_array.name);
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> action_type);
+                                 ast_buffer.Put(" environment, ");
+                                 ast_buffer.Put("IToken leftIToken, IToken rightIToken, boolean leftRecursive)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        super(leftIToken, rightIToken, leftRecursive);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        this.environment = environment;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        initialize();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(special_array.name);
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> action_type);
+                                 ast_buffer.Put(" environment, ");
+                                 ast_buffer.Put(element_type);
+                                 ast_buffer.Put(" _");
+                                 ast_buffer.Put(element_name);
+                                 ast_buffer.Put(", boolean leftRecursive)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        super(_");
+                                 ast_buffer.Put(element_name);
+                                 ast_buffer.Put(", leftRecursive);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        this.environment = environment;\n");
+    if (option -> parent_saved)
+    {
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+        if (ntc.CanProduceNullAst(element.array_element_type_symbol -> SymbolIndex()))
+        {
+            ast_buffer.Put("if (_");
+            ast_buffer.Put(element_name);
+            ast_buffer.Put(" != null) ");
+        }
+        ast_buffer.Put("((");
+        ast_buffer.Put(option -> ast_type);
+        ast_buffer.Put(") _");
+        ast_buffer.Put(element_name);
+        ast_buffer.Put(").setParent(this);\n");
+    }
+    ast_buffer.Put(indentation); ast_buffer.Put("        initialize();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+
+    GenerateListMethods(ctc, ntc, ast_buffer, indentation, special_array.name, element, typestring);
+
+    return;
+}
+
+
+//
 // Generate a generic rule class
 //
 void JavaAction::GenerateRuleClass(CTC &ctc,
@@ -1453,7 +1667,7 @@ void JavaAction::GenerateRuleClass(CTC &ctc,
 
     BitSet optimizable_symbol_set(element.symbol_set.Size(), BitSet::UNIVERSE);
 
-    GenerateCommentHeader(ast_buffer, indentation, element);
+    GenerateCommentHeader(ast_buffer, indentation, element.ungenerated_rule, element.rule);
 
     assert(element.rule.Length() == 1);
     int rule_no = element.rule[0];
@@ -1623,7 +1837,7 @@ void JavaAction::GenerateTerminalMergedClass(NTC &ntc,
                                              Array<const char *> &typestring)
 {
     char *classname = element.real_name;
-    GenerateCommentHeader(ast_buffer, indentation, element);
+    GenerateCommentHeader(ast_buffer, indentation, element.ungenerated_rule, element.rule);
 
     ast_buffer.Put(indentation); ast_buffer.Put(option -> automatic_ast == Option::NESTED ? "static " : "");
                                  ast_buffer.Put("public class ");
@@ -1686,7 +1900,7 @@ void JavaAction::GenerateMergedClass(CTC &ctc,
     SymbolLookupTable &symbol_set = element.symbol_set;
     Tuple<int> &rhs_type_index = element.rhs_type_index;
 
-    GenerateCommentHeader(ast_buffer, indentation, element);
+    GenerateCommentHeader(ast_buffer, indentation, element.ungenerated_rule, element.rule);
 
     ast_buffer.Put(indentation); ast_buffer.Put(option -> automatic_ast == Option::NESTED ? "static " : "");
                                  ast_buffer.Put("public class ");
@@ -1944,7 +2158,7 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
                                        Array<const char *> &typestring,
                                        int rule_no)
 {
-    char *classname = allocation_element.name;
+    const char *classname = allocation_element.name;
 
     // 
     // Copy these two arrays into a local tuple for CONVENIENCE.
@@ -1990,6 +2204,7 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
     //        GenerateCode(&ast_buffer, index.String(), rule_no);
     //        GenerateCode(&ast_buffer, rparen, rule_no);
     //    }
+    //
     if (allocation_element.is_terminal_class && (grammar -> RhsSize(rule_no) == 1 && grammar -> IsNonTerminal(grammar -> rhs_sym[grammar -> FirstRhsIndex(rule_no)])))
     {
         GenerateCode(&ast_buffer, space, rule_no);
@@ -2025,6 +2240,7 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
         //        IntToString index(position.Length() == 0 ? 1 : position[0]);
         //        GenerateCode(&ast_buffer, index.String(), rule_no);
         //        GenerateCode(&ast_buffer, rparen, rule_no);
+        //
     }
     else
     {

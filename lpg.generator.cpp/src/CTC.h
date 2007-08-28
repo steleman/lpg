@@ -14,8 +14,8 @@
 //
 class CTC
 {
-    BoundedArray< Tuple<int> > extends;
-    BoundedArray< Tuple<int> > interface_map;
+    BoundedArray< Tuple<int> > extends,
+                               interface_map;
 
     BoundedArray<BitSet> closure;
     BoundedArray<int> index_of;
@@ -126,7 +126,7 @@ public:
         else if (interface < interface_map.Lbound()) // a terminal symbol?
              return classname[0].real_name; //ast_token_classname
         else if (interface_map[interface].Length() == 1)
-             return classname[interface_map[interface][0]].real_name;
+             return classname[interface_map[interface][0]].GetAllocationName(interface); // .real_name;
         else return NULL;
     }
 
@@ -137,7 +137,7 @@ public:
         else if (interface < interface_map.Lbound()) // a terminal symbol?
              return classname[0].real_name; //ast_token_classname
         else if (interface_map[interface].Length() == 1)
-             return classname[interface_map[interface][0]].real_name;
+             return classname[interface_map[interface][0]].GetAllocationName(interface); // .real_name;
         else return typestring[interface];
     }
 };

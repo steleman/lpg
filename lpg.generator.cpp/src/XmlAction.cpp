@@ -25,7 +25,8 @@ void XmlAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
 void XmlAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void XmlAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void XmlAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
-void XmlAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}
+void XmlAction::GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) {}
+void XmlAction::GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) {}
 void XmlAction::GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void XmlAction::GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void XmlAction::GenerateMergedClass(CTC &,

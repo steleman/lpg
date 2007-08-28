@@ -17,7 +17,15 @@ Action::Action(Control *control_, Blocks *action_blocks_, Grammar *grammar_, Mac
          option(control_ -> option),
          lex_stream(control_ -> lex_stream),
          macro_table(macro_table_)
-{}
+{
+
+    const char *abstract = "Abstract",
+               *list = "List";
+    abstract_ast_list_classname = new char[strlen(abstract) + strlen(control_ -> option -> ast_type) + strlen(list) + 1];
+    strcpy(abstract_ast_list_classname, abstract);
+    strcat(abstract_ast_list_classname, control_ -> option -> ast_type);
+    strcat(abstract_ast_list_classname, list);
+}
 
 
 bool Action::IsNullClassname(ClassnameElement &element)
@@ -424,10 +432,16 @@ void Action::ProcessCodeActions(Tuple<ActionBlockElement> &actions, Array<const 
 
             if (FindLocalMacro(macro_name, macro_name_length) ||
                 rule_macro_table.FindName(macro_name, macro_name_length))
+            {
                  option -> EmitError(processed_rule_element.token_index, "Illegal respecification of a predefined macro");
+                 return_code = 12;
+            }
 
             if (! Code::IsValidVariableName(macro_name + 1))
+            {
                 option -> EmitError(processed_rule_element.token_index, "Invalid use of a symbol name as a macro");
+                return_code = 12;
+            }
 
             macros[i] = InsertRuleMacro(macro_name, processed_rule_element.position);
 
@@ -575,13 +589,14 @@ void Action::CompleteClassnameInfo(LCA &lca,
                 //
                 //
                 //
-                int element_type_symbol_index = -1;
+                int element_type_symbol_index = classname[i].array_element_type_symbol -> SymbolIndex(); //-1;
                 for (int k = 0; k < rule.Length(); k++)
                 {
                     int rule_no = rule[k],
                         offset = grammar -> FirstRhsIndex(rule_no) - 1;
+                    rule_allocation_map[rule_no].name = classname[i].GetAllocationName(grammar -> rules[rule_no].lhs);
+                    rule_allocation_map[rule_no].element_type_symbol_index = classname[i].array_element_type_symbol -> SymbolIndex();
                     Tuple<ProcessedRuleElement> &processed_rule_elements = processed_rule_map[rule_no];
-                    rule_allocation_map[rule_no].name = classname[i].real_name;
                     for (int j = 0;  j < processed_rule_elements.Length(); j++)
                     {
                         ProcessedRuleElement &processed_rule_element = processed_rule_elements[j];
@@ -593,6 +608,7 @@ void Action::CompleteClassnameInfo(LCA &lca,
                                 int source_index = grammar -> rules[rule_no].source_index;
                                 option -> EmitError(grammar -> parser.rules[source_index].classname_index,
                                                     "Multiple list specified on the right-hand side of this rule");
+                                return_code = 12;
                             }
                             rule_allocation_map[rule_no].list_symbol = symbol;
                             rule_allocation_map[rule_no].list_position = processed_rule_element.position;
@@ -604,6 +620,7 @@ void Action::CompleteClassnameInfo(LCA &lca,
                                 int source_index = grammar -> rules[rule_no].source_index;
                                 option -> EmitError(grammar -> parser.rules[source_index].array_element_type_index,
                                                     "Multiple element symbols specified on the right-hand side of this rule");
+                                return_code = 12;
                             }
                             rule_allocation_map[rule_no].element_symbol = symbol;
                             rule_allocation_map[rule_no].element_position = processed_rule_element.position;
@@ -646,8 +663,9 @@ void Action::CompleteClassnameInfo(LCA &lca,
                 //
                 // Set the array element type for the classname and each RuleAllocationElement.
                 //
-                if (element_type_symbol_index == -1)
-                    element_type_symbol_index = 0; // if not initialized, initialize it to "Ast" index
+                // if (element_type_symbol_index == -1)
+                //    element_type_symbol_index = 0; // if not initialized, initialize it to "Ast" index
+                //
                 CheckRecursivenessAndUpdate(nonterminals, nonterminal_map, rule_allocation_map);
                 for (int j = 0; j < nonterminals.Length(); j++)
                 {
@@ -667,7 +685,7 @@ void Action::CompleteClassnameInfo(LCA &lca,
                 for (int k = 0; k < rule.Length(); k++)
                 {
                     int rule_no = rule[k];
-                    rule_allocation_map[rule_no].name = classname[i].real_name;
+                    rule_allocation_map[rule_no].name = classname[i].GetAllocationName(grammar -> rules[rule_no].lhs);
                     rule_allocation_map[rule_no].element_type_symbol_index = classname[i].array_element_type_symbol -> SymbolIndex();
 
                     for (int j = grammar -> FirstRhsIndex(rule_no); j < grammar -> EndRhsIndex(rule_no); j++)
@@ -680,6 +698,7 @@ void Action::CompleteClassnameInfo(LCA &lca,
                                 int source_index = grammar -> rules[rule_no].source_index;
                                 option -> EmitError(grammar -> parser.rules[source_index].classname_index,
                                                     "Multiple list specified on the right-hand side of this rule");
+                                return_code = 12;
                             }
                             rule_allocation_map[rule_no].list_symbol = symbol;
                             rule_allocation_map[rule_no].list_position = j - grammar -> FirstRhsIndex(rule_no) + 1;
@@ -691,6 +710,7 @@ void Action::CompleteClassnameInfo(LCA &lca,
                                 int source_index = grammar -> rules[rule_no].source_index;
                                 option -> EmitError(grammar -> parser.rules[source_index].array_element_type_index,
                                                     "Multiple element symbols specified on the right-hand side of this rule");
+                                return_code = 12;
                             }
                             rule_allocation_map[rule_no].element_symbol = symbol;
                             rule_allocation_map[rule_no].element_position = j - grammar -> FirstRhsIndex(rule_no) + 1;
@@ -915,15 +935,10 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
     // First process the root class, the list class, and the Token class.
     //
     {
-        const char *list = "List";
-        char *ast_list_classname = new char[strlen(option -> ast_type) + strlen(list) + 1];
-        strcpy(ast_list_classname, option -> ast_type);
-        strcat(ast_list_classname, list);
-
         if (option -> automatic_ast == Option::NESTED)
         {
             GenerateAstType(ast_buffer, "    ", option -> ast_type);
-            GenerateAbstractAstListType(ast_buffer, "    ", ast_list_classname);
+            GenerateAbstractAstListType(ast_buffer, "    ", abstract_ast_list_classname);
             GenerateAstTokenType(ntc, ast_buffer, "    ", grammar -> Get_ast_token_classname());
         }
         else
@@ -937,16 +952,14 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
             GenerateAstType(*file_symbol -> BodyBuffer(), "", option -> ast_type);
             file_symbol -> Flush();
 
-            file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, ast_list_classname, false);
-            GenerateAbstractAstListType(*file_symbol -> BodyBuffer(), "", ast_list_classname);
+            file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, abstract_ast_list_classname, false);
+            GenerateAbstractAstListType(*file_symbol -> BodyBuffer(), "", abstract_ast_list_classname);
             file_symbol -> Flush();
 
             file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, grammar -> Get_ast_token_classname(), false);
             GenerateAstTokenType(ntc, *file_symbol -> BodyBuffer(), "", grammar -> Get_ast_token_classname());
             file_symbol -> Flush();
         }
-
-        delete [] ast_list_classname;
     }
 
     //
@@ -1020,7 +1033,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
     }
 
     //
-    // Generate the rule classes.
+    // generate the rule classes.
     //
     for (int i = 0; i < classname.Length(); i++)
     {
@@ -1045,8 +1058,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
 
                 ProcessAstRule(classname[i], rule_no, processed_rule_map[rule_no]);
 
-                Tuple<ActionBlockElement> &actions = rule_action_map[rule_no];
-                classname[i].needs_environment = classname[i].needs_environment || (actions.Length() > 0);
+                classname[i].needs_environment = false;
             }
         }
         else
@@ -1086,20 +1098,6 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
         if (classname[i].array_element_type_symbol != NULL)
         {
             //
-            // Generate final info for the allocation of rules associated with this class
-            //
-            for (int k = 0; k < rule.Length(); k++)
-            {
-                int rule_no = rule[k];
-                Tuple<ActionBlockElement> &actions = rule_action_map[rule_no];
-                if (file_symbol != NULL) // option -> automatic_ast == Option::TOPLEVEL
-                {
-                    for (int j = 0; j < actions.Length(); j++)
-                        actions[j].buffer = file_symbol -> BodyBuffer();
-                }
-            }
-
-            //
             // Generate the class
             //
             GenerateListClass(ctc,
@@ -1113,12 +1111,51 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
                               classname[i],
                               typestring);
 
+            for (int j = 0; j < classname[i].special_arrays.Length(); j++)
             {
-                for (int k = 0; k < rule.Length(); k++)
+                //
+                // Finish up the previous class we were procesing
+                //
+                if (option -> automatic_ast == Option::NESTED) // Generate Class Closer
+                    ast_buffer.Put("    }\n\n");
+                else
                 {
-                    int rule_no = rule[k];
-                    rule_allocation_map[rule_no].needs_environment = classname[i].needs_environment;
+                    file_symbol -> BodyBuffer() -> Put("}\n\n");
+                    file_symbol -> Flush();
+                }
+
+                //
+                // Process the new special array class.
+                //
+                file_symbol = (option -> automatic_ast == Option::NESTED
+                                       ? NULL
+                                       : GenerateTitleAndGlobals(ast_filename_table, notice_actions, classname[i].special_arrays[j].name, true)); // needs_environment
+                GenerateListExtensionClass(ctc,
+                                           ntc,
+                                           (option -> automatic_ast == Option::NESTED
+                                                                     ? ast_buffer
+                                                                     : *(file_symbol -> BodyBuffer())),
+                                           (option -> automatic_ast == Option::NESTED
+                                                                     ? (char *) "    "
+                                                                     : (char *) ""),
+                                           classname[i].special_arrays[j],
+                                           classname[i],
+                                           typestring);
+
+                //
+                // Generate final info for the allocation of rules associated with this class
+                //
+                Tuple<int> &special_rule = classname[i].special_arrays[j].rules;
+                for (int k = 0; k < special_rule.Length(); k++)
+                {
+                    int rule_no = special_rule[k];
                     Tuple<ActionBlockElement> &actions = rule_action_map[rule_no];
+                    if (file_symbol != NULL) // possible when option -> automatic_ast == Option::TOPLEVEL
+                    {
+                        for (int l = 0; l < actions.Length(); l++)
+                            actions[l].buffer = file_symbol -> BodyBuffer();
+                    }
+                    rule_allocation_map[rule_no].needs_environment = true;
                     ProcessCodeActions(actions, typestring, processed_rule_map);
                 }
             }
@@ -1150,17 +1187,6 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
             else
             {
                 assert(classname[i].specified_name != classname[i].real_name); // a classname was specified?
-                if (file_symbol != NULL) // option -> automatic_ast == Option::TOPLEVEL
-                {
-                    for (int k = 0; k < rule.Length(); k++)
-                    {
-                        int rule_no = rule[k];
-                        Tuple<ActionBlockElement> &actions = rule_action_map[rule_no];
-                        for (int j = 0; j < actions.Length(); j++)
-                            actions[j].buffer = file_symbol -> BodyBuffer();
-                    }
-                }
-
                 if (classname[i].is_terminal_class)
                      GenerateTerminalMergedClass(ntc,
                                                  (option -> automatic_ast == Option::NESTED
@@ -1188,6 +1214,11 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
                     int rule_no = rule[k];
                     rule_allocation_map[rule_no].needs_environment = classname[i].needs_environment;
                     Tuple<ActionBlockElement> &actions = rule_action_map[rule_no];
+                    if (file_symbol != NULL) // possible when option -> automatic_ast == Option::TOPLEVEL
+                    {
+                        for (int j = 0; j < actions.Length(); j++)
+                            actions[j].buffer = file_symbol -> BodyBuffer();
+                    }
                     ProcessCodeActions(actions, typestring, processed_rule_map);
                 }
             }
@@ -1211,10 +1242,20 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
         for (int i = 0; i < classname.Length(); i++)
         {
             //
-            // No class is generated for rules that are asoociated with the null classname.
+            // No class is generated for rules that are associated with the null classname.
             //
             if (! IsNullClassname(classname[i]))
+            {
+                //
+                // Note that it is CRUCIAL that the special array names be added
+                // to the type_set prior to the base array. Since they are subclasses
+                // of the base array, when visiting a generic AST node, we need to check
+                // first whether or not it is a special array before we check if it the base.
+                //
+                for (int k = 0; k < classname[i].special_arrays.Length(); k++)
+                    type_set.FindOrInsertName(classname[i].special_arrays[k].name, strlen(classname[i].special_arrays[k].name));
                 type_set.FindOrInsertName(classname[i].real_name, strlen(classname[i].real_name));
+            }
         }
     }
 
@@ -1335,6 +1376,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
                     int source_index = grammar -> rules[rule_no].source_index;
                     option -> EmitError(grammar -> parser.rules[source_index].separator_index,
                                         "Unable to generate Ast allocation for single production");
+                    return_code = 12;
                 }
 
                 if (count % option -> max_cases == 0)
@@ -1377,7 +1419,8 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
                 {
                     ActionBlockElement &action = rule_action_map[rule_no][k];
                     option -> EmitError(action.block_token,
-                                        "Since no class is associated with this production, this code is unreachable");
+                                        "Since no class is associated with this production, the information in this block is unreachable");
+                    return_code = 12;
                 }
 
                 ProcessMacro(&ast_buffer, "NoAction", rule_no);
@@ -1427,7 +1470,7 @@ void Action::CheckRecursivenessAndUpdate(Tuple<int> &nonterminal_list,
             int source_index = grammar -> rules[rule[0]].source_index;
             option -> EmitError(grammar -> parser.rules[source_index].lhs_index,
                                 "This nonterminal is associated with both left-recursive and right-recursive rule(s)");
-                                    
+            return_code = 12;
         }
         else if (recursive != NONE)
         {

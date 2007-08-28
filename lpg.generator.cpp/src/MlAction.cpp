@@ -25,7 +25,8 @@ void MlAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
 void MlAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void MlAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void MlAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
-void MlAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}
+void MlAction::GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) {}
+void MlAction::GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) {}
 void MlAction::GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void MlAction::GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void MlAction::GenerateMergedClass(CTC &,

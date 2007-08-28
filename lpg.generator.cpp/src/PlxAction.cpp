@@ -25,7 +25,8 @@ void PlxAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
 void PlxAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void PlxAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void PlxAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
-void PlxAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}
+void PlxAction::GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) {}
+void PlxAction::GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) {}
 void PlxAction::GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void PlxAction::GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void PlxAction::GenerateMergedClass(CTC &,

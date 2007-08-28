@@ -25,7 +25,8 @@ void CAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
 void CAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void CAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void CAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
-void CAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}
+void CAction::GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) {}
+void CAction::GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) {}
 void CAction::GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void CAction::GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void CAction::GenerateMergedClass(CTC &,

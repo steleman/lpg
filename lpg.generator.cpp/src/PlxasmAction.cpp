@@ -25,7 +25,8 @@ void PlxasmAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
 void PlxasmAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void PlxasmAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void PlxasmAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
-void PlxasmAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}
+void PlxasmAction::GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) {}
+void PlxasmAction::GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) {}
 void PlxasmAction::GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void PlxasmAction::GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void PlxasmAction::GenerateMergedClass(CTC &,

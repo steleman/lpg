@@ -47,6 +47,19 @@ public:
     TextBuffer *buffer;
 };
 
+
+//
+//
+//
+class SpecialArrayElement
+{
+public:
+    int lhs_image;
+    const char *name;
+    Tuple<int> rules;
+};
+
+
 //
 //
 //
@@ -65,12 +78,24 @@ public:
     bool is_terminal_class,
          needs_environment;
     VariableSymbol *array_element_type_symbol;
+    Tuple<SpecialArrayElement> special_arrays;
     Tuple<int> rule,
                ungenerated_rule,
                interface,
                rhs_type_index;
     SymbolLookupTable symbol_set;
+
+    const char *GetAllocationName(int lhs_image)
+    {
+        for (int i = 0; i < special_arrays.Length(); i++)
+        {
+            if (special_arrays[i].lhs_image == lhs_image)
+                return special_arrays[i].name;
+        }
+        return real_name;
+    }
 };
+
 
 //
 //
@@ -100,7 +125,7 @@ public:
                               element_position(0)
     {}
 
-    char *name;
+    const char *name;
     bool is_terminal_class,
          needs_environment;
     ListKind list_kind;

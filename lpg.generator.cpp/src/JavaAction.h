@@ -40,7 +40,8 @@ public:
     virtual void GenerateAbstractAstListType(TextBuffer &, const char *, const char *);
     virtual void GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *);
     virtual void GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &);
-    virtual void GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &);
+    virtual void GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &);
+    virtual void GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &);
     virtual void GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &);
     virtual void GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &);
     virtual void GenerateMergedClass(CTC &,
@@ -59,6 +60,8 @@ public:
                                        RuleAllocationElement &,
                                        Tuple<ProcessedRuleElement> &,
                                        Array<const char *> &, int);
+
+    void GenerateListMethods(CTC &, NTC &, TextBuffer &, const char *, const char *, ClassnameElement &, Array<const char *> &);
 };
 
 #endif /* JavaAction_INCLUDED */

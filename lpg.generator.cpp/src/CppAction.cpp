@@ -25,7 +25,8 @@ void CppAction::GenerateAstType(TextBuffer &, const char *, const char *) {}
 void CppAction::GenerateAbstractAstListType(TextBuffer &, const char *, const char *) {}
 void CppAction::GenerateAstTokenType(NTC &, TextBuffer &, const char *, const char *) {}
 void CppAction::GenerateInterface(bool, TextBuffer &, const char *, const char *, Tuple<int> &, Tuple<int> &, Tuple<ClassnameElement> &) {}
-void CppAction::GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) {}
+void CppAction::GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) {}
+void CppAction::GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) {}
 void CppAction::GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void CppAction::GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) {}
 void CppAction::GenerateMergedClass(CTC &,

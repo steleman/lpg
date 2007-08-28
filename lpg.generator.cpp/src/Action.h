@@ -13,6 +13,7 @@ class CTC;
 class NTC;
 class TTC;
 class ClassnameElement;
+class SpecialArrayElement;
 class ProcessedRuleElement;
 class RuleAllocationElement;
 class ActionBlockElement;
@@ -25,7 +26,7 @@ class Action
 public:
 
     Action(Control *, Blocks *, Grammar *, MacroLookupTable *);
-    virtual ~Action() {}
+    virtual ~Action() { delete [] abstract_ast_list_classname; }
 
     int return_code; 
 
@@ -36,6 +37,8 @@ protected:
     Grammar *grammar;
     Option *option;
     LexStream *lex_stream;
+
+    char *abstract_ast_list_classname;
 
     MacroLookupTable *macro_table;
 
@@ -244,7 +247,8 @@ protected:
                                    Tuple<int> &,
                                    Tuple<int> &,
                                    Tuple<ClassnameElement> &) = 0;
-    virtual void GenerateCommentHeader(TextBuffer &, const char *, ClassnameElement &) = 0;
+    virtual void GenerateCommentHeader(TextBuffer &, const char *, Tuple<int> &, Tuple<int> &) = 0;
+    virtual void GenerateListExtensionClass(CTC &, NTC &, TextBuffer &, const char *, SpecialArrayElement &, ClassnameElement &, Array<const char *> &) = 0;
     virtual void GenerateListClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) = 0;
     virtual void GenerateRuleClass(CTC &, NTC &, TextBuffer &, const char *, ClassnameElement &, Array<const char *> &) = 0;
     virtual void GenerateMergedClass(CTC &,

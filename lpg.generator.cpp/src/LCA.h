@@ -99,6 +99,5 @@ public:
 
         return 0;
     }
-
 };
 #endif /* LCA_INCLUDED */
