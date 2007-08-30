@@ -90,6 +90,7 @@ protected:
         macro_name[length + 2] = '\0';
 
         SimpleMacroSymbol *macro_symbol = export_macro_table.FindOrInsertName(macro_name, length + 2);
+        macro_symbol -> SetLocation(lex_stream -> GetTokenReference(export_token)) ;
 
         delete [] macro_name;
 
@@ -174,6 +175,7 @@ public:
     SimpleMacroSymbol *GetFilterMacro(int i) { return filter_macro_table[i]; }
 
     void InsertExportMacros();
+    void CheckExportMacros();
     void InsertImportedFilterMacros();
     void CheckMacrosForConsistency();
     void SetupBuiltinMacros();

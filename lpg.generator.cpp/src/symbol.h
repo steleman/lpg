@@ -185,11 +185,15 @@ public:
     char *Value() { return value; }
     void SetValue(const char *value_) { value = new char[strlen(value_) + 1]; strcpy(value, value_); }
 
+    bool IsUsed() { return used; }
+    void MarkUsed() { used = true; }
+
     SimpleMacroSymbol(const char *name_,
                       int length_,
                       int pool_index_,
                       unsigned hash_address_) : Symbol(SIMPLE_MACRO, name_, length_, pool_index_, hash_address_),
-                                                value(NULL)
+                                                value(NULL),
+                                                used(false)
     {}
 
     virtual ~SimpleMacroSymbol()
@@ -199,6 +203,7 @@ public:
 
 private:
     char *value;
+    bool used;
 };
 
 

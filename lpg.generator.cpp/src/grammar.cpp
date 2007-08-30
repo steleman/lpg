@@ -282,12 +282,15 @@ void Grammar::ProcessTerminals(void)
         }
     }
 
+    BitSet imported_term_set(variable_table -> Size(), BitSet::EMPTY);
     {
         for (int i = 0; i < lex_stream -> NumImportedTerminals(); i++) // imported from another grammar
         {
             int import = lex_stream -> ImportedTerminal(i);
             VariableSymbol *terminal = lex_stream -> GetVariableSymbol(import);
             declared_terminals.Next() = AssignSymbolIndex(terminal);
+
+            imported_term_set.AddElement(terminal -> Index());
         }
     }
 
@@ -523,6 +526,30 @@ void Grammar::ProcessTerminals(void)
                     msg.Next() = tok;
                     msg.Next() = "\" is assumed to be a terminal";
                     option -> EmitWarning(RetrieveTokenLocation(symbol), msg);
+                }
+            }
+        }
+
+        if (option -> import_file.Length() > 0)
+        {
+            char tok[Control::SYMBOL_SIZE + 1];
+            for (int o = 0; o < variable_table -> Size(); o++)
+            {
+                VariableSymbol *symbol = variable_table -> Element(o);
+                if (term_set[symbol -> Index()] && (! imported_term_set[symbol -> Index()]))
+                {
+                    RestoreSymbol(tok, RetrieveString(symbol -> SymbolIndex()));
+
+                    Tuple<const char *> msg;
+                    msg.Next() = "The declared terminal symbol \"";
+                    msg.Next() = tok;
+                    msg.Next() = "\" was not imported from:";
+                    for (int p = 0; p < option -> import_file.Length(); p++)
+                    {
+                        msg.Next() = "; ";
+                        msg.Next() = option -> import_file[p];
+                    }
+                    option -> EmitWarning(RetrieveTokenLocation(symbol -> SymbolIndex()), msg);
                 }
             }
         }
@@ -1358,7 +1385,8 @@ void Grammar::ProcessRules(void)
         action -> ProcessCodeActions(code_actions, typestring, processed_rule_map);
     }
     action -> ProcessCodeActions(trailer_actions, typestring, processed_rule_map);
-
+    if (option -> warnings)
+        action -> CheckExportMacros();
     action_blocks -> Flush(); // Print out all action buffers and close action files.
 
     return;
