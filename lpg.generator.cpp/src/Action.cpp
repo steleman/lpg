@@ -663,11 +663,15 @@ void Action::CompleteClassnameInfo(LCA &lca,
                     else if (rule_allocation_map[rule_no].list_symbol == 0)
                     {
                         rule_allocation_map[rule_no].list_kind = RuleAllocationElement::SINGLETON;
-                        if (element_type_symbol_index == -1)
-                            element_type_symbol_index = (grammar -> IsTerminal(rule_allocation_map[rule_no].element_symbol)
-                                                             ? grammar -> Get_ast_token_interface()
-                                                             : rule_allocation_map[rule_no].element_symbol);
-                        else if (element_type_symbol_index != rule_allocation_map[rule_no].element_symbol)
+                        //
+                        // TODO: Remove this code!
+                        //
+                        // if (element_type_symbol_index == -1)
+                        //    element_type_symbol_index = (grammar -> IsTerminal(rule_allocation_map[rule_no].element_symbol)
+                        //                                     ? grammar -> Get_ast_token_interface()
+                        //                                     : rule_allocation_map[rule_no].element_symbol);
+                        // else
+                        if (element_type_symbol_index != rule_allocation_map[rule_no].element_symbol)
                         {
                             element_type_symbol_index =
                                      lca.Find(element_type_symbol_index,
@@ -681,6 +685,8 @@ void Action::CompleteClassnameInfo(LCA &lca,
                     else rule_allocation_map[rule_no].list_kind = RuleAllocationElement::ADD_ELEMENT;
                 }
 
+                //
+                // TODO: Remove this code!
                 //
                 // Set the array element type for the classname and each RuleAllocationElement.
                 //
