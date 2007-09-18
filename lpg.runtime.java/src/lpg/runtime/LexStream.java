@@ -42,24 +42,7 @@ public class LexStream implements ILexStream, ParseErrorCodes
     public LexStream(String fileName, int tab) throws IOException
     {
         this(tab);
-
-        try
-        {
-            File f = new File(fileName);
-            InputStreamReader in = new InputStreamReader(new FileInputStream(f));
-
-            char[] buffer = new char[(int) f.length()];
-
-            in.read(buffer, 0, buffer.length);
-            initialize(buffer, fileName);
-        }
-        catch (Exception e)
-        {
-            IOException io = new IOException();
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            throw(io);
-        }
+        initialize(fileName);
     }
 
     public LexStream(char[] inputChars, String fileName)
@@ -85,6 +68,27 @@ public class LexStream implements ILexStream, ParseErrorCodes
         initialize(lineOffsets, inputChars, fileName);
     }
 
+    public void initialize(String fileName) throws IOException
+    {
+        try
+        {
+            File f = new File(fileName);
+            InputStreamReader in = new InputStreamReader(new FileInputStream(f));
+
+            char[] buffer = new char[(int) f.length()];
+
+            in.read(buffer, 0, buffer.length);
+            initialize(buffer, fileName);
+        }
+        catch (Exception e)
+        {
+            IOException io = new IOException();
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            throw(io);
+        }
+    }
+    
     public void initialize(char[] inputChars, String fileName)
     {
         setInputChars(inputChars);
