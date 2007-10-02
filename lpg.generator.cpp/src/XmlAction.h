@@ -1,7 +1,7 @@
 #ifndef XmlAction_INCLUDED
 #define XmlAction_INCLUDED
 
-#include "action.h"
+#include "Action.h"
 #include "control.h"
 
 class XmlAction : public Action

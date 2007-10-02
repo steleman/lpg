@@ -1,7 +1,7 @@
 #ifndef CAction_INCLUDED
 #define CAction_INCLUDED
 
-#include "action.h"
+#include "Action.h"
 #include "control.h"
 
 class CAction : public Action

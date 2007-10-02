@@ -4,7 +4,7 @@
 #include "LCA.h"
 #include "symbol.h"
 #include "LexStream.h"
-#include "action.h"
+#include "Action.h"
 
 //
 //

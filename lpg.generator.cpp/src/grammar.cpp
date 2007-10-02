@@ -1,7 +1,7 @@
 #include <sys/stat.h>
 #include "control.h"
 #include "grammar.h"
-#include "action.h"
+#include "Action.h"
 #include "CAction.h"
 #include "CppAction.h"
 #include "PlxAction.h"

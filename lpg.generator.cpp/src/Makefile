@@ -1,9 +1,10 @@
-# Makefile for jikespg
+# Makefile for lpg
 
 CSRCS = CAction.cpp CTable.cpp CppAction.cpp CppTable.cpp JavaAction.cpp \
         JavaTable.cpp LexStream.cpp MlAction.cpp MlTable.cpp PlxAction.cpp \
         PlxTable.cpp PlxasmAction.cpp PlxasmTable.cpp XmlAction.cpp \
-        XmlTable.cpp action.cpp base.cpp buffer.cpp code.cpp control.cpp \
+        XmlTable.cpp \
+        Action.cpp base.cpp buffer.cpp code.cpp control.cpp \
         dfa.cpp diagnose.cpp dump.cpp generator.cpp grammar.cpp jikespg.cpp \
         jikespg_act.cpp jikespg_init.cpp jikespg_prs.cpp \
         option.cpp parser.cpp pda.cpp produce.cpp resolve.cpp scanner.cpp \

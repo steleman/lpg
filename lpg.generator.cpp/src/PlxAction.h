@@ -1,7 +1,7 @@
 #ifndef PlxAction_INCLUDED
 #define PlxAction_INCLUDED
 
-#include "action.h"
+#include "Action.h"
 #include "control.h"
 
 class PlxAction : public Action

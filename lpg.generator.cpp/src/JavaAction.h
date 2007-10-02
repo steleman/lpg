@@ -1,7 +1,7 @@
 #ifndef JavaAction_INCLUDED
 #define JavaAction_INCLUDED
 
-#include "action.h"
+#include "Action.h"
 #include "control.h"
 
 class JavaAction : public Action

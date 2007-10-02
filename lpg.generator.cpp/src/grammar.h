@@ -8,7 +8,7 @@
 #include "scanner.h"
 #include "parser.h"
 #include "set.h"
-#include "action.h"
+#include "Action.h"
 
 #undef INFINITY // disable macro definition of INFINITY
 
