@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     catch (bad_alloc b)
     {
         cerr << "***System Failure: Out of memory" << endl;
+        cerr.flush();
         exit(12);
     }
 

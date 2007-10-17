@@ -36,7 +36,7 @@ protected:
     {
     public:
         inline int NextIndex()
-	{
+        {
             return Tuple<NewStateElement>::NextIndex();
         }
         inline NewStateElement& Next() { int i = NextIndex(); return base[i >> log_blksize][i]; }
@@ -133,7 +133,9 @@ public:
                                               option(control_ -> option),
                                               lex_stream(control_ -> lex_stream),
                                               grammar(control_ -> grammar),
-                                              base(pda_ -> base)
+                                              base(pda_ -> base),
+                                              next(12, 256),
+                                              previous(12, 256)
     {
         next.Resize(32768);
         previous.Resize(32768);
