@@ -496,10 +496,8 @@ void Grammar::ProcessTerminals(void)
     ProcessRemainingAliases(remaining_aliases);
 
     //
-    // If the warnings option is on then check to see if the grammar
-    // contained undeclared terminals and if so, print them.
+    // Check to see if the grammar contained undeclared terminals and if so, print them.
     //
-    if (option -> warnings)
     {
         BitSet declared_set(num_terminals + 1, BitSet::EMPTY);
         int num_undeclared_terminals = num_terminals; // Assume that all terminals are not declared
@@ -525,32 +523,36 @@ void Grammar::ProcessTerminals(void)
                     msg.Next() = "The undeclared symbol \"";
                     msg.Next() = tok;
                     msg.Next() = "\" is assumed to be a terminal";
-                    option -> EmitWarning(RetrieveTokenLocation(symbol), msg);
+                    option -> EmitError(RetrieveTokenLocation(symbol), msg);
                 }
             }
         }
+    }
 
-        if (option -> import_file.Length() > 0)
+    //
+    // Check to see if a terminal symbol that was declared in this file
+    // was not exported from one of the files imported by this grammar.
+    //
+    if (option -> warnings && option -> import_file.Length() > 0)
+    {
+        char tok[Control::SYMBOL_SIZE + 1];
+        for (int o = 0; o < variable_table -> Size(); o++)
         {
-            char tok[Control::SYMBOL_SIZE + 1];
-            for (int o = 0; o < variable_table -> Size(); o++)
+            VariableSymbol *symbol = variable_table -> Element(o);
+            if (term_set[symbol -> Index()] && (! imported_term_set[symbol -> Index()]))
             {
-                VariableSymbol *symbol = variable_table -> Element(o);
-                if (term_set[symbol -> Index()] && (! imported_term_set[symbol -> Index()]))
-                {
-                    RestoreSymbol(tok, RetrieveString(symbol -> SymbolIndex()));
+                RestoreSymbol(tok, RetrieveString(symbol -> SymbolIndex()));
 
-                    Tuple<const char *> msg;
-                    msg.Next() = "The declared terminal symbol \"";
-                    msg.Next() = tok;
-                    msg.Next() = "\" was not imported from:";
-                    for (int p = 0; p < option -> import_file.Length(); p++)
-                    {
-                        msg.Next() = "; ";
-                        msg.Next() = option -> import_file[p];
-                    }
-                    option -> EmitWarning(RetrieveTokenLocation(symbol -> SymbolIndex()), msg);
+                Tuple<const char *> msg;
+                msg.Next() = "The declared terminal symbol \"";
+                msg.Next() = tok;
+                msg.Next() = "\" was not imported from:";
+                for (int p = 0; p < option -> import_file.Length(); p++)
+                {
+                    msg.Next() = "; ";
+                    msg.Next() = option -> import_file[p];
                 }
+                option -> EmitWarning(RetrieveTokenLocation(symbol -> SymbolIndex()), msg);
             }
         }
     }

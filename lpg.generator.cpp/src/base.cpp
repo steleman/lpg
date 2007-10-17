@@ -1564,7 +1564,7 @@ void Base::PrintUnreachables(void)
         msg.Next() = "The nonterminal ";
         msg.Next() = tok;
         msg.Next() = " is useless.";
-        option -> EmitError(grammar -> RetrieveTokenLocation(symbol), msg);
+        option -> EmitWarning(grammar -> RetrieveTokenLocation(symbol), msg);
     }
 
     return;
