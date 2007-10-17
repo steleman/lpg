@@ -553,7 +553,7 @@ int Dfa::MapConflict(Tuple<ConflictCell> &cell)
                 break;
         }
 
-        if (conflicts[i + j] == 0 && (j == cell.Length()))  // Are they equal ?
+        if ((i + j >= conflicts.Length() || conflicts[i + j] == 0) && (j == cell.Length()))  // Are they equal ?
             return i;
     }
 
