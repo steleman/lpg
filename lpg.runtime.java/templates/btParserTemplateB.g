@@ -16,9 +16,9 @@
 %options action-block=("*.java", "/.", "./")
 %options ParseTable=lpg.runtime.ParseTable
 
-$Notice /.$copyright./
+%Notice /.$copyright./
 
-$Define
+%Define
 
     $copyright /../
 
@@ -104,9 +104,9 @@ $Define
     $getLeftSpan /.getParser().getFirstToken./
     $getRightSpan /.getParser().getLastToken./
     $prs_stream /.prsStream./
-$End
+%End
 
-$Headers
+%Headers
     /.
     $copyright
     $import_classes
@@ -233,18 +233,18 @@ $Headers
 
     ./
 
-$End
+%End
 
-$Rules
+%Rules
     /.$BeginActions./
-$End
+%End
 
-$Trailers
+%Trailers
     /.
         $EndActions
     }
     ./
-$End
+%End
 
 --
 -- E N D   O F   T E M P L A T E

@@ -22,9 +22,9 @@
 %options action-block=("*.java", "/.", "./")
 %options ParseTable=lpg.runtime.ParseTable
 
-$Notice /.$copyright./
+%Notice /.$copyright./
 
-$Define
+%Define
 
         $copyright /../
         $import_classes /../
@@ -47,9 +47,9 @@ $Define
         $BeginAction /.$Header./
 
         $EndAction /../
-$End
+%End
 
-$Headers
+%Headers
         /.
         $copyright
         $import_classes
@@ -93,9 +93,9 @@ $Headers
                 keywordKind[0] = identifierKind;
 
         ./
-$End
+%End
 
-$Trailers
+%Trailers
         /.
 
                 for (int i = 0; i < keywordKind.length; i++)
@@ -106,7 +106,7 @@ $Trailers
             }
         }
         ./
-$End
+%End
 
 --
 -- E N D   O F   T E M P L A T E

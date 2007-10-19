@@ -19,11 +19,11 @@
 -- The EOF and ERROR symbols are assigned a default here as a
 -- convenience.
 --
-$EOF
+%EOF
     EOF
-$End
+%End
 
-$Define
+%Define
     $Header
     /.
                 //
@@ -86,14 +86,14 @@ $Define
 
     $additional_interfaces /../
     $super_stream_class /.LpgLexStream./
-$End
+%End
 
-$Globals
+%Globals
     /.import lpg.runtime.*;
     ./
-$End
+%End
 
-$Headers
+%Headers
     /.
     public class $action_type extends $super_stream_class implements $sym_type, RuleAction$additional_interfaces
     {
@@ -172,18 +172,18 @@ $Headers
 
     ./
 
-$End
+%End
 
-$Rules
+%Rules
     /.$BeginActions./
-$End
+%End
 
-$Trailers
+%Trailers
     /.
         $EndActions
     }
     ./
-$End
+%End
 
 --
 -- E N D   O F   T E M P L A T E

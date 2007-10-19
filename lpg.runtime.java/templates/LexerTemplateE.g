@@ -22,19 +22,19 @@
 -- to EOF and that the prefix be "Char_" to be consistent with
 -- KeywordTemplateD.
 --
-$Eof
+%Eof
     EOF
-$End
+%End
 
 --
 -- This template also requires that the name of the parser EOF
 -- Token to be exported be set to EOF_TOKEN
 --
-$Export
+%Export
     EOF_TOKEN
-$End
+%End
 
-$Define
+%Define
         --
         -- Macros that are be needed in an instance of this template
         --
@@ -135,14 +135,14 @@ $Define
           $EndAction
         ./
 
-$End
+%End
 
-$Globals
+%Globals
         /.import lpg.runtime.*;
         ./
-$End
+%End
         
-$Headers
+%Headers
         /.
         public class $action_type extends $super_stream_class implements $exp_type, $sym_type, RuleAction$additional_interfaces
         {
@@ -233,9 +233,9 @@ $Headers
             {
                 ruleAction[0] = null;
         :/
-$End
+%End
 
-$Trailers
+%Trailers
     /.
         }
     ./
@@ -252,7 +252,7 @@ $Trailers
                 }
             };
     :/
-$End
+%End
 
 --
 -- E N D   O F   T E M P L A T E

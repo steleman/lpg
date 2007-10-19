@@ -1,4 +1,4 @@
-$Terminals
+%Terminals
     u0000
     u0001
     u0002
@@ -129,9 +129,9 @@ $Terminals
     u007F
     
     UNUSED
-$End
+%End
 
-$Headers
+%Headers
     --
     -- Additional methods for the action class not provided in the template
     --
@@ -350,4 +350,4 @@ $Headers
                        : tokenKind[getIntValue(i)]);
         }
     ./
-$End
+%End

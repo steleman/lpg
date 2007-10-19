@@ -24,9 +24,9 @@
 %options headers=("*.java", "/:", ":/")
 %options ParseTable=lpg.runtime.ParseTable
 
-$Notice /.$copyright./
+%Notice /.$copyright./
 
-$Define
+%Define
 
         $copyright /../
 
@@ -123,9 +123,9 @@ $Define
           $EndAction
         ./
 
-$End
+%End
 
-$Headers
+%Headers
         /.
         $copyright
         $import_classes
@@ -219,9 +219,9 @@ $Headers
             {
                 ruleAction[0] = null;
         :/
-$End
+%End
 
-$Trailers
+%Trailers
     /.
         }
     ./
@@ -238,7 +238,7 @@ $Trailers
                 }
             };
     :/
-$End
+%End
 
 --
 -- E N D   O F   T E M P L A T E

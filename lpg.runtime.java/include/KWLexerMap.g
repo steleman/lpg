@@ -1,4 +1,4 @@
-$Headers
+%Headers
     /.
         final static int tokenKind[] = new int[128];
         static
@@ -65,5 +65,5 @@ $Headers
             return ((c & 0xFFFFFF80 == 0) /* 0 <= c < 128? */ ? tokenKind[c] : 0);
         }
     ./
-$End
+%End
 
