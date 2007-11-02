@@ -148,6 +148,9 @@ void Action::CheckMacrosForConsistency()
 
 void Action::SetupBuiltinMacros()
 {
+    const char *entry_declarations_string = "$entry_declarations";
+    entry_declarations_macro = FindUserDefinedMacro(entry_declarations_string, strlen(entry_declarations_string));
+
     //
     // First, insert local macros. Then, process all actions
     //
@@ -178,6 +181,9 @@ void Action::SetupBuiltinMacros()
     (void) InsertLocalMacro("sym_type", option -> sym_type);
     (void) InsertLocalMacro("action_type", option -> action_type);
     (void) InsertLocalMacro("visitor_type", option -> visitor_type);
+
+    entry_name_macro = InsertLocalMacro("entry_name"); // Reserved macro. Prevent user redefinition
+    entry_marker_macro = InsertLocalMacro("entry_marker"); // Reserved macro. Prevent user redefinition
 
     //
     // Process filters macros 
@@ -975,7 +981,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
             ActionFileSymbol *file_symbol = GenerateTitleAndGlobals(ast_filename_table,
                                                                     notice_actions,
                                                                     option -> ast_type,
-                                                                    (grammar -> parser.ast_block != 0));
+                                                                    (grammar -> parser.ast_blocks.Length() > 0));
             GenerateAstType(*file_symbol -> BodyBuffer(), "", option -> ast_type);
             file_symbol -> Flush();
 
@@ -1387,7 +1393,10 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
 
     int count = 0;
     {
-        for (int rule_no = 1; rule_no < rule_allocation_map.Size(); rule_no++)
+        //
+        // Note that the start rules are skipped as no AST node is allocated for them.
+        //
+        for (int rule_no = grammar -> start_symbol.Length(); rule_no < rule_allocation_map.Size(); rule_no++)
         {
             if ((rule_allocation_map[rule_no].name != NULL || grammar -> RhsSize(rule_no) == 0) &&
                 (rule_allocation_map[rule_no].list_kind != RuleAllocationElement::COPY_LIST || rule_allocation_map[rule_no].list_position != 1))
@@ -1685,6 +1694,99 @@ void Action::ProcessMacro(TextBuffer *buffer, const char *name, int rule_no)
 
 
 //
+// When an error is detected during the expansion of a macro,
+// if that that macro was invoked while expanding other macros
+// we add the location info from all the calling macros.
+//
+void Action::GetCallingMacroLocations(Tuple<Token *> &locations)
+{
+    if (! file_location_stack.IsEmpty())
+    {
+        assert (file_location_stack.Length() == cursor_location_stack.Length() &&
+                file_location_stack.Length() == end_cursor_location_stack.Length());
+
+        Array<const char *> filename_copy(file_location_stack.Length()),
+                            cursor_copy(cursor_location_stack.Length()),
+                            end_cursor_copy(end_cursor_location_stack.Length());
+        do
+        {
+            const char *filename = file_location_stack.Pop(),
+                       *cursor = cursor_location_stack.Pop(),
+                       *end_cursor = end_cursor_location_stack.Pop();
+            filename_copy[file_location_stack.Length()] = filename;
+            cursor_copy[cursor_location_stack.Length()] = cursor;
+
+            InputFileSymbol *file_symbol = lex_stream -> FindOrInsertFile(filename);
+            int error_location = cursor - file_symbol -> Buffer();
+            Token *error_token = lex_stream -> GetErrorToken(file_symbol, error_location);
+            error_token -> SetEndLocation(error_location + end_cursor - cursor - 1);
+            error_token -> SetKind(0);
+
+            locations.Next() = error_token;
+        } while (! file_location_stack.IsEmpty());
+
+        //
+        // restore the stack
+        //
+        for (int i = 0; i < filename_copy.Size(); i++)
+        {
+            file_location_stack.Push(filename_copy[i]);
+            cursor_location_stack.Push(cursor_copy[i]);
+            end_cursor_location_stack.Push(end_cursor_copy[i]);
+        }
+    }
+
+    return;
+}
+
+
+
+//
+//
+//
+Token *Action::GetMacroErrorToken(const char *filename, const char *cursor, const char *end_cursor)
+{
+    InputFileSymbol *file_symbol = lex_stream -> FindOrInsertFile(filename);
+    int error_location = cursor - file_symbol -> Buffer();
+    Token *error_token = lex_stream -> GetErrorToken(file_symbol, error_location);
+    error_token -> SetEndLocation(error_location + end_cursor - cursor - 1);
+    error_token -> SetKind(0);
+
+    return error_token;
+}
+
+//
+//
+//
+void Action::EmitMacroError(const char *filename, const char *cursor, const char *end_cursor, Tuple<const char *> &msg)
+{
+    Tuple<Token *> macro_token;
+    GetCallingMacroLocations(macro_token);
+
+    option -> EmitWarning((macro_token.Length() == 0
+                                                 ? GetMacroErrorToken(filename, cursor, end_cursor)
+                                                 : macro_token[0]),
+                          msg);
+    control -> Exit(12);
+}
+
+
+//
+//
+//
+void Action::EmitMacroWarning(const char *filename, const char *cursor, const char *end_cursor, Tuple<const char *> &msg)
+{
+    Tuple<Token *> macro_token;
+    GetCallingMacroLocations(macro_token);
+
+    option -> EmitWarning((macro_token.Length() == 0
+                                                 ? GetMacroErrorToken(filename, cursor, end_cursor)
+                                                 : macro_token[0]),
+                          msg);
+}
+
+
+//
 // PROCESS_ACTION_LINE takes as arguments a line of text from an action
 // block and the rule number with which the block is associated.
 // It first scans the text for local macro names and then for
@@ -1776,7 +1878,7 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                         buffer -> Put("*** No Rule ***");
                     else
                     {
-                        int index = rule_no - 1; // original rule index starts at 0
+                        int index = grammar -> rules[rule_no].source_index; // original rule index in source
                         buffer -> Put(lex_stream -> NameString(grammar -> parser.rules[index].lhs_index));
                         buffer -> PutChar(' ');
                         buffer -> Put(grammar -> IsUnitProduction(rule_no) ? "->" : "::=");
@@ -1813,13 +1915,9 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                 {
                     buffer -> Put("IDENTIFIER");
 
-                    InputFileSymbol *file_symbol = lex_stream -> FindOrInsertFile(filename);
-                    int error_location = cursor - file_symbol -> Buffer();
-                    Token *error_token = lex_stream -> GetErrorToken(file_symbol, error_location);
-                    error_token -> SetEndLocation(error_location + end_cursor - cursor - 1);
-                    error_token -> SetKind(0);
-
-                    option -> EmitWarning(error_token, "No explicit user definition for $identfier - IDENTIFIER is assumed");
+                    Tuple <const char *> msg;
+                    msg.Next() = "No explicit user definition for $identfier - IDENTIFIER is assumed";
+                    EmitMacroWarning(filename, cursor, end_cursor, msg);
                 }
                 else assert(false);
 
@@ -1860,9 +1958,7 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                     msg.Next() = "Loop detected during the expansion of the macro \"";
                     msg.Next() = macro -> Name();
                     msg.Next() = "\"";
-                    option -> EmitError(block_token, msg);
-
-                    control -> Exit(12);
+                    EmitMacroError(filename, cursor, end_cursor, msg);
                 }
 
                 BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
@@ -1870,6 +1966,11 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                 {
                     int start = lex_stream -> StartLocation(block_token) + block -> BlockBeginLength(),
                         end   = lex_stream -> EndLocation(block_token) - block -> BlockEndLength() + 1;
+
+                    file_location_stack.Push(filename);
+                    cursor_location_stack.Push(cursor);
+                    end_cursor_location_stack.Push(end_cursor);
+
                     macro -> MarkInUse();
 
                     //
@@ -1877,38 +1978,79 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                     // be output in the current file. Otherwise, output it in the file with which
                     // it is associated.
                     //
-                    ProcessActionLine(location,
-                                      (block == option -> DefaultBlock()
-                                             ? buffer
-                                             : block -> Buffer()
-                                                      ? block -> Buffer()
-                                                      : location == ActionBlockElement::INITIALIZE
-                                                                 ? block -> ActionfileSymbol() -> InitialHeadersBuffer()
-                                                                 : location == ActionBlockElement::BODY
-                                                                            ? block -> ActionfileSymbol() -> BodyBuffer()
-                                                                            : block -> ActionfileSymbol() -> FinalTrailersBuffer()),
-                                      filename,
-                                      &(lex_stream -> InputBuffer(block_token)[start]),
-                                      &(lex_stream -> InputBuffer(block_token)[end]),
-                                      line_no,
-                                      rule_no);
+                    if (macro == entry_declarations_macro)
+                    {
+                        //
+                        // Process this macro for each starting symbol, in turn. At each
+                        // iteration, declare the relevant entry_name and entry_marker macro.
+                        //
+                        for (int i = 1; i < grammar -> start_symbol.Length(); i++)
+                        {
+                            local_macro_table.Push(); // prepare to insert special macros for this environment
+
+                            assert(InsertLocalMacro("entry_name", grammar -> RetrieveString(grammar -> start_symbol[i] -> SymbolIndex())));
+                            const char *marker = grammar -> RetrieveString(grammar -> declared_terminals[i]);
+                            char *str = new char[strlen(option -> prefix) + strlen(marker) + strlen(option -> suffix) + 1];
+                            strcpy(str, option -> prefix);
+                            strcat(str, marker);
+                            strcat(str, option -> suffix);
+                            assert(InsertLocalMacro("entry_marker", str));
+                            delete [] str;
+
+                            ProcessActionLine(location,
+                                              (block == option -> DefaultBlock()
+                                                     ? buffer
+                                                     : block -> Buffer()
+                                                              ? block -> Buffer()
+                                                              : location == ActionBlockElement::INITIALIZE
+                                                                         ? block -> ActionfileSymbol() -> InitialHeadersBuffer()
+                                                                         : location == ActionBlockElement::BODY
+                                                                                    ? block -> ActionfileSymbol() -> BodyBuffer()
+                                                                                    : block -> ActionfileSymbol() -> FinalTrailersBuffer()),
+                                              lex_stream -> GetFileSymbol(block_token) -> Name(), // filename,
+                                              &(lex_stream -> InputBuffer(block_token)[start]),
+                                              &(lex_stream -> InputBuffer(block_token)[end]),
+                                              line_no,
+                                              rule_no);
+
+                            local_macro_table.Pop(); // Leaving this environment
+                        }
+                    }
+                    else
+                    {
+                        ProcessActionLine(location,
+                                          (block == option -> DefaultBlock()
+                                                 ? buffer
+                                                 : block -> Buffer()
+                                                          ? block -> Buffer()
+                                                          : location == ActionBlockElement::INITIALIZE
+                                                                     ? block -> ActionfileSymbol() -> InitialHeadersBuffer()
+                                                                     : location == ActionBlockElement::BODY
+                                                                                ? block -> ActionfileSymbol() -> BodyBuffer()
+                                                                                : block -> ActionfileSymbol() -> FinalTrailersBuffer()),
+                                          lex_stream -> GetFileSymbol(block_token) -> Name(), // filename,
+                                          &(lex_stream -> InputBuffer(block_token)[start]),
+                                          &(lex_stream -> InputBuffer(block_token)[end]),
+                                          line_no,
+                                          rule_no);
+                    }
+
                     macro -> MarkNotInUse();
+
+                    end_cursor_location_stack.Pop();
+                    cursor_location_stack.Pop();
+                    file_location_stack.Pop();
 
                     cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
                 }
                 else
                 {
                     Tuple <const char *> msg;
-                    IntToString line(line_no);
                     msg.Next() = "The macro \"";
                     msg.Next() = macro -> Name();
-                    msg.Next() = "\" used in file ";
-                    msg.Next() = filename;
-                    msg.Next() = " at line ";
-                    msg.Next() = line.String();
-                    msg.Next() = " is undefined. No substitution made";
+                    msg.Next() = "\" is undefined. No substitution made";
 
-                    option -> EmitWarning(block_token, msg);
+                    EmitMacroWarning(filename, cursor, end_cursor, msg);
 
                     buffer -> PutChar(*cursor);
                     cursor++;
@@ -1918,20 +2060,15 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
             {
                 int length = end_cursor - cursor;
                 char *macro_name = new char[length + 1];
-                memmove(macro_name, cursor, length * sizeof(char));
+                strncpy(macro_name, cursor, length);
                 macro_name[length] = '\0';
-                InputFileSymbol *file_symbol = lex_stream -> FindOrInsertFile(filename);
-                int error_location = cursor - file_symbol -> Buffer();
-                Token *error_token = lex_stream -> GetErrorToken(file_symbol, error_location);
-                error_token -> SetEndLocation(error_location + length - 1);
-                error_token -> SetKind(0);
 
                 Tuple <const char *> msg;
                 msg.Next() = "The macro \"";
                 msg.Next() = macro_name;
                 msg.Next() = "\" is undefined. No substitution made";
 
-                option -> EmitWarning(error_token, msg);
+                EmitMacroWarning(filename, cursor, end_cursor, msg);
 
                 delete [] macro_name;
 

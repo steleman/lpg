@@ -5,7 +5,7 @@
 #include "scanner.h"
 #include "symbol.h"
 
-#line 345 "jikespg.g"
+#line 344 "jikespg.g"
 
 //
 // Compare the right hand-side of two rules and return true if they are identical.
@@ -62,7 +62,7 @@ bool jikespg_act::Compare(RuleDefinition &rule1, RuleDefinition &rule2)
 // Merge the information from an imported grammar with the
 // information for this grammar.
 //
-void jikespg_act::Merge(Parser &import)
+void jikespg_act::Merge(int import_file_index, Parser &import)
 {
     //
     // Process drop list before adding rules
@@ -91,6 +91,14 @@ void jikespg_act::Merge(Parser &import)
     //
     // Process special symbols.
     //
+    if (import.start_indexes.Length() > 0)
+    {
+        ImportedStartIndexes &element = imported_start_indexes.Next();
+        element.import_file_index = import_file_index;
+        for (int i = 0; i < import.start_indexes.Length(); i++)
+            element.start_indexes.Next() = import.start_indexes[i];
+    }
+
     if (import.identifier_index != 0)
         SetIdentifierIndex(import.identifier_index);
     if (import.eol_index != 0)
@@ -99,8 +107,6 @@ void jikespg_act::Merge(Parser &import)
         SetEofIndex(import.eof_index);
     if (import.error_index != 0)
         SetErrorIndex(import.error_index);
-    if (import.start_index != 0)
-        SetStartIndex(import.start_index);
 
     {
         for (int i = 0; i < import.terminals.Length(); i++)
@@ -232,212 +238,250 @@ void jikespg_act::Merge(Parser &import)
     }
 }
 
+  
+
+//
+// Rule 1:  JikesPG_INPUT ::= Grammar
+//
+#line 580 "jikespg.g"
+void jikespg_act::Act1()
+{
+    //
+    // If start symbols are specified in this source file, then
+    // they override all imported start symbols, if any.
+    //
+    if (start_indexes.Length() == 0)
+    {
+        //
+        // If no start symbol is specified in this source file but this source
+        // file contains more than one imported file with one or more start symbols
+        // specified in them then it's an error.
+        // If one and only one of the imported files contain start symbol
+        // specification(s) then we inherit these start symbols.
+        //
+        if (imported_start_indexes.Length() > 1)
+        {
+            for (int i = 0; i < imported_start_indexes.Length(); i++)
+                 option -> EmitError(imported_start_indexes[i].import_file_index,
+                                     "Conflicting start symbol(s) specified in this imported file");
+            control -> Exit(12);
+        }
+        else if (imported_start_indexes.Length() == 1)
+        {
+            ImportedStartIndexes &element = imported_start_indexes[0];
+            for (int i = 0; i < element.start_indexes.Length(); i++)
+                start_indexes.Next() = element.start_indexes[i];
+        }
+    }
+
+    imported_start_indexes.Resize(0); // free up space.
+}
 
 
 //
-// Rule 1:  JikesPG_INPUT ::= $Empty
+// Rule 2:  Grammar ::= $Empty
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 2:  JikesPG_INPUT ::= JikesPG_INPUT include_segment [END_KEY]
+// Rule 3:  Grammar ::= Grammar include_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 3:  JikesPG_INPUT ::= JikesPG_INPUT notice_segment [END_KEY]
+// Rule 4:  Grammar ::= Grammar notice_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 4:  JikesPG_INPUT ::= JikesPG_INPUT define_segment [END_KEY]
+// Rule 5:  Grammar ::= Grammar define_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 5:  JikesPG_INPUT ::= JikesPG_INPUT terminals_segment [END_KEY]
+// Rule 6:  Grammar ::= Grammar terminals_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 6:  JikesPG_INPUT ::= JikesPG_INPUT export_segment [END_KEY]
+// Rule 7:  Grammar ::= Grammar export_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 7:  JikesPG_INPUT ::= JikesPG_INPUT import_segment [END_KEY]
+// Rule 8:  Grammar ::= Grammar import_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 8:  JikesPG_INPUT ::= JikesPG_INPUT softkeywords_segment [END_KEY]
+// Rule 9:  Grammar ::= Grammar softkeywords_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 9:  JikesPG_INPUT ::= JikesPG_INPUT eof_segment [END_KEY]
+// Rule 10:  Grammar ::= Grammar eof_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 10:  JikesPG_INPUT ::= JikesPG_INPUT eol_segment [END_KEY]
+// Rule 11:  Grammar ::= Grammar eol_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 11:  JikesPG_INPUT ::= JikesPG_INPUT error_segment [END_KEY]
+// Rule 12:  Grammar ::= Grammar error_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 12:  JikesPG_INPUT ::= JikesPG_INPUT recover_segment [END_KEY]
+// Rule 13:  Grammar ::= Grammar recover_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 13:  JikesPG_INPUT ::= JikesPG_INPUT identifier_segment [END_KEY]
+// Rule 14:  Grammar ::= Grammar identifier_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 14:  JikesPG_INPUT ::= JikesPG_INPUT start_segment [END_KEY]
+// Rule 15:  Grammar ::= Grammar start_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 15:  JikesPG_INPUT ::= JikesPG_INPUT alias_segment [END_KEY]
+// Rule 16:  Grammar ::= Grammar alias_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 16:  JikesPG_INPUT ::= JikesPG_INPUT names_segment [END_KEY]
+// Rule 17:  Grammar ::= Grammar names_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 17:  JikesPG_INPUT ::= JikesPG_INPUT headers_segment [END_KEY]
+// Rule 18:  Grammar ::= Grammar headers_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 18:  JikesPG_INPUT ::= JikesPG_INPUT ast_segment [END_KEY]
+// Rule 19:  Grammar ::= Grammar ast_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 19:  JikesPG_INPUT ::= JikesPG_INPUT globals_segment [END_KEY]
+// Rule 20:  Grammar ::= Grammar globals_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 20:  JikesPG_INPUT ::= JikesPG_INPUT trailers_segment [END_KEY]
+// Rule 21:  Grammar ::= Grammar trailers_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 21:  JikesPG_INPUT ::= JikesPG_INPUT rules_segment [END_KEY]
+// Rule 22:  Grammar ::= Grammar rules_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 22:  JikesPG_INPUT ::= JikesPG_INPUT types_segment [END_KEY]
+// Rule 23:  Grammar ::= Grammar types_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 23:  JikesPG_INPUT ::= JikesPG_INPUT dps_segment [END_KEY]
+// Rule 24:  Grammar ::= Grammar dps_segment [END_KEY]
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 24:  include_segment ::= INCLUDE_KEY
+// Rule 25:  include_segment ::= INCLUDE_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 25:  include_segment ::= INCLUDE_KEY SYMBOL
+// Rule 26:  include_segment ::= INCLUDE_KEY SYMBOL
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 26:  notice_segment ::= NOTICE_KEY
+// Rule 27:  notice_segment ::= NOTICE_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 27:  notice_segment ::= notice_segment action_segment
+// Rule 28:  notice_segment ::= notice_segment action_segment
 //
-#line 653 "jikespg.g"
-void jikespg_act::Act27()
+#line 694 "jikespg.g"
+void jikespg_act::Act28()
 {
     notice_blocks.Next() = Token(2);
 }
 
 
 //
-// Rule 28:  define_segment ::= DEFINE_KEY
+// Rule 29:  define_segment ::= DEFINE_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 29:  define_segment ::= define_segment macro_name_symbol macro_segment
+// Rule 30:  define_segment ::= define_segment macro_name_symbol macro_segment
 //
-#line 664 "jikespg.g"
-void jikespg_act::Act29()
+#line 705 "jikespg.g"
+void jikespg_act::Act30()
 {
     MacroSymbol *macro_symbol = lex_stream -> GetMacroSymbol(Token(2));
     assert(macro_symbol);
@@ -446,17 +490,17 @@ void jikespg_act::Act29()
 
 
 //
-// Rule 30:  macro_name_symbol ::= MACRO_NAME
+// Rule 31:  macro_name_symbol ::= MACRO_NAME
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 31:  macro_name_symbol ::= SYMBOL
+// Rule 32:  macro_name_symbol ::= SYMBOL
 //
-#line 677 "jikespg.g"
-void jikespg_act::Act31()
+#line 718 "jikespg.g"
+void jikespg_act::Act32()
 {
     int length = lex_stream -> NameStringLength(Token(1)) + 1;
     char *macro_name = new char[length + 1];
@@ -477,34 +521,34 @@ void jikespg_act::Act31()
 
 
 //
-// Rule 32:  macro_segment ::= BLOCK
+// Rule 33:  macro_segment ::= BLOCK
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 33:  terminals_segment ::= TERMINALS_KEY
+// Rule 34:  terminals_segment ::= TERMINALS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 34:  terminals_segment ::= terminals_segment terminal_symbol
+// Rule 35:  terminals_segment ::= terminals_segment terminal_symbol
 //
-#line 705 "jikespg.g"
-void jikespg_act::Act34()
+#line 746 "jikespg.g"
+void jikespg_act::Act35()
 {
     terminals.Next() = Token(2);
 }
   
 
 //
-// Rule 35:  terminals_segment ::= terminals_segment terminal_symbol produces name
+// Rule 36:  terminals_segment ::= terminals_segment terminal_symbol produces name
 //
-#line 713 "jikespg.g"
-void jikespg_act::Act35()
+#line 754 "jikespg.g"
+void jikespg_act::Act36()
 {
     terminals.Next() = Token(2);
 
@@ -519,34 +563,34 @@ void jikespg_act::Act35()
 
 
 //
-// Rule 36:  export_segment ::= EXPORT_KEY
+// Rule 37:  export_segment ::= EXPORT_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 37:  export_segment ::= export_segment terminal_symbol
+// Rule 38:  export_segment ::= export_segment terminal_symbol
 //
-#line 732 "jikespg.g"
-void jikespg_act::Act37()
+#line 773 "jikespg.g"
+void jikespg_act::Act38()
 {
     exports.Next() = Token(2);
 }
 
 
 //
-// Rule 38:  import_segment ::= IMPORT_KEY
+// Rule 39:  import_segment ::= IMPORT_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 39:  import_segment ::= IMPORT_KEY SYMBOL {drop_command}
+// Rule 40:  import_segment ::= IMPORT_KEY SYMBOL {drop_command}
 //
-#line 743 "jikespg.g"
-void jikespg_act::Act39()
+#line 784 "jikespg.g"
+void jikespg_act::Act40()
 {
     int current_index = lex_stream -> Peek(),
         start_index = lex_stream -> NumTokens();
@@ -580,7 +624,7 @@ void jikespg_act::Act39()
             Parser parser(control, lex_stream, variable_table, macro_table);
             parser.Parse(start_index);
 
-            Merge(parser);
+            Merge(Token(2), parser);
 
             import_file -> Unlock();
         }
@@ -592,38 +636,38 @@ void jikespg_act::Act39()
 
 
 //
-// Rule 40:  drop_command ::= drop_symbols
+// Rule 41:  drop_command ::= drop_symbols
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 41:  drop_command ::= drop_rules
+// Rule 42:  drop_command ::= drop_rules
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 42:  drop_command ::= DROPACTIONS_KEY
+// Rule 43:  drop_command ::= DROPACTIONS_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 43:  drop_symbols ::= DROPSYMBOLS_KEY
+// Rule 44:  drop_symbols ::= DROPSYMBOLS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 44:  drop_symbols ::= drop_symbols SYMBOL
+// Rule 45:  drop_symbols ::= drop_symbols SYMBOL
 //
-#line 802 "jikespg.g"
-void jikespg_act::Act44()
+#line 843 "jikespg.g"
+void jikespg_act::Act45()
 {
     int index = dropped_rules.NextIndex();
     dropped_rules[index].lhs_index = Token(2);
@@ -633,24 +677,24 @@ void jikespg_act::Act44()
 
 
 //
-// Rule 45:  drop_rules ::= DROPRULES_KEY
+// Rule 46:  drop_rules ::= DROPRULES_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 46:  drop_rules ::= drop_rules drop_rule
+// Rule 47:  drop_rules ::= drop_rules drop_rule
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 47:  drop_rule ::= SYMBOL produces rhs
+// Rule 48:  drop_rule ::= SYMBOL produces rhs
 //
-#line 818 "jikespg.g"
-void jikespg_act::Act47()
+#line 859 "jikespg.g"
+void jikespg_act::Act48()
 {
     int index = dropped_rules.NextIndex();
     dropped_rules[index].lhs_index = Token(1);
@@ -660,10 +704,10 @@ void jikespg_act::Act47()
   
 
 //
-// Rule 48:  drop_rule ::= SYMBOL MACRO_NAME produces rhs
+// Rule 49:  drop_rule ::= SYMBOL MACRO_NAME produces rhs
 //
-#line 828 "jikespg.g"
-void jikespg_act::Act48()
+#line 869 "jikespg.g"
+void jikespg_act::Act49()
 {
     int index = dropped_rules.NextIndex();
     dropped_rules[index].lhs_index = Token(1);
@@ -673,10 +717,10 @@ void jikespg_act::Act48()
   
 
 //
-// Rule 49:  drop_rule ::= drop_rule | rhs
+// Rule 50:  drop_rule ::= drop_rule | rhs
 //
-#line 838 "jikespg.g"
-void jikespg_act::Act49()
+#line 879 "jikespg.g"
+void jikespg_act::Act50()
 {
     int index = dropped_rules.NextIndex();
     dropped_rules[index].lhs_index = dropped_rules[index - 1].lhs_index;
@@ -686,41 +730,41 @@ void jikespg_act::Act49()
 
 
 //
-// Rule 50:  {drop_command} ::= $Empty
+// Rule 51:  {drop_command} ::= $Empty
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 51:  {drop_command} ::= {drop_command} drop_command
+// Rule 52:  {drop_command} ::= {drop_command} drop_command
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 52:  softkeywords_segment ::= SOFTKEYWORDS_KEY
+// Rule 53:  softkeywords_segment ::= SOFTKEYWORDS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 53:  softkeywords_segment ::= softkeywords_segment terminal_symbol
+// Rule 54:  softkeywords_segment ::= softkeywords_segment terminal_symbol
 //
-#line 859 "jikespg.g"
-void jikespg_act::Act53()
+#line 900 "jikespg.g"
+void jikespg_act::Act54()
 {
     keywords.Next() = Token(2);
 }
   
 
 //
-// Rule 54:  softkeywords_segment ::= softkeywords_segment terminal_symbol produces name
+// Rule 55:  softkeywords_segment ::= softkeywords_segment terminal_symbol produces name
 //
-#line 867 "jikespg.g"
-void jikespg_act::Act54()
+#line 908 "jikespg.g"
+void jikespg_act::Act55()
 {
     keywords.Next() = Token(2);
 
@@ -735,167 +779,155 @@ void jikespg_act::Act54()
 
 
 //
-// Rule 55:  error_segment ::= ERROR_KEY
+// Rule 56:  error_segment ::= ERROR_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 56:  error_segment ::= ERROR_KEY terminal_symbol
+// Rule 57:  error_segment ::= ERROR_KEY terminal_symbol
 //
-#line 886 "jikespg.g"
-void jikespg_act::Act56()
+#line 927 "jikespg.g"
+void jikespg_act::Act57()
 {
     SetErrorIndex(Token(2));
 }
 
 
 //
-// Rule 57:  recover_segment ::= RECOVER_KEY
+// Rule 58:  recover_segment ::= RECOVER_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 58:  recover_segment ::= recover_segment terminal_symbol
+// Rule 59:  recover_segment ::= recover_segment terminal_symbol
 //
-#line 897 "jikespg.g"
-void jikespg_act::Act58()
+#line 938 "jikespg.g"
+void jikespg_act::Act59()
 {
     recovers.Next() = Token(2);
 }
 
 
 //
-// Rule 59:  identifier_segment ::= IDENTIFIER_KEY
+// Rule 60:  identifier_segment ::= IDENTIFIER_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 60:  identifier_segment ::= IDENTIFIER_KEY terminal_symbol
+// Rule 61:  identifier_segment ::= IDENTIFIER_KEY terminal_symbol
 //
-#line 908 "jikespg.g"
-void jikespg_act::Act60()
+#line 949 "jikespg.g"
+void jikespg_act::Act61()
 {
     SetIdentifierIndex(Token(2));
 }
 
 
 //
-// Rule 61:  eol_segment ::= EOL_KEY
+// Rule 62:  eol_segment ::= EOL_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 62:  eol_segment ::= EOL_KEY terminal_symbol
+// Rule 63:  eol_segment ::= EOL_KEY terminal_symbol
 //
-#line 919 "jikespg.g"
-void jikespg_act::Act62()
+#line 960 "jikespg.g"
+void jikespg_act::Act63()
 {
     SetEolIndex(Token(2));
 }
 
 
 //
-// Rule 63:  eof_segment ::= EOF_KEY
+// Rule 64:  eof_segment ::= EOF_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 64:  eof_segment ::= EOF_KEY terminal_symbol
+// Rule 65:  eof_segment ::= EOF_KEY terminal_symbol
 //
-#line 930 "jikespg.g"
-void jikespg_act::Act64()
+#line 971 "jikespg.g"
+void jikespg_act::Act65()
 {
     SetEofIndex(Token(2));
 }
 
 
 //
-// Rule 65:  terminal_symbol ::= SYMBOL
+// Rule 66:  terminal_symbol ::= SYMBOL
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 66:  terminal_symbol ::= MACRO_NAME
+// Rule 67:  terminal_symbol ::= MACRO_NAME
 //
-#line 941 "jikespg.g"
-void jikespg_act::Act66() { ChangeMacroToVariable(Token(1)); }
+#line 982 "jikespg.g"
+void jikespg_act::Act67() { ChangeMacroToVariable(Token(1)); }
 
 
 //
-// Rule 67:  alias_segment ::= ALIAS_KEY
+// Rule 68:  alias_segment ::= ALIAS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 68:  alias_segment ::= alias_segment ERROR_KEY produces alias_rhs
+// Rule 69:  alias_segment ::= alias_segment ERROR_KEY produces alias_rhs
 //
-#line 949 "jikespg.g"
-void jikespg_act::Act68()
+#line 990 "jikespg.g"
+void jikespg_act::Act69()
 {
     SetErrorIndex(Token(4));
 }
   
 
 //
-// Rule 69:  alias_segment ::= alias_segment EOL_KEY produces alias_rhs
+// Rule 70:  alias_segment ::= alias_segment EOL_KEY produces alias_rhs
 //
-#line 957 "jikespg.g"
-void jikespg_act::Act69()
+#line 998 "jikespg.g"
+void jikespg_act::Act70()
 {
     SetEolIndex(Token(4));
 }
   
 
 //
-// Rule 70:  alias_segment ::= alias_segment EOF_KEY produces alias_rhs
+// Rule 71:  alias_segment ::= alias_segment EOF_KEY produces alias_rhs
 //
-#line 965 "jikespg.g"
-void jikespg_act::Act70()
+#line 1006 "jikespg.g"
+void jikespg_act::Act71()
 {
     SetEofIndex(Token(4));
 }
   
 
 //
-// Rule 71:  alias_segment ::= alias_segment IDENTIFIER_KEY produces alias_rhs
+// Rule 72:  alias_segment ::= alias_segment IDENTIFIER_KEY produces alias_rhs
 //
-#line 973 "jikespg.g"
-void jikespg_act::Act71()
+#line 1014 "jikespg.g"
+void jikespg_act::Act72()
 {
     SetIdentifierIndex(Token(4));
 }
   
 
 //
-// Rule 72:  alias_segment ::= alias_segment SYMBOL produces alias_rhs
+// Rule 73:  alias_segment ::= alias_segment SYMBOL produces alias_rhs
 //
-#line 981 "jikespg.g"
-void jikespg_act::Act72()
-{
-    int index = aliases.NextIndex();
-    aliases[index].lhs_index = Token(2);
-    aliases[index].rhs_index = Token(4);
-}
-  
-
-//
-// Rule 73:  alias_segment ::= alias_segment alias_lhs_macro_name produces alias_rhs
-//
-#line 991 "jikespg.g"
+#line 1022 "jikespg.g"
 void jikespg_act::Act73()
 {
     int index = aliases.NextIndex();
@@ -905,172 +937,191 @@ void jikespg_act::Act73()
   
 
 //
-// Rule 74:  alias_lhs_macro_name ::= MACRO_NAME
+// Rule 74:  alias_segment ::= alias_segment alias_lhs_macro_name produces alias_rhs
 //
-#line 1001 "jikespg.g"
-void jikespg_act::Act74() { ChangeMacroToVariable(Token(1)); }
-
-
-//
-// Rule 75:  alias_rhs ::= SYMBOL
-//
-// void NoAction(void);
-//
-  
-
-//
-// Rule 76:  alias_rhs ::= MACRO_NAME
-//
-#line 1009 "jikespg.g"
-void jikespg_act::Act76() { ChangeMacroToVariable(Token(1)); }
-
-
-//
-// Rule 77:  alias_rhs ::= ERROR_KEY
-//
-// void NoAction(void);
-//
-
-
-//
-// Rule 78:  alias_rhs ::= EOL_KEY
-//
-// void NoAction(void);
-//
-
-
-//
-// Rule 79:  alias_rhs ::= EOF_KEY
-//
-// void NoAction(void);
-//
-
-
-//
-// Rule 80:  alias_rhs ::= EMPTY_KEY
-//
-// void NoAction(void);
-//
-
-
-//
-// Rule 81:  alias_rhs ::= IDENTIFIER_KEY
-//
-// void NoAction(void);
-//
-  
-
-//
-// Rule 82:  start_segment ::= START_KEY start_symbol
-//
-#line 1029 "jikespg.g"
-void jikespg_act::Act82()
+#line 1032 "jikespg.g"
+void jikespg_act::Act74()
 {
-    SetStartIndex(Token(2));
+    int index = aliases.NextIndex();
+    aliases[index].lhs_index = Token(2);
+    aliases[index].rhs_index = Token(4);
+}
+  
+
+//
+// Rule 75:  alias_lhs_macro_name ::= MACRO_NAME
+//
+#line 1042 "jikespg.g"
+void jikespg_act::Act75() { ChangeMacroToVariable(Token(1)); }
+
+
+//
+// Rule 76:  alias_rhs ::= SYMBOL
+//
+// void NoAction(void);
+//
+  
+
+//
+// Rule 77:  alias_rhs ::= MACRO_NAME
+//
+#line 1050 "jikespg.g"
+void jikespg_act::Act77() { ChangeMacroToVariable(Token(1)); }
+
+
+//
+// Rule 78:  alias_rhs ::= ERROR_KEY
+//
+// void NoAction(void);
+//
+
+
+//
+// Rule 79:  alias_rhs ::= EOL_KEY
+//
+// void NoAction(void);
+//
+
+
+//
+// Rule 80:  alias_rhs ::= EOF_KEY
+//
+// void NoAction(void);
+//
+
+
+//
+// Rule 81:  alias_rhs ::= EMPTY_KEY
+//
+// void NoAction(void);
+//
+
+
+//
+// Rule 82:  alias_rhs ::= IDENTIFIER_KEY
+//
+// void NoAction(void);
+//
+
+
+//
+// Rule 83:  start_segment ::= START_KEY
+//
+// void NoAction(void);
+//
+  
+
+//
+// Rule 84:  start_segment ::= start_segment start_symbol
+//
+#line 1073 "jikespg.g"
+void jikespg_act::Act84()
+{
+    start_indexes.Next() = Token(2);
 }
 
 
 //
-// Rule 83:  headers_segment ::= HEADERS_KEY
+// Rule 85:  headers_segment ::= HEADERS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 84:  headers_segment ::= headers_segment action_segment
+// Rule 86:  headers_segment ::= headers_segment action_segment
 //
-#line 1040 "jikespg.g"
-void jikespg_act::Act84()
+#line 1084 "jikespg.g"
+void jikespg_act::Act86()
 {
     header_blocks.Next() = Token(2);
 }
 
 
 //
-// Rule 85:  ast_segment ::= AST_KEY
+// Rule 87:  ast_segment ::= AST_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 86:  ast_segment ::= AST_KEY action_segment
+// Rule 88:  ast_segment ::= ast_segment action_segment
 //
-#line 1051 "jikespg.g"
-void jikespg_act::Act86()
+#line 1095 "jikespg.g"
+void jikespg_act::Act88()
 {
-    ast_block = Token(2);
+    ast_blocks.Next() = Token(2);
 }
 
 
 //
-// Rule 87:  globals_segment ::= GLOBALS_KEY
+// Rule 89:  globals_segment ::= GLOBALS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 88:  globals_segment ::= globals_segment action_segment
+// Rule 90:  globals_segment ::= globals_segment action_segment
 //
-#line 1062 "jikespg.g"
-void jikespg_act::Act88()
+#line 1106 "jikespg.g"
+void jikespg_act::Act90()
 {
     global_blocks.Next() = Token(2);
 }
 
 
 //
-// Rule 89:  trailers_segment ::= TRAILERS_KEY
+// Rule 91:  trailers_segment ::= TRAILERS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 90:  trailers_segment ::= trailers_segment action_segment
+// Rule 92:  trailers_segment ::= trailers_segment action_segment
 //
-#line 1073 "jikespg.g"
-void jikespg_act::Act90()
+#line 1117 "jikespg.g"
+void jikespg_act::Act92()
 {
     trailer_blocks.Next() = Token(2);
 }
 
 
 //
-// Rule 91:  start_symbol ::= SYMBOL
+// Rule 93:  start_symbol ::= SYMBOL
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 92:  start_symbol ::= MACRO_NAME
+// Rule 94:  start_symbol ::= MACRO_NAME
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 93:  rules_segment ::= RULES_KEY {action_segment}
+// Rule 95:  rules_segment ::= RULES_KEY {action_segment}
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 94:  rules_segment ::= rules_segment rules
+// Rule 96:  rules_segment ::= rules_segment rules
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 95:  rules ::= SYMBOL produces rhs
+// Rule 97:  rules ::= SYMBOL produces rhs
 //
-#line 1093 "jikespg.g"
-void jikespg_act::Act95()
+#line 1137 "jikespg.g"
+void jikespg_act::Act97()
 {
     int index = rules.NextIndex();
     rules[index].lhs_index = Token(1);
@@ -1082,10 +1133,10 @@ void jikespg_act::Act95()
   
 
 //
-// Rule 96:  rules ::= SYMBOL MACRO_NAME produces rhs
+// Rule 98:  rules ::= SYMBOL MACRO_NAME produces rhs
 //
-#line 1106 "jikespg.g"
-void jikespg_act::Act96()
+#line 1150 "jikespg.g"
+void jikespg_act::Act98()
 {
     int index = rules.NextIndex();
     rules[index].lhs_index = Token(1);
@@ -1097,10 +1148,10 @@ void jikespg_act::Act96()
   
 
 //
-// Rule 97:  rules ::= SYMBOL MACRO_NAME MACRO_NAME produces rhs
+// Rule 99:  rules ::= SYMBOL MACRO_NAME MACRO_NAME produces rhs
 //
-#line 1119 "jikespg.g"
-void jikespg_act::Act97()
+#line 1163 "jikespg.g"
+void jikespg_act::Act99()
 {
     AddVariableName(Token(3));
 
@@ -1114,10 +1165,10 @@ void jikespg_act::Act97()
   
 
 //
-// Rule 98:  rules ::= rules | rhs
+// Rule 100:  rules ::= rules | rhs
 //
-#line 1134 "jikespg.g"
-void jikespg_act::Act98()
+#line 1178 "jikespg.g"
+void jikespg_act::Act100()
 {
     int index = rules.NextIndex();
     rules[index].lhs_index = rules[index - 1].lhs_index;
@@ -1129,101 +1180,101 @@ void jikespg_act::Act98()
 
 
 //
-// Rule 99:  produces ::= ::=
+// Rule 101:  produces ::= ::=
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 100:  produces ::= ::=?
+// Rule 102:  produces ::= ::=?
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 101:  produces ::= ->
+// Rule 103:  produces ::= ->
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 102:  produces ::= ->?
+// Rule 104:  produces ::= ->?
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 103:  rhs ::= $Empty
+// Rule 105:  rhs ::= $Empty
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 104:  rhs ::= rhs SYMBOL
+// Rule 106:  rhs ::= rhs SYMBOL
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 105:  rhs ::= rhs SYMBOL MACRO_NAME
+// Rule 107:  rhs ::= rhs SYMBOL MACRO_NAME
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 106:  rhs ::= rhs EMPTY_KEY
+// Rule 108:  rhs ::= rhs EMPTY_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 107:  rhs ::= rhs action_segment
+// Rule 109:  rhs ::= rhs action_segment
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 108:  action_segment ::= BLOCK
+// Rule 110:  action_segment ::= BLOCK
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 109:  types_segment ::= TYPES_KEY
+// Rule 111:  types_segment ::= TYPES_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 110:  types_segment ::= types_segment type_declarationlist
+// Rule 112:  types_segment ::= types_segment type_declarationlist
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 111:  type_declarationlist ::= type_declarations
+// Rule 113:  type_declarationlist ::= type_declarations
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 112:  type_declarationlist ::= type_declarations BLOCK
+// Rule 114:  type_declarationlist ::= type_declarations BLOCK
 //
-#line 1185 "jikespg.g"
-void jikespg_act::Act112()
+#line 1229 "jikespg.g"
+void jikespg_act::Act114()
 {
     int index = types.Length();
     do
@@ -1234,10 +1285,10 @@ void jikespg_act::Act112()
   
 
 //
-// Rule 113:  type_declarations ::= SYMBOL produces SYMBOL
+// Rule 115:  type_declarations ::= SYMBOL produces SYMBOL
 //
-#line 1196 "jikespg.g"
-void jikespg_act::Act113()
+#line 1240 "jikespg.g"
+void jikespg_act::Act115()
 {
     int index = types.NextIndex();
     types[index].type_index = Token(1);
@@ -1248,10 +1299,10 @@ void jikespg_act::Act113()
   
 
 //
-// Rule 114:  type_declarations ::= type_declarations | SYMBOL
+// Rule 116:  type_declarations ::= type_declarations | SYMBOL
 //
-#line 1207 "jikespg.g"
-void jikespg_act::Act114()
+#line 1251 "jikespg.g"
+void jikespg_act::Act116()
 {
     int index = types.NextIndex();
     types[index].type_index = types[index - 1].type_index;
@@ -1262,17 +1313,17 @@ void jikespg_act::Act114()
 
 
 //
-// Rule 115:  dps_segment ::= DISJOINTPREDECESSORSETS_KEY
+// Rule 117:  dps_segment ::= DISJOINTPREDECESSORSETS_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 116:  dps_segment ::= dps_segment SYMBOL SYMBOL
+// Rule 118:  dps_segment ::= dps_segment SYMBOL SYMBOL
 //
-#line 1222 "jikespg.g"
-void jikespg_act::Act116()
+#line 1266 "jikespg.g"
+void jikespg_act::Act118()
 {
     int index = predecessor_candidates.NextIndex();
     predecessor_candidates[index].lhs_index = Token(2);
@@ -1281,17 +1332,17 @@ void jikespg_act::Act116()
 
 
 //
-// Rule 117:  names_segment ::= NAMES_KEY
+// Rule 119:  names_segment ::= NAMES_KEY
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 118:  names_segment ::= names_segment name produces name
+// Rule 120:  names_segment ::= names_segment name produces name
 //
-#line 1235 "jikespg.g"
-void jikespg_act::Act118()
+#line 1279 "jikespg.g"
+void jikespg_act::Act120()
 {
     int index = names.NextIndex();
     names[index].lhs_index = Token(2);
@@ -1300,24 +1351,24 @@ void jikespg_act::Act118()
 
 
 //
-// Rule 119:  name ::= SYMBOL
+// Rule 121:  name ::= SYMBOL
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 120:  name ::= MACRO_NAME
+// Rule 122:  name ::= MACRO_NAME
 //
-#line 1248 "jikespg.g"
-void jikespg_act::Act120() { ChangeMacroToVariable(Token(1)); }
+#line 1292 "jikespg.g"
+void jikespg_act::Act122() { ChangeMacroToVariable(Token(1)); }
   
 
 //
-// Rule 121:  name ::= EMPTY_KEY
+// Rule 123:  name ::= EMPTY_KEY
 //
-#line 1253 "jikespg.g"
-void jikespg_act::Act121()
+#line 1297 "jikespg.g"
+void jikespg_act::Act123()
 {
     option -> EmitError(Token(1), "Illegal use of empty name or empty keyword");
     control -> Exit(12);
@@ -1325,58 +1376,58 @@ void jikespg_act::Act121()
 
 
 //
-// Rule 122:  name ::= ERROR_KEY
+// Rule 124:  name ::= ERROR_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 123:  name ::= EOL_KEY
+// Rule 125:  name ::= EOL_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 124:  name ::= IDENTIFIER_KEY
+// Rule 126:  name ::= IDENTIFIER_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 125:  [END_KEY] ::= $Empty
+// Rule 127:  [END_KEY] ::= $Empty
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 126:  [END_KEY] ::= END_KEY
+// Rule 128:  [END_KEY] ::= END_KEY
 //
 // void NoAction(void);
 //
 
 
 //
-// Rule 127:  {action_segment} ::= $Empty
+// Rule 129:  {action_segment} ::= $Empty
 //
 // void NoAction(void);
 //
   
 
 //
-// Rule 128:  {action_segment} ::= {action_segment} action_segment
+// Rule 130:  {action_segment} ::= {action_segment} action_segment
 //
-#line 1280 "jikespg.g"
-void jikespg_act::Act128()
+#line 1324 "jikespg.g"
+void jikespg_act::Act130()
 {
     initial_blocks.Next() = Token(2);
 }
 
 
-#line 1306 "jikespg.g"
+#line 1350 "jikespg.g"
 #include <iostream>
 
 using namespace std;

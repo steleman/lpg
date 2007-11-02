@@ -116,14 +116,19 @@ ActionFileSymbol *JavaAction::GenerateTitleAndGlobals(ActionFileLookupTable &ast
     ActionFileSymbol *file_symbol = GenerateTitle(ast_filename_table, notice_actions, type_name, needs_environment);
     for (int i = 0; i < grammar -> parser.global_blocks.Length(); i++)
     {
-        ActionBlockElement action;
-        action.rule_number = 0;
-        action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
-        action.block_token = grammar -> parser.global_blocks[i];
-        action.buffer = file_symbol -> InitialHeadersBuffer();
+        LexStream::TokenIndex block_token = grammar -> parser.global_blocks[i];
+        BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
+        if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+        {
+            ActionBlockElement action;
+            action.rule_number = 0;
+            action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
+            action.block_token = block_token;
+            action.buffer = file_symbol -> InitialHeadersBuffer();
 
-        ProcessActionBlock(action);
-        action.buffer -> Put("\n");
+            ProcessActionBlock(action);
+            action.buffer -> Put("\n");
+        }
     }
 
     return file_symbol;
@@ -920,14 +925,19 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        this.rightIToken = rightIToken;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    void initialize() {}\n");
-    if (grammar -> parser.ast_block != 0)
+    for (int i = 0; i < grammar -> parser.ast_blocks.Length(); i++)
     {
-        ActionBlockElement action;
-        action.rule_number = 0;
-        action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
-        action.block_token = grammar -> parser.ast_block;
-        action.buffer = &ast_buffer;
-        ProcessActionBlock(action);
+        LexStream::TokenIndex block_token = grammar -> parser.ast_blocks[i];
+        BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
+        if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+        {
+            ActionBlockElement action;
+            action.rule_number = 0;
+            action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
+            action.block_token = block_token;
+            action.buffer = &ast_buffer;
+            ProcessActionBlock(action);
+        }
     }
 
     ast_buffer.Put("\n");

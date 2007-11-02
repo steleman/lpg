@@ -1,9 +1,9 @@
-%Options margin=8,table=c++,nogoto-default,esc=$,la=3,em,scopes,fp=jikespg_,prefix=TK_
-%Options action=("*act.cpp", "/.", "./")
-%Options action=("*init.cpp", "/:", ":/")
-%options action=("*act.h","/!","!/")
+%Options margin=8,table=cpp,nogoto-default,escape=$,la=3,em,scopes,fp=jikespg_,prefix=TK_
+%Options action-block=("*act.cpp", "/.", "./")
+%Options action-block=("*init.cpp", "/:", ":/")
+%options action-block=("*act.h","/!","!/")
 
-$Define ----------------------------------------------------------------
+%Define ----------------------------------------------------------------
 
     --
     -- This macro generates a header for an action function consisting
@@ -65,9 +65,9 @@ $Define ----------------------------------------------------------------
         //./
 
 
-$End
+%End
 
-$Terminals
+%Terminals
 
     DROPSYMBOLS_KEY             ::= "%DropSymbols"
     DROPACTIONS_KEY             ::= "%DropActions"
@@ -105,23 +105,23 @@ $Terminals
     MACRO_NAME
     SYMBOL 
     BLOCK
-$End
+%End
 
-$EOF
+%EOF
    EOF
-$END
+%END
 
-$Error
+%Error
     ERROR_SYMBOL
-$End
+%End
 
-$Start
+%Start
 
     JikesPG_INPUT
 
-$End
+%End
 
-$Rules
+%Rules
 
     /!
         #line $next_line "$input_file$"
@@ -150,13 +150,13 @@ $Rules
             int identifier_index,
                 eol_index,
                 eof_index,
-                error_index,
-                start_index;
+                error_index;
 
             Tuple<int> terminals,
                        keywords,
                        exports,
-                       recovers;
+                       recovers,
+                       start_indexes;
 
             class PredecessorSetDefinition
             {
@@ -182,9 +182,9 @@ $Rules
             };
             Tuple<NameDefinition> names;
 
-            int ast_block;
             Tuple<int> notice_blocks,
                        global_blocks,
+                       ast_blocks,
                        header_blocks,
                        initial_blocks,
                        trailer_blocks;
@@ -210,6 +210,14 @@ $Rules
                   block_index;
             };
             Tuple<TypeDefinition> types;
+
+            class ImportedStartIndexes
+            {
+            public:
+                int import_file_index;
+                Tuple<int> start_indexes;
+            };
+            Tuple<ImportedStartIndexes> imported_start_indexes;
 
         protected:
 
@@ -265,15 +273,8 @@ $Rules
                 else ReportError(RESPECIFICATION_OF_ERROR_SYMBOL, index);
             }
 
-            void SetStartIndex(int index)
-            {
-                if (start_index == 0)
-                     start_index = index;
-                else ReportError(RESPECIFICATION_OF_START_SYMBOL, index);
-            }
-
             bool Compare(RuleDefinition &, RuleDefinition &);
-            void Merge(Parser &);
+            void Merge(int, Parser &);
 
             void (jikespg_act::*rule_action[$NUM_RULES + 1]) ();
         
@@ -322,8 +323,6 @@ $Rules
                       eol_index(0),
                       eof_index(0),
                       error_index(0),
-                      start_index(0),
-                      ast_block(0),
 
                       control(control_),
                       option(control_ -> option),
@@ -398,7 +397,7 @@ $Rules
         // Merge the information from an imported grammar with the
         // information for this grammar.
         //
-        void jikespg_act::Merge(Parser &import)
+        void jikespg_act::Merge(int import_file_index, Parser &import)
         {
             //
             // Process drop list before adding rules
@@ -427,6 +426,14 @@ $Rules
             //
             // Process special symbols.
             //
+            if (import.start_indexes.Length() > 0)
+            {
+                ImportedStartIndexes &element = imported_start_indexes.Next();
+                element.import_file_index = import_file_index;
+                for (int i = 0; i < import.start_indexes.Length(); i++)
+                    element.start_indexes.Next() = import.start_indexes[i];
+            }
+
             if (import.identifier_index != 0)
                 SetIdentifierIndex(import.identifier_index);
             if (import.eol_index != 0)
@@ -435,8 +442,6 @@ $Rules
                 SetEofIndex(import.eof_index);
             if (import.error_index != 0)
                 SetErrorIndex(import.error_index);
-            if (import.start_index != 0)
-                SetStartIndex(import.start_index);
 
             {
                 for (int i = 0; i < import.terminals.Length(); i++)
@@ -570,73 +575,109 @@ $Rules
 
     ./
 
-    JikesPG_INPUT ::= $empty
+    JikesPG_INPUT ::= Grammar
+        /.$Action
+        $DefaultHeader
+        {
+            //
+            // If start symbols are specified in this source file, then
+            // they override all imported start symbols, if any.
+            //
+            if (start_indexes.Length() == 0)
+            {
+                //
+                // If no start symbol is specified in this source file but this source
+                // file contains more than one imported file with one or more start symbols
+                // specified in them then it's an error.
+                // If one and only one of the imported files contain start symbol
+                // specification(s) then we inherit these start symbols.
+                //
+                if (imported_start_indexes.Length() > 1)
+                {
+                    for (int i = 0; i < imported_start_indexes.Length(); i++)
+                         option -> EmitError(imported_start_indexes[i].import_file_index,
+                                             "Conflicting start symbol(s) specified in this imported file");
+                    control -> Exit(12);
+                }
+                else if (imported_start_indexes.Length() == 1)
+                {
+                    ImportedStartIndexes &element = imported_start_indexes[0];
+                    for (int i = 0; i < element.start_indexes.Length(); i++)
+                        start_indexes.Next() = element.start_indexes[i];
+                }
+            }
+
+            imported_start_indexes.Resize(0); // free up space.
+        }
+        ./
+
+    Grammar ::= %Empty
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT include_segment [END_KEY]
+    Grammar ::= Grammar include_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT notice_segment [END_KEY]
+    Grammar ::= Grammar notice_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT define_segment [END_KEY]
+    Grammar ::= Grammar define_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT terminals_segment [END_KEY]
+    Grammar ::= Grammar terminals_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT export_segment [END_KEY]
+    Grammar ::= Grammar export_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT import_segment [END_KEY]
+    Grammar ::= Grammar import_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT softkeywords_segment [END_KEY]
+    Grammar ::= Grammar softkeywords_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT eof_segment [END_KEY]
+    Grammar ::= Grammar eof_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT eol_segment [END_KEY]
+    Grammar ::= Grammar eol_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT error_segment [END_KEY]
+    Grammar ::= Grammar error_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT recover_segment [END_KEY]
+    Grammar ::= Grammar recover_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT identifier_segment [END_KEY]
+    Grammar ::= Grammar identifier_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT start_segment [END_KEY]
+    Grammar ::= Grammar start_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT alias_segment [END_KEY]
+    Grammar ::= Grammar alias_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT names_segment [END_KEY]
+    Grammar ::= Grammar names_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT headers_segment [END_KEY]
+    Grammar ::= Grammar headers_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT ast_segment [END_KEY]
+    Grammar ::= Grammar ast_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT globals_segment [END_KEY]
+    Grammar ::= Grammar globals_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT trailers_segment [END_KEY]
+    Grammar ::= Grammar trailers_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT rules_segment [END_KEY]
+    Grammar ::= Grammar rules_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT types_segment [END_KEY]
+    Grammar ::= Grammar types_segment [END_KEY]
         /.$NoAction./
 
-    JikesPG_INPUT ::= JikesPG_INPUT dps_segment [END_KEY]
+    Grammar ::= Grammar dps_segment [END_KEY]
         /.$NoAction./
 
     include_segment ::= INCLUDE_KEY
@@ -774,7 +815,7 @@ $Rules
                     Parser parser(control, lex_stream, variable_table, macro_table);
                     parser.Parse(start_index);
 
-                    Merge(parser);
+                    Merge(Token(2), parser);
 
                     import_file -> Unlock();
                 }
@@ -845,7 +886,7 @@ $Rules
         ./
 
 
-    {drop_command} ::= $empty
+    {drop_command} ::= %Empty
         /.$NoAction./
 
     {drop_command} ::= {drop_command} drop_command
@@ -1024,11 +1065,14 @@ $Rules
     alias_rhs ::= IDENTIFIER_KEY
         /.$NoAction./
 
-    start_segment ::= START_KEY start_symbol
+    start_segment ::= START_KEY
+        /.$NoAction./
+
+    start_segment ::= start_segment start_symbol
         /.$Action
         $DefaultHeader
         {
-            SetStartIndex(Token(2));
+            start_indexes.Next() = Token(2);
         }
         ./
 
@@ -1046,11 +1090,11 @@ $Rules
     ast_segment ::= AST_KEY
         /.$NoAction./
 
-    ast_segment ::= AST_KEY action_segment
+    ast_segment ::= ast_segment action_segment
         /.$Action
         $DefaultHeader
         {
-            ast_block = Token(2);
+            ast_blocks.Next() = Token(2);
         }
         ./
 
@@ -1154,7 +1198,7 @@ $Rules
     produces ::= '->?'
         /.$NoAction./
 
-    rhs ::= $empty
+    rhs ::= %Empty
         /.$NoAction./
 
     rhs ::= rhs SYMBOL
@@ -1266,13 +1310,13 @@ $Rules
     name ::= IDENTIFIER_KEY
         /.$NoAction./
 
-    [END_KEY] ::= $empty
+    [END_KEY] ::= %Empty
         /.$NoAction./
 
     [END_KEY] ::= END_KEY 
         /.$NoAction./
 
-    {action_segment} ::= $empty
+    {action_segment} ::= %Empty
         /.$NoAction./
 
     {action_segment} ::= {action_segment} action_segment 
@@ -1349,4 +1393,4 @@ $Rules
             return;
         }
     ./
-$End
+%End

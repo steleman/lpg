@@ -48,7 +48,6 @@ Grammar::Grammar(Control *control_,
     eof_image = 0;
     error_image = 0;
     accept_image = 0;
-    start_image = 0;
 
     variable_symbol_pool.Next() = null_symbol = new VariableSymbol("", 0, 0, 0);
 
@@ -100,8 +99,8 @@ void Grammar::Process()
 
     symbol_index.Next(); // skip the 0th element
 
-    ProcessTerminals();
-    ProcessRules();
+    ProcessTerminals(declared_terminals);
+    ProcessRules(declared_terminals);
     ProcessExportedTerminals();
     ProcessNames();
     if (option -> list)
@@ -260,12 +259,54 @@ void Grammar::ProcessExportedTerminals(void)
 }
 
 
-void Grammar::ProcessTerminals(void)
+void Grammar::ProcessTerminals(Tuple<int> &declared_terminals)
 {
+    //
+    // We MUST first declare the terminals that are markers for the start
+    // symbols. By declaring them first, the indexes of these markers in 
+    // the declared_terminals will be the same as the corresponding indexed
+    // of the start symbols in parser.start_indexes. Note that the main start
+    // symbol has the "empty" symbol as its marker. I.e., no marker is required
+    // for it when parsing.
+    //
     empty = AssignSymbolIndex(empty_symbol);
-
-    Tuple<int> declared_terminals;
+    assert(declared_terminals.Length() == 0);
     declared_terminals.Next() = empty;
+    for (int i = 1; i < parser.start_indexes.Length(); i++)     // Create the terminal markers for the extra entry points, if any.
+    {
+        const char *entry_name = lex_stream -> NameString(parser.start_indexes[i]),
+                   *Marker = "Marker";
+        int length = strlen(entry_name) + strlen(Marker) + 3;
+        char *marker_name = new char[length];
+        strcpy(marker_name, entry_name);
+        strcat(marker_name, Marker);
+        VariableSymbol *marker_symbol = variable_table -> FindName(marker_name, strlen(marker_name));
+        for (int k = 0; marker_symbol != NULL && k < 100; k++) // keep searching until we find an undeclared symbol name
+        {
+            IntToString number(k);
+            strcpy(marker_name, entry_name);
+            strcat(marker_name, Marker);
+            strcat(marker_name, number.String());
+            marker_symbol = variable_table -> FindName(marker_name, strlen(marker_name));
+        }
+
+        if (marker_symbol == NULL)
+             marker_symbol = variable_table -> InsertName(marker_name, strlen(marker_name));
+        else
+        {
+            Tuple<const char *> msg;
+            msg.Next() = "Unable to declare a marker for symbol \"";
+            msg.Next() = entry_name;
+            msg.Next() = "\". After trying the suffixes \"Marker\" and \"Marker\" + [\"00\"..\"99\"]";
+            option -> EmitError(lex_stream -> GetVariableSymbol(parser.start_indexes[i]) -> Location(), msg);
+            control -> Exit(12);
+        }
+
+        assert(declared_terminals.Length() == i);
+        declared_terminals.Next() = AssignSymbolIndex(marker_symbol);
+
+        delete [] marker_name;
+    }
 
     //
     // Process the declared set of terminal symbols.
@@ -359,8 +400,8 @@ void Grammar::ProcessTerminals(void)
     // This iterative algorithm is in general INEFFICIENT. However, since
     // the Alias section is likely to be small, it does not matter.
     //
-    // TODO: compute this right... first compute partial order of
-    //       nonterminals based on Alias relation, etc...
+    // TODO: compute this more efficiently? ... first compute partial order
+    //       of nonterminals based on Alias relation, etc...
     //
     bool changed = true;
     while (changed)
@@ -393,7 +434,8 @@ void Grammar::ProcessTerminals(void)
 
     //
     // Add all recovery symbols that are not known to be nonterminals
-    // to the term_set.
+    // to the term_set. Note that the recovery terminals are considered
+    // to be implicitly imported.
     //
     for (int i = 0; i < parser.recovers.Length(); i++)
     {
@@ -402,6 +444,8 @@ void Grammar::ProcessTerminals(void)
         {
             term_set.AddElement(symbol -> Index());
             declared_terminals.Next() = AssignSymbolIndex(symbol);
+
+            imported_term_set.AddElement(symbol -> Index()); // considered implicitly imported.
         }
     }
 
@@ -681,24 +725,27 @@ void Grammar::ProcessRemainingAliases(Tuple<int> &remaining_aliases)
 }
 
 
-void Grammar::ProcessTitleOrGlobalBlock(int block_token, ActionBlockElement &action)
-{
-    BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
-    TextBuffer *buffer = block -> Buffer();
-
-    if (block != option -> DefaultBlock())
-    {
-        option -> EmitError(block_token, "Only default blocks may appear in a Title or Global segment");
-        control -> Exit(12);
-    }
-
-    action.rule_number = 0;
-    action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
-    action.block_token = block_token;
-    action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> InitialHeadersBuffer());
-
-    return;
-}
+// void Grammar::ProcessTitleOrGlobalBlock(int block_token, ActionBlockElement &action)
+// {
+//     BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
+//     if (! option -> ActionBlocks.IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+//     {
+//         TextBuffer *buffer = block -> Buffer();
+// 
+//         if (block != option -> DefaultBlock())
+//         {
+//             option -> EmitError(block_token, "Only default blocks may appear in a Title or Global segment");
+//             control -> Exit(12);
+//         }
+// 
+//         action.rule_number = 0;
+//         action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
+//         action.block_token = block_token;
+//         action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> InitialHeadersBuffer());
+//     }
+// 
+//     return;
+// }
 
 
 char *Grammar::InsertInterface(SymbolLookupTable &symbol_set, char *name)
@@ -714,7 +761,7 @@ char *Grammar::InsertInterface(SymbolLookupTable &symbol_set, char *name)
 }
 
 
-void Grammar::ProcessRules(void)
+void Grammar::ProcessRules(Tuple<int> &declared_terminals)
 {
     Tuple<ActionBlockElement> notice_actions,
                               header_actions,
@@ -727,9 +774,11 @@ void Grammar::ProcessRules(void)
     //
     // Add starting rule.
     //
-    int start_index = (parser.start_index != 0 ? parser.start_index : parser.rules[0].lhs_index);
-    start_symbol = lex_stream -> GetVariableSymbol(start_index);
-    AssignSymbolIndex(start_symbol);
+    int start_index = (parser.start_indexes.Length() > 0 ? parser.start_indexes[0] : parser.rules[0].lhs_index);
+    VariableSymbol *&start = start_symbol.Next();
+    start = lex_stream -> GetVariableSymbol(start_index);
+    AssignSymbolIndex(start);
+    start_image = start -> SymbolIndex(); // save the image of the root nonterminal
     int rule_index = rules.NextIndex();
     rules[rule_index].first_token_index = start_index;
     rules[rule_index].last_token_index = start_index;
@@ -738,20 +787,54 @@ void Grammar::ProcessRules(void)
     rules[rule_index].produces_token_kind = TK_EQUIVALENCE;
     rules[rule_index].rhs_index = rhs_sym.Length();
     rules[rule_index].source_index = 0;
-    if (start_symbol -> SymbolIndex() != empty)
-    {
-        start_image = start_symbol -> SymbolIndex();
-        rhs_sym.Next() = start_image;
-    }
+
+    if (start -> SymbolIndex() != empty)
+        rhs_sym.Next() = start -> SymbolIndex();
     else
     {
         Tuple <const char *> msg;
         msg.Next() = "The start symbol, \"";
-        msg.Next() = start_symbol -> Name();
+        msg.Next() = start -> Name();
         msg.Next() = "\", is aliased to the Empty symbol";
 
         option -> EmitError(start_index, msg);
         control -> Exit(12);
+    }
+
+    //
+    // Now process the other entry points (extra start symbols), if any.
+    //
+    for (int i = 1; i < parser.start_indexes.Length(); i++)
+    {
+        int entry_index = parser.start_indexes[i];
+        VariableSymbol *&entry = start_symbol.Next();
+        entry = lex_stream -> GetVariableSymbol(entry_index);
+        AssignSymbolIndex(entry);
+
+        rule_index = rules.NextIndex();
+        rules[rule_index].first_token_index = entry_index;
+        rules[rule_index].last_token_index = entry_index;
+        rules[rule_index].lhs = start -> SymbolIndex();
+        rules[rule_index].separator_token_kind = TK_EQUIVALENCE;
+        rules[rule_index].produces_token_kind = TK_EQUIVALENCE;
+        rules[rule_index].rhs_index = rhs_sym.Length();
+        rules[rule_index].source_index = 0;
+
+        if (entry -> SymbolIndex() != empty)
+        {
+            rhs_sym.Next() = declared_terminals[i];
+            rhs_sym.Next() = entry -> SymbolIndex();
+        }
+        else
+        {
+            Tuple <const char *> msg;
+            msg.Next() = "The start symbol, \"";
+            msg.Next() = entry -> Name();
+            msg.Next() = "\", is aliased to the Empty symbol";
+
+            option -> EmitError(entry_index, msg);
+            control -> Exit(12);
+        }
     }
 
     //
@@ -762,17 +845,20 @@ void Grammar::ProcessRules(void)
     {
         LexStream::TokenIndex block_token = parser.notice_blocks[j];
         BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
-        if (block != option -> DefaultBlock())
+        if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
         {
-            option -> EmitError(block_token, "Only default blocks may appear in a notice segment");
-            return_code = 12;
-        }
+            if (block != option -> DefaultBlock())
+            {
+                option -> EmitError(block_token, "Only default blocks may appear in a notice segment");
+                return_code = 12;
+            }
 
-        ActionBlockElement &action = notice_actions.Next();
-        action.rule_number = 0;
-        action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
-        action.block_token = block_token;
-        action.buffer = &notice_buffer;
+            ActionBlockElement &action = notice_actions.Next();
+            action.rule_number = 0;
+            action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
+            action.block_token = block_token;
+            action.buffer = &notice_buffer;
+        }
     }
 
     //
@@ -781,7 +867,28 @@ void Grammar::ProcessRules(void)
     //
     {
         for (int j = 0; j < parser.global_blocks.Length(); j++)
-            ProcessTitleOrGlobalBlock(parser.global_blocks[j], header_actions.Next());
+        {
+            LexStream::TokenIndex block_token = parser.global_blocks[j];
+            BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
+            if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+            {
+                TextBuffer *buffer = block -> Buffer();
+
+                if (block != option -> DefaultBlock())
+                {
+                    option -> EmitError(block_token, "Only default blocks may appear in a Title or Global segment");
+                    control -> Exit(12);
+                }
+
+                ActionBlockElement &action = header_actions.Next();
+                action.rule_number = 0;
+                action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
+                action.block_token = block_token;
+                action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> InitialHeadersBuffer());
+            }
+
+	    //            ProcessTitleOrGlobalBlock(parser.global_blocks[j], header_actions.Next());
+        }
     }
 
     //
@@ -794,13 +901,16 @@ void Grammar::ProcessRules(void)
         {
             LexStream::TokenIndex block_token = parser.header_blocks[j];
             BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
-            TextBuffer *buffer = block -> Buffer();
+            if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+            {
+                TextBuffer *buffer = block -> Buffer();
 
-            ActionBlockElement &action = header_actions.Next();
-            action.rule_number = 0;
-            action.location = ActionBlockElement::INITIALIZE;
-            action.block_token = block_token;
-            action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> InitialHeadersBuffer());
+                ActionBlockElement &action = header_actions.Next();
+                action.rule_number = 0;
+                action.location = ActionBlockElement::INITIALIZE;
+                action.block_token = block_token;
+                action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> InitialHeadersBuffer());
+            }
         }
     }
 
@@ -808,13 +918,16 @@ void Grammar::ProcessRules(void)
     {
         LexStream::TokenIndex block_token = parser.initial_blocks[n];
         BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
-        TextBuffer *buffer = block -> Buffer();
+        if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+        {
+            TextBuffer *buffer = block -> Buffer();
 
-        ActionBlockElement &action = initial_actions.Next();
-        action.rule_number = 0;
-        action.location = ActionBlockElement::BODY;
-        action.block_token = block_token;
-        action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> BodyBuffer());
+            ActionBlockElement &action = initial_actions.Next();
+            action.rule_number = 0;
+            action.location = ActionBlockElement::BODY;
+            action.block_token = block_token;
+            action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> BodyBuffer());
+        }
     }
 
     //
@@ -827,7 +940,15 @@ void Grammar::ProcessRules(void)
     //
     Array< Tuple<int> > special_nonterminal_array(variable_table -> Size());
     Tuple< Tuple<ProcessedRuleElement> > processed_rule_map;
-    processed_rule_map.Next(); // rule 0 with no macros has already been allocated.
+    {
+        //
+        // We now skip the elements of procesed_rule_map that correspond to the
+        // "Start" rules as no macros can be associated with them and no AST is
+        // allocated for them.
+        //
+        for (int i = 0; i < start_symbol.Length(); i++)
+            (void) processed_rule_map.Next();
+    }
     SymbolLookupTable classname_set,
                       special_array_classname_set;
     Tuple<ClassnameElement> classname;
@@ -900,49 +1021,52 @@ void Grammar::ProcessRules(void)
         {
             if (lex_stream -> Kind(i) == TK_BLOCK)
             {
-                rule_contains_action_block = true;
-
-                //
-                // Check whether or not the rule is a single production
-                // and if so, issue an error and stop.
-                //
-                if (rules[rule_index].IsArrowProduction())
-                    option -> EmitError(i, "This action is associated with a single production");
-
-                if ((! option -> attributes) || i > last_symbol_index)
+                BlockSymbol *block = lex_stream -> GetBlockSymbol(i);
+                if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
                 {
-                    BlockSymbol *block = lex_stream -> GetBlockSymbol(i);
-                    TextBuffer *buffer = block -> Buffer();
+                    rule_contains_action_block = true;
 
-                    ActionBlockElement &action = (option -> automatic_ast != Option::NONE ? ast_actions.Next() : code_actions.Next());
-                    action.rule_number = rule_index;
-                    action.location = ActionBlockElement::BODY;
-                    action.block_token = i;
-                    action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> BodyBuffer());
-                }
-                else
-                {
-                    IntToString number(attribute_actions.Length());
-                    int length = number.Length() + 1; // +1 for escape character
-                    char *name = new char[length + 1]; // +1 for \0
-                    name[0] = option -> escape;
-                    strcpy(&(name[1]), number.String());
+                    //
+                    // Check whether or not the rule is a single production
+                    // and if so, issue an error and stop.
+                    //
+                    if (rules[rule_index].IsArrowProduction())
+                        option -> EmitError(i, "This action is associated with a single production");
 
-                    VariableSymbol *lhs_symbol = variable_table -> FindName(name, length);
-                    if (lhs_symbol)
+                    if ((! option -> attributes) || i > last_symbol_index)
                     {
-                        // TODO: GENERATE ERROR MESSAGE !!!
-                        assert(0);
+                        TextBuffer *buffer = block -> Buffer();
+
+                        ActionBlockElement &action = (option -> automatic_ast != Option::NONE ? ast_actions.Next() : code_actions.Next());
+                        action.rule_number = rule_index;
+                        action.location = ActionBlockElement::BODY;
+                        action.block_token = i;
+                        action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> BodyBuffer());
                     }
-                    else lhs_symbol = variable_table -> InsertName(name, length);
+                    else
+                    {
+                        IntToString number(attribute_actions.Length());
+                        int length = number.Length() + 1; // +1 for escape character
+                        char *name = new char[length + 1]; // +1 for \0
+                        name[0] = option -> escape;
+                        strcpy(&(name[1]), number.String());
 
-                    int index = attribute_actions.NextIndex();
-                    attribute_actions[index].lhs_image = AssignSymbolIndex(lhs_symbol);
-                    attribute_actions[index].block_token = i;
+                        VariableSymbol *lhs_symbol = variable_table -> FindName(name, length);
+                        if (lhs_symbol)
+                        {
+                            // TODO: GENERATE ERROR MESSAGE !!!
+                            assert(0);
+                        }
+                        else lhs_symbol = variable_table -> InsertName(name, length);
 
-                    rhs_sym.Next() = attribute_actions[index].lhs_image;
+                        int index = attribute_actions.NextIndex();
+                        attribute_actions[index].lhs_image = AssignSymbolIndex(lhs_symbol);
+                        attribute_actions[index].block_token = i;
 
-                    delete [] name;
+                        rhs_sym.Next() = attribute_actions[index].lhs_image;
+
+                        delete [] name;
+                    }
                 }
             }
             else if (lex_stream -> Kind(i) == TK_MACRO_NAME)
@@ -1039,7 +1163,7 @@ void Grammar::ProcessRules(void)
             num_single_productions++;
 
         //
-        // Keep track of all pairs (nonterminal X arry_type) that are associated with
+        // Keep track of all pairs (nonterminal X array_type) that are associated with
         // a rule that contain actions.
         //
         int array_element_type_index = parser.rules[k].array_element_type_index;
@@ -1059,7 +1183,10 @@ void Grammar::ProcessRules(void)
 
     //
     // If we have to generate extra rules because of the presence of
-    // of "attributes", we do so here.
+    // of "attributes", we do so here. Note that we don't have to check
+    // here whether or not these attribute actions are to be ignored because
+    // that check has already been made and if they were to be ignored they
+    // would not have been added to this list in the first place.
     //
     for (int l = 0; l < attribute_actions.Length(); l++)
     {
@@ -1091,23 +1218,26 @@ void Grammar::ProcessRules(void)
     {
         LexStream::TokenIndex block_token = parser.trailer_blocks[a];
         BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
-        TextBuffer *buffer = block -> Buffer();
+        if (! option -> ActionBlocks().IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+        {
+            TextBuffer *buffer = block -> Buffer();
 
-        //
-        // Note that trailer actions are associated with rule 0 instead of
-        // the last rule (parser.rules.Length()). This is because we do not
-        // want to have the variable name macros defined for the last rule
-        // to be visible when processing trailer actions. (See ProcessCodeActions).
-        //
-        ActionBlockElement &action = trailer_actions.Next();
-        action.rule_number = 0;
-        action.location = ActionBlockElement::FINALIZE;
-        action.block_token = block_token;
-        action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> FinalTrailersBuffer());
+            //
+            // Note that trailer actions are associated with rule 0 instead of
+            // the last rule (parser.rules.Length()). This is because we do not
+            // want to have the variable name macros defined for the last rule
+            // to be visible when processing trailer actions. (See ProcessCodeActions).
+            //
+            ActionBlockElement &action = trailer_actions.Next();
+            action.rule_number = 0;
+            action.location = ActionBlockElement::FINALIZE;
+            action.block_token = block_token;
+            action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> FinalTrailersBuffer());
+        }
     }
 
     num_nonterminals = num_symbols - num_terminals;
-    num_rules = 1 /* start rule */ + (parser.rules.Length() - 1) + attribute_actions.Length();
+    num_rules = start_symbol.Length() + (parser.rules.Length() - 1) + attribute_actions.Length();
     num_items = rhs_sym.Length() + (num_rules + 1);
 
     assert(num_rules == rules.Length() - 2);
@@ -1117,7 +1247,10 @@ void Grammar::ProcessRules(void)
     //
     if (option -> automatic_ast != Option::NONE)
     {
-        for (int rule_index = 1; rule_index <= num_rules; rule_index++)
+        //
+        // Note that we skip the start rules as No AST is generated for them.
+        //
+        for (int rule_index = start_symbol.Length(); rule_index <= num_rules; rule_index++)
         {
             int k = rules[rule_index].source_index,
                 lhs_image = rules[rule_index].lhs,
@@ -1130,9 +1263,12 @@ void Grammar::ProcessRules(void)
                                        : RetrieveString(rules[rule_index].lhs));
                 if (! Code::IsValidVariableName(name))
                 {
+                    Tuple <const char *> msg;
+                    msg.Next() = "\"";
+                    msg.Next() = name;
+                    msg.Next() = "\" is an illegal variable name";
                     option -> EmitError((classname_index > 0 ? classname_index
-                                                             : parser.rules[k].lhs_index),
-                                        "Illegal variable name");
+                                                             : parser.rules[k].lhs_index), msg);
                     return_code = 12;
                 }
 
@@ -1743,11 +1879,14 @@ void Grammar::DisplayInput(void)
     //
     // Print special symbols.
     //
-    if (parser.start_index != 0)
+    if (parser.start_indexes.Length() > 0)
     {
          fprintf(option -> syslis, "\n\nStart:\n\n");
-         fprintf(option -> syslis, "   ");
-         DisplaySymbol(RetrieveString(start_image));
+         for (int i = 0; i < parser.start_indexes.Length(); i++)
+         {
+             fprintf(option -> syslis, "   ");
+             DisplaySymbol(RetrieveString(start_symbol[i] -> SymbolIndex()));
+         }
     }
     if (parser.identifier_index != 0)
     {
@@ -1813,55 +1952,98 @@ void Grammar::DisplayInput(void)
     //    Print the Rules
     //
     fprintf(option -> syslis, "\n\nRules:\n\n");
-    int alternate_space = 0;
-    for (int rule_no = 0; rule_no < num_rules; rule_no++)
     {
-        int rule_index = rule_no + 1;
-        fprintf(option -> syslis, "%-4d  ", rule_index);
-        if (rules[rule_index].IsAlternateProduction())
-        {
-            for (int i = 0; i < alternate_space; i++)
-                putc(' ', option -> syslis);
-            putc(option -> or_marker, option -> syslis);
-        }
-        else
-        {
-            const char *lhs_name = lex_stream -> NameString(parser.rules[rule_no].lhs_index);
-            alternate_space = strlen(lhs_name) + (rules[rule_index].IsArrowProduction() ? 3 : 4);
-            DisplaySymbol(lhs_name);
-            int classname_index = parser.rules[rule_no].classname_index,
-                array_element_type_index = parser.rules[rule_no].array_element_type_index;
-            if (classname_index != 0 && array_element_type_index == 0)
-                 fprintf(option -> syslis, "%s", lex_stream -> NameString(classname_index));
-            else if (classname_index == 0 && array_element_type_index != 0)
-                 fprintf(option -> syslis, "%c%c%s", option -> escape,
-                                                  option -> escape,
-                                                  lex_stream -> NameString(classname_index));
-            else if (classname_index != 0 && array_element_type_index != 0)
-                 fprintf(option -> syslis, "%s%c%s", lex_stream -> NameString(classname_index),
-                                                  option -> escape,
-                                                  lex_stream -> NameString(array_element_type_index));
-            else assert (classname_index == 0 && array_element_type_index == 0);
+        int alternate_space = 0;
 
-            if (rules[rule_index].IsArrowProduction())
-                 fprintf(option -> syslis, " ->");
-            else fprintf(option -> syslis, " ::=");
-
-        }
-
-        for (int j = lex_stream -> Next(parser.rules[rule_no].separator_index);
-                 j < parser.rules[rule_no].end_rhs_index;
-                 j = lex_stream -> Next(j))
-        {
-            if (lex_stream -> Kind(j) == TK_SYMBOL)
-                 DisplaySymbol(lex_stream -> NameString(j));
-            else if (lex_stream -> Kind(j) == TK_MACRO_NAME)
-                 fprintf(option -> syslis, " %s", lex_stream -> NameString(j));
-            else if (lex_stream -> Kind(j) == TK_EMPTY_KEY)
-                 fprintf(option -> syslis, " %c%s", option -> escape, "Empty");
-        }
-
+        //
+        // First, print the start rules.
+        //
+        fprintf(option -> syslis, "%-4d  ", 0);
+        DisplaySymbol(RetrieveString(rules[0].lhs));
+        fprintf(option -> syslis, " ::=");
+        char tok[Control::SYMBOL_SIZE + 1];
+        RestoreSymbol(tok, RetrieveString(rhs_sym[rules[0].rhs_index]));
+        DisplaySymbol(tok);
         putc('\n', option -> syslis);
+        for (int rule_no = 1; rule_no < start_symbol.Length(); rule_no++)
+        {
+            fprintf(option -> syslis, "%-4d  ", rule_no);
+            if (rule_no > 1)
+            {
+                for (int i = 0; i < alternate_space; i++)
+                    putc(' ', option -> syslis);
+                putc(option -> or_marker, option -> syslis);
+            }
+            else
+            {
+                RestoreSymbol(tok, RetrieveString(rules[rule_no].lhs));
+                alternate_space = strlen(tok) + 4;
+                DisplaySymbol(tok);
+                fprintf(option -> syslis, " ::=");
+            }
+
+            RestoreSymbol(tok, RetrieveString(rhs_sym[rules[rule_no].rhs_index]));
+            DisplaySymbol(tok);
+
+            RestoreSymbol(tok, RetrieveString(rhs_sym[rules[rule_no].rhs_index + 1]));
+            DisplaySymbol(tok);
+
+            putc('\n', option -> syslis);
+        }
+
+        putc('\n', option -> syslis); // leave a gap before listing the remaining rules.
+
+        //
+        // Print the user specified rules.
+        //
+        for (int rule_index = start_symbol.Length(); rule_index <= num_rules; rule_index++)
+        {
+            int source_index = rules[rule_index].source_index;
+            fprintf(option -> syslis, "%-4d  ", rule_index);
+            if (rules[rule_index].IsAlternateProduction())
+            {
+                for (int i = 0; i < alternate_space; i++)
+                    putc(' ', option -> syslis);
+                putc(option -> or_marker, option -> syslis);
+            }
+            else
+            {
+                const char *lhs_name = lex_stream -> NameString(parser.rules[source_index].lhs_index);
+                alternate_space = strlen(lhs_name) + (rules[rule_index].IsArrowProduction() ? 3 : 4);
+                DisplaySymbol(lhs_name);
+                int classname_index = parser.rules[source_index].classname_index,
+                    array_element_type_index = parser.rules[source_index].array_element_type_index;
+                if (classname_index != 0 && array_element_type_index == 0)
+                     fprintf(option -> syslis, "%s", lex_stream -> NameString(classname_index));
+                else if (classname_index == 0 && array_element_type_index != 0)
+                     fprintf(option -> syslis, "%c%c%s", option -> escape,
+                                                         option -> escape,
+                                                         lex_stream -> NameString(classname_index));
+                else if (classname_index != 0 && array_element_type_index != 0)
+                     fprintf(option -> syslis, "%s%c%s", lex_stream -> NameString(classname_index),
+                                                         option -> escape,
+                                                         lex_stream -> NameString(array_element_type_index));
+                else assert (classname_index == 0 && array_element_type_index == 0);
+
+                if (rules[rule_index].IsArrowProduction())
+                     fprintf(option -> syslis, " ->");
+                else fprintf(option -> syslis, " ::=");
+            }
+
+            for (int j = lex_stream -> Next(parser.rules[source_index].separator_index);
+                     j < parser.rules[source_index].end_rhs_index;
+                     j = lex_stream -> Next(j))
+            {
+                if (lex_stream -> Kind(j) == TK_SYMBOL)
+                     DisplaySymbol(lex_stream -> NameString(j));
+                else if (lex_stream -> Kind(j) == TK_MACRO_NAME)
+                     fprintf(option -> syslis, " %s", lex_stream -> NameString(j));
+                else if (lex_stream -> Kind(j) == TK_EMPTY_KEY)
+                     fprintf(option -> syslis, " %c%s", option -> escape, "Empty");
+            }
+
+            putc('\n', option -> syslis);
+        }
     }
 
     //
@@ -1869,6 +2051,8 @@ void Grammar::DisplayInput(void)
     //
     if (parser.types.Length() > 0)
     {
+        int alternate_space = 0;
+
         fprintf(option -> syslis, "\n\nTypes:\n\n");
         for (int k = 0; k < parser.types.Length(); k++)
         {

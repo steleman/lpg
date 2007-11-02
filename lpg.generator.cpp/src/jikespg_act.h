@@ -25,13 +25,13 @@ public:
     int identifier_index,
         eol_index,
         eof_index,
-        error_index,
-        start_index;
+        error_index;
 
     Tuple<int> terminals,
                keywords,
                exports,
-               recovers;
+               recovers,
+               start_indexes;
 
     class PredecessorSetDefinition
     {
@@ -57,9 +57,9 @@ public:
     };
     Tuple<NameDefinition> names;
 
-    int ast_block;
     Tuple<int> notice_blocks,
                global_blocks,
+               ast_blocks,
                header_blocks,
                initial_blocks,
                trailer_blocks;
@@ -85,6 +85,14 @@ public:
           block_index;
     };
     Tuple<TypeDefinition> types;
+
+    class ImportedStartIndexes
+    {
+    public:
+        int import_file_index;
+        Tuple<int> start_indexes;
+    };
+    Tuple<ImportedStartIndexes> imported_start_indexes;
 
 protected:
 
@@ -140,17 +148,10 @@ protected:
         else ReportError(RESPECIFICATION_OF_ERROR_SYMBOL, index);
     }
 
-    void SetStartIndex(int index)
-    {
-        if (start_index == 0)
-             start_index = index;
-        else ReportError(RESPECIFICATION_OF_START_SYMBOL, index);
-    }
-
     bool Compare(RuleDefinition &, RuleDefinition &);
-    void Merge(Parser &);
+    void Merge(int, Parser &);
 
-    void (jikespg_act::*rule_action[128 + 1]) ();
+    void (jikespg_act::*rule_action[130 + 1]) ();
 
     void ChangeMacroToVariable(int index)
     {
@@ -183,45 +184,45 @@ protected:
 
     void NoAction(void) {}
 
-    void Act27(void);
+    void Act1(void);
 
-    void Act29(void);
+    void Act28(void);
 
-    void Act31(void);
+    void Act30(void);
 
-    void Act34(void);
+    void Act32(void);
 
     void Act35(void);
 
-    void Act37(void);
+    void Act36(void);
 
-    void Act39(void);
+    void Act38(void);
 
-    void Act44(void);
+    void Act40(void);
 
-    void Act47(void);
+    void Act45(void);
 
     void Act48(void);
 
     void Act49(void);
 
-    void Act53(void);
+    void Act50(void);
 
     void Act54(void);
 
-    void Act56(void);
+    void Act55(void);
 
-    void Act58(void);
+    void Act57(void);
 
-    void Act60(void);
+    void Act59(void);
 
-    void Act62(void);
+    void Act61(void);
 
-    void Act64(void);
+    void Act63(void);
 
-    void Act66(void);
+    void Act65(void);
 
-    void Act68(void);
+    void Act67(void);
 
     void Act69(void);
 
@@ -235,9 +236,9 @@ protected:
 
     void Act74(void);
 
-    void Act76(void);
+    void Act75(void);
 
-    void Act82(void);
+    void Act77(void);
 
     void Act84(void);
 
@@ -247,19 +248,19 @@ protected:
 
     void Act90(void);
 
-    void Act95(void);
-
-    void Act96(void);
+    void Act92(void);
 
     void Act97(void);
 
     void Act98(void);
 
-    void Act112(void);
+    void Act99(void);
 
-    void Act113(void);
+    void Act100(void);
 
     void Act114(void);
+
+    void Act115(void);
 
     void Act116(void);
 
@@ -267,11 +268,13 @@ protected:
 
     void Act120(void);
 
-    void Act121(void);
+    void Act122(void);
 
-    void Act128(void);
+    void Act123(void);
 
-#line 1290 "jikespg.g"
+    void Act130(void);
+
+#line 1334 "jikespg.g"
 
 };
 #endif

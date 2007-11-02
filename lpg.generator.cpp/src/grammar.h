@@ -144,6 +144,8 @@ class Grammar : public Util
 {
 public:
 
+    friend Action;
+
     enum { DEFAULT_SYMBOL = 0 };
 
     //
@@ -229,18 +231,20 @@ private:
 
     Action *action;
 
+    Tuple<int> declared_terminals;
+
     //
     // The variables below are used to hold information about special
     // grammar symbols.
     //
-    Tuple<VariableSymbol *> variable_symbol_pool;
+    Tuple<VariableSymbol *> variable_symbol_pool,
+                            start_symbol;
     VariableSymbol *empty_symbol,
                    *identifier_symbol,
                    *eol_symbol,
                    *eof_symbol,
                    *error_symbol,
                    *accept_symbol,
-                   *start_symbol,
                    *null_symbol;
 
     VariableSymbol *allocate_variable_symbol(char *keyword)
@@ -261,12 +265,12 @@ private:
     int GetSymbolIndex(int);
     int AssignSymbolIndex(VariableSymbol *);
     void ProcessExportedTerminals();
-    void ProcessTerminals();
+    void ProcessTerminals(Tuple<int> &);
     void ProcessInitialAliases(Tuple<int> &);
     void ProcessRemainingAliases(Tuple<int> &);
     void ProcessTitleOrGlobalBlock(int, ActionBlockElement &);
     char *InsertInterface(SymbolLookupTable &, char *);
-    void ProcessRules();
+    void ProcessRules(Tuple<int> &);
     void SetName(VariableSymbol *, VariableSymbol *, bool negate = false);
     void ProcessNames();
     void DisplayString(const char *, const char);

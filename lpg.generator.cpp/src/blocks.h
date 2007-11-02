@@ -51,6 +51,15 @@ public:
 
     BlockSymbol *FindBlockname(const char *block_begin, int block_begin_length) { return block_table.FindName(block_begin, block_begin_length); }
 
+    BlockSymbol *FindOrInsertIgnoredBlock(const char *block_begin, int block_begin_length)
+    {
+        return ignored_table.FindOrInsertName(block_begin, block_begin_length);
+    }
+    bool IsIgnoredBlock(const char *block_begin, int block_begin_length)
+    {
+        return (ignored_table.FindName(block_begin, block_begin_length) != NULL);
+    }
+
     ActionFileSymbol *FindFilename(const char *name, int length) { return filename_table.FindName(name, length); }
 
     ActionFileSymbol *FindOrInsertFilename(const char *name, int length) { return filename_table.FindOrInsertName(name, length); }
@@ -88,7 +97,8 @@ private:
 
     Array< Tuple<BlockSymbol*> > block_map;
 
-    BlockLookupTable block_table;
+    BlockLookupTable block_table,
+                     ignored_table;
     ActionFileLookupTable filename_table;
 };
 

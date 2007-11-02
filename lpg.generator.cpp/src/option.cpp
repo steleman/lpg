@@ -173,8 +173,8 @@ const char *Option::AllocateString(const char *str_, int i)
 // action_block
 // ast_directory
 // ast_type
-// automatic_ast
 // attributes
+// automatic_ast
 //
 const char *Option::ClassifyA(const char *start, bool flag)
 {
@@ -723,6 +723,7 @@ const char *Option::ClassifyH(const char *start, bool flag)
 }
 
 //
+// ignore_block
 // imp_file
 // import_terminals
 // include_directory/include_directories
@@ -731,14 +732,30 @@ const char *Option::ClassifyI(const char *start, bool flag)
 {
     if (flag)
     {
-        int i = OptionMatch(start, "imp", "file");
+        int i = OptionMatch(start, "ignore", "block");
         if (start[i + 1] == '=' || IsDelimiter(start[i + 1]))
         {
             const char *p = start + i + 1,
                        *q = ValuedOption(p);
             if (i < 1)
-                 return ReportAmbiguousOption(start, "IMP_FILE, IMPORT_TERMINALS, INCLUDE_DIRECTORY");
-            else if (i < 3)
+                 return ReportAmbiguousOption(start, "IGNORE_BLOCK, IMP_FILE, IMPORT_TERMINALS, INCLUDE_DIRECTORY");
+            else if (q == NULL) // Must have a value
+                 return ReportMissingValue(start, "IGNORE_BLOCK");
+            else
+            {
+                const char *ignore_block;
+                p = GetStringValue(q, ignore_block);
+                action_blocks.FindOrInsertIgnoredBlock(ignore_block, strlen(ignore_block));
+                return p;
+            }
+        }
+
+        i = OptionMatch(start, "imp", "file");
+        if (start[i + 1] == '=' || IsDelimiter(start[i + 1]))
+        {
+            const char *p = start + i + 1,
+                       *q = ValuedOption(p);
+            if (i < 3)
                  return ReportAmbiguousOption(start, "IMP_FILE, IMPORT_TERMINALS");
             else if (q == NULL) // Must have a value
                  return ReportMissingValue(start, "IMP_FILE");
@@ -1015,8 +1032,8 @@ const char *Option::ClassifyO(const char *start, bool flag)
 }
 
 //
-// parent_saved
 // package
+// parent_saved
 // parsetable_interfaces
 // prefix
 // priority
@@ -1355,6 +1372,7 @@ const char *Option::ClassifyS(const char *start, bool flag)
 // table
 // template
 // trace
+// trailers
 //
 const char *Option::ClassifyT(const char *start, bool flag)
 {
@@ -3040,6 +3058,8 @@ void Option::PrintOptionsInEffect()
         report.Put("\",\"");
         report.Put(block -> BlockEnd());
         report.Put("\")");
+        if (action_blocks.IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
+            report.Put(" : IGNORED");
         report.PutChar('\n');
     }
     report.PutChar('\n');
@@ -3252,7 +3272,8 @@ void Option::PrintOptionsList(void)
                "-follow                                               " "\n"
                "-glr                                                  " "\n"
                "-goto-default                                         " "\n"
-               "-grm-file=string                                      " "\n"
+               "-headers=(string,string,string)                       " "\n"
+               "-ignore-block=string                                  " "\n"
                "-imp-file=string                                      " "\n"
                "-import-terminals=string                              " "\n"
                "-include-directory=string                             " "\n"
@@ -3288,6 +3309,7 @@ void Option::PrintOptionsList(void)
                "-table                                                " "\n"
                "-template=string                                      " "\n"
                "-trace[=<conflicts|full>]                             " "\n"
+               "-trailers=(string,string,string)                      " "\n"
                "-variables[=<none|both|terminals|nt|nonterminals>]    " "\n"
                "-verbose                                              " "\n"
                "-visitor[=<none|default|preorder>]                    " "\n"

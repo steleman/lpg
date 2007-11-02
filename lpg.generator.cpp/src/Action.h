@@ -40,6 +40,10 @@ protected:
 
     char *abstract_ast_list_classname;
 
+    Stack<const char *> file_location_stack,
+                        cursor_location_stack,
+                        end_cursor_location_stack;
+
     MacroLookupTable *macro_table;
 
     SimpleMacroLookupTable local_macro_table,
@@ -54,7 +58,11 @@ protected:
                       *current_line_macro,
                       *next_line_macro,
                       *identifier_macro,
-                      *symbol_declarations_macro;
+                      *symbol_declarations_macro,
+                      *entry_name_macro,
+                      *entry_marker_macro;
+
+    MacroSymbol *entry_declarations_macro;
 
     SimpleMacroSymbol *InsertLocalMacro(const char *str, const char *value = NULL)
     {
@@ -201,6 +209,10 @@ public:
                            Tuple<ClassnameElement> &);
     void ProcessActionBlock(ActionBlockElement &);
     void ProcessMacro(TextBuffer *, const char *, int);
+    void GetCallingMacroLocations(Tuple<Token *> &);
+    Token *GetMacroErrorToken(const char *, const char *, const char *);
+    void EmitMacroError(const char *, const char *, const char *, Tuple<const char *> &);
+    void EmitMacroWarning(const char *, const char *, const char *, Tuple<const char *> &);
     void ProcessActionLine(int, TextBuffer *, const char *, const char *, const char *, int, int);
     void GenerateCode(TextBuffer *, const char *, int);
 
