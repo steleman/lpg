@@ -90,6 +90,48 @@
             return;
         }./
 
+    $entry_declarations
+    /.
+        public $ast_class parse$entry_name()
+        {
+            return parse$entry_name(null, 0);
+        }
+            
+        public $ast_class parse$entry_name(Monitor monitor)
+        {
+            return parse$entry_name(monitor, 0);
+        }
+            
+        public $ast_class parse$entry_name(int error_repair_count)
+        {
+            return parse$entry_name(null, error_repair_count);
+        }
+            
+        public void resetParse$entry_name()
+        {
+            dtParser.resetParserEntry($sym_type.$entry_marker);
+        }
+        
+        public $ast_class parse$entry_name(Monitor monitor, int error_repair_count)
+        {
+            dtParser.setMonitor(monitor);
+            
+            try
+            {
+                return ($ast_class) dtParser.parseEntry($sym_type.$entry_marker);
+            }
+            catch (BadParseException e)
+            {
+                reset(e.error_token); // point to error token
+
+                DiagnoseParser diagnoseParser = new DiagnoseParser(this, prs);
+                diagnoseParser.diagnoseEntry($sym_type.$entry_marker, e.error_token);
+            }
+
+            return null;
+        }
+    ./
+        
     $additional_interfaces /../
     $ast_class /.$ast_type./
     $unimplemented_symbols_warning /.false./
@@ -244,6 +286,10 @@
             return null;
         }
 
+        //
+        // Additional entry points, if any
+        //
+        $entry_declarations
     ./
 
 %End

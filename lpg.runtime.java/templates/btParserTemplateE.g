@@ -108,6 +108,43 @@
 
         $SplitActions /../
 
+        $entry_declarations
+        /.
+            public $ast_class parse$entry_name()
+            {
+                return parse$entry_name(null, 0);
+            }
+            
+            public $ast_class parse$entry_name(Monitor monitor)
+            {
+                return parse$entry_name(monitor, 0);
+            }
+            
+            public $ast_class parse$entry_name(int error_repair_count)
+            {
+                return parse$entry_name(null, error_repair_count);
+            }
+            
+            public $ast_class parse$entry_name(Monitor monitor, int error_repair_count)
+            {
+                btParser.setMonitor(monitor);
+            
+                try
+                {
+                    return ($ast_class) btParser.parseEntry($sym_type.$entry_marker, error_repair_count);
+                }
+                catch (BadParseException e)
+                {
+                    reset(e.error_token); // point to error token
+
+                    DiagnoseParser diagnoseParser = new DiagnoseParser(this, prs);
+                    diagnoseParser.diagnoseEntry($sym_type.$entry_marker, e.error_token);
+                }
+
+                return null;
+            }
+        ./
+
         --
         -- Macros that may be needed in a parser using this template
         --
@@ -264,6 +301,11 @@
 
                 return null;
             }
+
+            //
+            // Additional entry points, if any
+            //
+            $entry_declarations
 
             public class BadActionException extends Exception
             {
