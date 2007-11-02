@@ -267,25 +267,48 @@ public class DiagnoseParser implements ParseErrorCodes
     //
     public void diagnose()
     {
-        tokStream.reset();
-        int current_token = tokStream.getToken(),
-            current_kind = tokStream.getKind(current_token);
+        diagnoseEntry(0, 0);
+    }
 
+    public void diagnose(int error_token)
+    {
+        diagnoseEntry(0, error_token);
+    }
+    
+    //
+    //
+    //
+    public void diagnoseEntry(int marker_kind)
+    {
         reallocateStacks();
         tempStackTop = 0;
         tempStack[tempStackTop] = START_STATE;
+        tokStream.reset();
+        int current_token,
+            current_kind;
+        if (marker_kind == 0)
+        {
+            current_token = tokStream.getToken();
+            current_kind = tokStream.getKind(current_token);
+        }
+        else
+        {
+            current_token = tokStream.peek();
+            current_kind = marker_kind;
+        }
+
         int error_token = parseForError(current_kind);
 
         //
         // If an error was found, start the diagnosis and recovery.
         //
         if (error_token != 0)
-            diagnose(error_token);
+            diagnoseEntry(marker_kind, error_token);
 
         return;
     }
 
-    public void diagnose(int error_token)
+    public void diagnoseEntry(int marker_kind, int error_token)
     {
         IntTuple action = new IntTuple(1 << 18);
         long startTime = System.currentTimeMillis();
@@ -295,14 +318,24 @@ public class DiagnoseParser implements ParseErrorCodes
         // Compute sequence of actions that leads us to the
         // error_token.
         //
-        tokStream.reset();
-        int current_token = tokStream.getToken(),
-            current_kind = tokStream.getKind(current_token);
-
         if (stateStack == null)
             reallocateStacks();
         tempStackTop = 0;
         tempStack[tempStackTop] = START_STATE;
+        tokStream.reset();
+        int current_token,
+            current_kind;
+        if (marker_kind == 0)
+        {
+            current_token = tokStream.getToken();
+            current_kind = tokStream.getKind(current_token);
+        }
+        else
+        {
+            current_token = tokStream.peek();
+            current_kind = marker_kind;
+        }
+
         parseUpToError(action, current_kind, error_token);
 
         //
@@ -312,11 +345,19 @@ public class DiagnoseParser implements ParseErrorCodes
         stateStack[stateStackTop] = START_STATE;
 
         tempStackTop = stateStackTop;
-        tempStack[tempStackTop] = START_STATE;
+        System.arraycopy(tempStack, 0, stateStack, 0, tempStackTop + 1);
 
         tokStream.reset();
-        current_token = tokStream.getToken();
-        current_kind = tokStream.getKind(current_token);
+        if (marker_kind == 0)
+        {
+            current_token = tokStream.getToken();
+            current_kind = tokStream.getKind(current_token);
+        }
+        else
+        {
+            current_token = tokStream.peek();
+            current_kind = marker_kind;
+        }
         locationStack[stateStackTop] = current_token;
 
         //

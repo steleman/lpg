@@ -80,7 +80,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         return;        
     }
     
-    public int recover(int error_token) throws BadParseException
+    public int recover(int marker_token, int error_token) throws BadParseException
     {
         if (stateStack == null)
             reallocateStacks();
@@ -88,19 +88,18 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         //
         //
         //
-        tokStream.reset();
         tokens.reset();
-        int restart_token = tokStream.peek(),
+        tokStream.reset();
+        tokens.add(tokStream.getPrevious(tokStream.peek()));
+        int restart_token = (marker_token != 0 ? marker_token : tokStream.getToken()),
             old_action_size = 0;
-        tokens.add(tokStream.getPrevious(restart_token));
         stateStackTop = 0;
         stateStack[stateStackTop] = START_STATE;
-
+        
         do
         {
-            tokStream.reset(restart_token);
             action.reset(old_action_size);
-            if (! fixError(error_token))
+            if (! fixError(restart_token, error_token))
                 throw new BadParseException(error_token);
 
             //
@@ -118,6 +117,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
             tokStream.reset(error_token);
             old_action_size = action.size(); // save the old size in case we encounter a new error
             error_token = parser.backtrackParse(stateStack, stateStackTop, action, 0);
+            tokStream.reset(tokStream.getNext(restart_token));
         } while (error_token != 0); // no error found
 
         return restart_token;
@@ -141,7 +141,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
     // and the sequence of actions that matches up with the result that
     // it returns.
     //
-    private boolean fixError(int error_token)
+    private boolean fixError(int start_token, int error_token)
     {
 //System.err.println("fixError entered on error token " + error_token + " ==> " + tokStream.getName(error_token) +
 //                   " in state " + originalState(stateStack[stateStackTop]) +
@@ -149,9 +149,9 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         //
         // Save information about the current configuration.
         //
-        int start_token = tokStream.getToken(), 
-            curtok = start_token, 
-            current_kind = tokStream.getKind(curtok);
+        int curtok = start_token,
+            current_kind = tokStream.getKind(curtok),
+            first_stream_token = tokStream.peek();
 
         buffer[1] = error_token;
         buffer[0] = tokStream.getPrevious(buffer[1]);
@@ -170,7 +170,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         //
         // Keep parsing until we reach the end of file and succeed or
         // an error is encountered. The list of actions executed will
-        // be store in the "action" tuple.
+        // be stored in the "action" tuple.
         //
         locationStack[stateStackTop] = curtok;
         actionStack[stateStackTop] = action.size();
@@ -280,7 +280,8 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                     if (scope_repair.distance >= MIN_DISTANCE)
                     {
 //TemporaryErrorDump();
-                        for (int token = start_token; token != error_token; token = tokStream.getNext(token))
+                    	tokens.add(start_token);
+                        for (int token = first_stream_token; token != error_token; token = tokStream.getNext(token))
                             tokens.add(token);
                         acceptRecovery(error_token);
                         break; // equivalent to: return true;

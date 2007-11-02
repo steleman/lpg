@@ -114,8 +114,10 @@ public class LexParser
 
     public void resetTokenStream(int i)
     {
-        // TODO: if i exceeds the upper bound, reset it to point to the last element.
-        tokStream.reset(i);
+        //
+        // if i exceeds the upper bound, reset it to point to the last element.
+        //
+        tokStream.reset(i > tokStream.getStreamLength() ? tokStream.getStreamLength() : i);
         curtok = tokStream.getToken();
         current_kind = tokStream.getKind(curtok);
         if (stack == null)
@@ -124,6 +126,29 @@ public class LexParser
              action = new IntTuple(1 << 10);
     }
 
+    //
+    // Parse the input and create a stream of tokens.
+    //
+    public void parseCharacters(int start_offset, int end_offset)
+    {
+        parseCharacters(null, start_offset, end_offset);
+    }
+
+    public void parseCharacters(Monitor monitor, int start_offset, int end_offset)
+    {
+        resetTokenStream(start_offset);
+        while (curtok <= end_offset)
+        {
+            //
+            // if the parser needs to stop processing,
+            // it may do so here.
+            //
+            if (monitor != null && monitor.isCancelled())
+                return;
+            lexNextToken(end_offset);
+        }
+    }
+    
     //
     // Parse the input and create a stream of tokens.
     //
@@ -274,13 +299,18 @@ public class LexParser
                      : act);
     }
 
-    public void scanNextToken(int i)
+    public boolean scanNextToken()
     {
-        resetTokenStream(i);
-        scanNextToken();
+        return lexNextToken(tokStream.getStreamLength());
+    }
+
+    public boolean scanNextToken(int start_offset)
+    {
+        resetTokenStream(start_offset);
+        return lexNextToken(tokStream.getStreamLength());
     }
     
-    public boolean scanNextToken()
+    private boolean lexNextToken(int end_offset)
     {
         //
         // Indicate that we are going to run the incremental parser and that
@@ -332,6 +362,8 @@ public class LexParser
             else if (currentAction > ERROR_ACTION)
             {
                 curtok = tokStream.getToken();
+                if (curtok > end_offset)
+                	curtok = tokStream.getStreamLength();
                 current_kind = tokStream.getKind(curtok);
                 currentAction -= ERROR_ACTION;
                 do
@@ -349,6 +381,8 @@ public class LexParser
             else if (currentAction < ACCEPT_ACTION)
             {
                 curtok = tokStream.getToken();
+                if (curtok > end_offset)
+                	curtok = tokStream.getStreamLength();
                 current_kind = tokStream.getKind(curtok);
             }
             else break; // ERROR_ACTION only. (ACCEPT_ACTION is not possible)
@@ -378,6 +412,8 @@ public class LexParser
             lastToken = curtok;
             tokStream.reportLexicalError(starttok, curtok);
             curtok = tokStream.getToken();
+            if (curtok > end_offset)
+            	curtok = tokStream.getStreamLength();
             current_kind = tokStream.getKind(curtok);
         }
         else

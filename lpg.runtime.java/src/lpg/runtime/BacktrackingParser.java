@@ -20,7 +20,34 @@ public class BacktrackingParser extends Stacks
     private IntTuple action = new IntTuple(1 << 20),
                      tokens;
     private int actionStack[];
-    private boolean skipTokens = false;	// true if error productions are used to skip tokens
+    private boolean skipTokens = false; // true if error productions are used to skip tokens
+    
+    //
+    // A starting marker indicates that we are dealing with an entry point
+    // for a given nonterminal. We need to execute a shift action on the
+    // marker in order to parse the entry point in question.
+    //
+    private int markerTokenIndex = 0;
+    private int getMarkerToken(int marker_kind, int start_token_index)        
+    {
+        if (marker_kind == 0)
+            return 0;
+        else
+        {
+            if (markerTokenIndex == 0)
+            { 
+                if (! (tokStream instanceof IPrsStream))
+                    throw new TokenStreamNotIPrsStreamException();
+                markerTokenIndex = ((IPrsStream) tokStream).makeErrorToken(tokStream.getPrevious(start_token_index),
+                                                                           tokStream.getPrevious(start_token_index),
+                                                                           tokStream.getPrevious(start_token_index),
+                                                                           marker_kind);
+            }
+            else ((IPrsStream) tokStream).getIToken(markerTokenIndex).setKind(marker_kind);
+        }
+        
+        return markerTokenIndex;
+    }
 
     //
     // Override the getToken function in Stacks.
@@ -100,13 +127,29 @@ public class BacktrackingParser extends Stacks
     //
     public Object fuzzyParse() throws BadParseException
     {
-    	return fuzzyParse(Integer.MAX_VALUE);
+        return fuzzyParseEntry(0, Integer.MAX_VALUE);
+    }
+
+    //
+    // Recover up to max_error_count times and then quit
+    //
+    public Object fuzzyParse(int max_error_count) throws BadParseException
+    {
+        return fuzzyParseEntry(0, max_error_count);
+    }
+
+    //
+    // Always attempt to recover
+    //
+    public Object fuzzyParseEntry(int marker_kind) throws BadParseException
+    {
+        return fuzzyParseEntry(marker_kind, Integer.MAX_VALUE);
     }
 
     //
     //
     //
-    public Object fuzzyParse(int max_error_count) throws BadParseException
+    public Object fuzzyParseEntry(int marker_kind, int max_error_count) throws BadParseException
     {
         action.reset();
         tokStream.reset(); // Position at first token.
@@ -120,23 +163,29 @@ public class BacktrackingParser extends Stacks
         // it up to the "Stream" implementer to define the predecessor
         // of the first token as he sees fit.
         //
-        int start_token_index = tokStream.peek();
+        int first_token = tokStream.peek(),
+            start_token = first_token,
+            marker_token = getMarkerToken(marker_kind, first_token);
         tokens = new IntTuple(tokStream.getStreamLength());
-        tokens.add(tokStream.getPrevious(start_token_index));
+        tokens.add(tokStream.getPrevious(first_token));
 
-        int error_token = backtrackParse(action, 0);
-        if (error_token != 0 && tokStream instanceof IPrsStream) // an error was detected?
+        int error_token = backtrackParse(action, marker_token);
+        if (error_token != 0) // an error was detected?
         {
+            if (! (tokStream instanceof IPrsStream))
+                throw new TokenStreamNotIPrsStreamException();
             RecoveryParser rp = new RecoveryParser(this, monitor, action, tokens, (IPrsStream) tokStream, prs, max_error_count, 0);
-            start_token_index = rp.recover(error_token);
+            start_token = rp.recover(marker_token, error_token);
         }
 
+        if (marker_token != 0 && start_token == first_token)
+            tokens.add(marker_token);
         int t;
-        for (t = start_token_index; tokStream.getKind(t) != EOFT_SYMBOL; t = tokStream.getNext(t))
+        for (t = start_token; tokStream.getKind(t) != EOFT_SYMBOL; t = tokStream.getNext(t))
             tokens.add(t);
         tokens.add(t);
 
-        return parseActions();
+        return parseActions(marker_kind);
     }
 
     //
@@ -145,7 +194,7 @@ public class BacktrackingParser extends Stacks
     public Object parse() throws BadParseException
     {
         // without an argument parse() will ignore error productions
-    	return parse(0);
+        return parseEntry(0, 0);
     }
 
     //
@@ -160,11 +209,36 @@ public class BacktrackingParser extends Stacks
     //
     public Object parse(int max_error_count) throws BadParseException
     {
+        return parseEntry(0, max_error_count);
+    }
+
+    //
+    // Parse without attempting any Error token recovery
+    //
+    public Object parseEntry(int marker_kind) throws BadParseException
+    {
+        // without an argument parse() will ignore error productions
+        return parseEntry(marker_kind, 0);
+    }
+
+    //
+    // Parse input allowing up to max_error_count Error token recoveries.
+    // When max_error_count is 0, no Error token recoveries occur.
+    // When max_error is > 0, it limits the number of Error token recoveries.
+    // When max_error is < 0, the number of error token recoveries is unlimited.
+    // Also, such recoveries only require one token to be parsed beyond the recovery point.
+    // (normally two tokens beyond the recovery point must be parsed)
+    // Thus, a negative max_error_count should be used when error productions are used to 
+    // skip tokens.
+    //
+    public Object parseEntry(int marker_kind, int max_error_count) throws BadParseException
+    {
         action.reset();
         tokStream.reset(); // Position at first token.
         reallocateStateStack();
         stateStackTop = 0;
         stateStack[0] = START_STATE;
+
         skipTokens = max_error_count < 0;
 
         if (max_error_count > 0 && tokStream instanceof IPrsStream)
@@ -179,11 +253,12 @@ public class BacktrackingParser extends Stacks
         tokens = new IntTuple(tokStream.getStreamLength());
         tokens.add(tokStream.getPrevious(tokStream.peek()));
 
-        int repair_token = 0,
-            start_token_index = tokStream.peek(),
+        int start_token_index = tokStream.peek(),
+            repair_token = getMarkerToken(marker_kind, start_token_index),
             start_action_index = action.size(), // obviously 0
-            temp_stack[] = new int[1];
-        temp_stack[0] = START_STATE;
+            temp_stack[] = new int[stateStackTop + 1];
+        System.arraycopy(stateStack, 0, temp_stack, 0, temp_stack.length);
+        
         int initial_error_token = backtrackParse(action, repair_token);
         for (int error_token = initial_error_token, count = 0;
              error_token != 0;
@@ -228,7 +303,7 @@ public class BacktrackingParser extends Stacks
             tokens.add(t);
         tokens.add(t);
 
-        return parseActions();
+        return parseActions(marker_kind);
     }
 
     //
@@ -252,7 +327,7 @@ public class BacktrackingParser extends Stacks
     // Now do the final parse of the input based on the actions in
     // the list "action" and the sequence of tokens in list "tokens".
     //
-    private Object parseActions() throws BadParseException
+    private Object parseActions(int marker_kind) throws BadParseException
     {
         int ti = -1,
             curtok;
@@ -265,6 +340,7 @@ public class BacktrackingParser extends Stacks
         //
         stateStackTop = -1;
         currentAction = START_STATE;
+
         for (int i = 0; i < action.size(); i++)
         {
             //
@@ -288,7 +364,7 @@ public class BacktrackingParser extends Stacks
                 if (tokStream.getKind(curtok) > NT_OFFSET) 
                 {
                     ErrorToken badtok = (ErrorToken) ((PrsStream) tokStream).getIToken(curtok);
-		    throw new BadParseException(badtok.getErrorToken().getTokenIndex()); // parseStack[stateStackTop] = ra.prostheticAst[prs.getProsthesisIndex(tokStream.getKind(curtok))].create(tokStream.getIToken(curtok));
+                    throw new BadParseException(badtok.getErrorToken().getTokenIndex()); // parseStack[stateStackTop] = ra.prostheticAst[prs.getProsthesisIndex(tokStream.getKind(curtok))].create(tokStream.getIToken(curtok));
                 }
                 lastToken = curtok;
                 curtok = tokens.get(++ti);
@@ -302,7 +378,7 @@ public class BacktrackingParser extends Stacks
             }
         }
 
-        return parseStack[0];
+        return parseStack[marker_kind == 0 ? 0 : 1];
     }
 
     //

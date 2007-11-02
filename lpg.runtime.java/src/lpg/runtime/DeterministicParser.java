@@ -3,6 +3,7 @@ package lpg.runtime;
 public class DeterministicParser extends Stacks
 {
     private boolean taking_actions = false;
+    private int markerKind = 0;
     
     private Monitor monitor = null;
     private int START_STATE,
@@ -161,6 +162,14 @@ public class DeterministicParser extends Stacks
     //
     public Object parse() throws BadParseException
     {
+        return parseEntry(0);
+    }
+
+    //
+    //
+    //
+    public Object parseEntry(int marker_kind) throws BadParseException
+    {
         //
         // Indicate that we are running the regular parser and that it's
         // ok to use the utility functions to query the parser.
@@ -171,16 +180,27 @@ public class DeterministicParser extends Stacks
         // Reset the token stream and get the first token.
         //
         tokStream.reset();
-        int curtok = tokStream.getToken(),
+        lastToken = tokStream.getPrevious(tokStream.peek());
+        int curtok,
+            current_kind;
+        if (marker_kind == 0)
+        {
+            curtok = tokStream.getToken();
             current_kind = tokStream.getKind(curtok);
-        lastToken = tokStream.getPrevious(curtok);
- 
+        }
+        else
+        {
+            curtok = lastToken;
+            current_kind = marker_kind;
+        }
+        
         //
         // Start parsing.
         //
         reallocateStacks(); // make initial allocation
         stateStackTop = -1;
         currentAction = START_STATE;
+        
         ProcessTerminals: for (;;)
         {
             //
@@ -234,7 +254,7 @@ public class DeterministicParser extends Stacks
         if (currentAction == ERROR_ACTION)
             throw new BadParseException(curtok);
 
-        return parseStack[0];
+        return parseStack[marker_kind == 0 ? 0 : 1];
     }
 
     //
@@ -243,6 +263,17 @@ public class DeterministicParser extends Stacks
     //
     public void resetParser()
     {
+        resetParserEntry(0);
+    }
+    
+    //
+    // This method is invoked when using the parser in an incremental mode
+    // using the entry point parse(int [], int).
+    //
+    public void resetParserEntry(int marker_kind)
+    {
+        this.markerKind = marker_kind;
+
         if (stateStack == null)
             reallocateStacks(); // make initial allocation
         stateStackTop = 0;
@@ -256,6 +287,13 @@ public class DeterministicParser extends Stacks
         // it's forbidden to use the utility functions to query the parser.
         //
         taking_actions = false;
+
+        if (marker_kind != 0)
+        {
+            int sym[] = new int[1];
+            sym[0] = markerKind;
+            parse(sym, 0);
+        }
     }
 
     //
@@ -277,11 +315,12 @@ public class DeterministicParser extends Stacks
     //
     public void errorReset()
     {
-        for (; stateStackTop >= 0; stateStackTop--)
+        int gate = (this.markerKind == 0 ? 0 : 1);
+        for (; stateStackTop >= gate; stateStackTop--)
             if (recoverableState(stateStack[stateStackTop]))
                 break;
-        if (stateStackTop < 0)
-            resetParser();
+        if (stateStackTop < gate)
+            resetParserEntry(markerKind);
         return;
     }
 
@@ -415,7 +454,7 @@ public class DeterministicParser extends Stacks
         else if (currentAction == ERROR_ACTION)
              action.reset(save_action_length); // restore original action state.
         return currentAction;
-    }  
+    }
 
     //
     // Now do the final parse of the input based on the actions in
@@ -431,8 +470,8 @@ public class DeterministicParser extends Stacks
         taking_actions = true;
         
         tokStream.reset();
-        int curtok = tokStream.getToken();
-        lastToken = tokStream.getPrevious(curtok);
+        lastToken = tokStream.getPrevious(tokStream.peek());
+        int curtok = (markerKind == 0 ? tokStream.getToken() : lastToken);
 
         try
         {
@@ -441,6 +480,7 @@ public class DeterministicParser extends Stacks
             //
             stateStackTop = -1;
             currentAction = START_STATE;
+
             for (int i = 0; i < action.size(); i++)
             {
                 //
@@ -481,6 +521,6 @@ public class DeterministicParser extends Stacks
 
         taking_actions = false; // indicate that we are done.
         action = null; // turn into garbage
-        return parseStack[0];
+        return parseStack[markerKind == 0 ? 0 : 1];
     }
 }
