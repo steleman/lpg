@@ -266,7 +266,7 @@ public class LexParser
                 curtok = tokStream.getToken();
                 current_kind = tokStream.getKind(curtok);
             }
-            else tokStream.makeToken(starttok, lastToken, 0);
+            else tokStream.reportLexicalError(starttok, lastToken);
         }
 
         taking_actions = false; // indicate that we are done
@@ -419,7 +419,7 @@ public class LexParser
         else
         {
             lastToken = tokStream.getPrevious(curtok);
-            tokStream.makeToken(starttok, lastToken, 0);
+            tokStream.reportLexicalError(starttok, lastToken);
         }
         
         return true;

@@ -282,15 +282,14 @@ public class LexStream implements ILexStream, ParseErrorCodes
         int errorCode = (right_loc >= streamLength
                                     ? EOF_CODE
                                     : left_loc == right_loc
-                                    ? LEX_ERROR_CODE
-                                    : INVALID_TOKEN_CODE),
-            end_loc = (left_loc == right_loc ? right_loc : right_loc - 1);
+                                                ? LEX_ERROR_CODE
+                                                : INVALID_TOKEN_CODE);
         String tokenText = (errorCode == EOF_CODE
                                        ? "End-of-file "
                                        : errorCode == INVALID_TOKEN_CODE
-                                       ? "\"" + new String(inputChars, left_loc, right_loc - left_loc) + "\" "
-                                       : "\"" + getCharValue(left_loc) + "\" ");
-        reportLexicalError(errorCode, left_loc, end_loc, 0, 0, new String[] { tokenText });
+                                                    ? "\"" + new String(inputChars, left_loc, right_loc - left_loc + 1) + "\" "
+                                                    : "\"" + getCharValue(left_loc) + "\" ");
+        reportLexicalError(errorCode, left_loc, right_loc, 0, 0, new String[] { tokenText });
     }
 
     /**
