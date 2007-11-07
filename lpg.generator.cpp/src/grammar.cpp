@@ -116,7 +116,7 @@ void Grammar::Process()
         this -> check_predecessor_sets_for.NextIndex(); // allocate next element.
         this -> check_predecessor_sets_for[i].left_symbol = lex_stream -> GetVariableSymbol(lhs_index) -> SymbolIndex();
         this -> check_predecessor_sets_for[i].right_symbol = lex_stream -> GetVariableSymbol(rhs_index) -> SymbolIndex();
-        
+
         if (this -> check_predecessor_sets_for[i].left_symbol == 0)
             option -> EmitError(lhs_index, "This symbol was not defined in the grammar");
         if (this -> check_predecessor_sets_for[i].right_symbol == 0)
@@ -263,7 +263,7 @@ void Grammar::ProcessTerminals(Tuple<int> &declared_terminals)
 {
     //
     // We MUST first declare the terminals that are markers for the start
-    // symbols. By declaring them first, the indexes of these markers in 
+    // symbols. By declaring them first, the indexes of these markers in
     // the declared_terminals will be the same as the corresponding indexed
     // of the start symbols in parser.start_indexes. Note that the main start
     // symbol has the "empty" symbol as its marker. I.e., no marker is required
@@ -437,9 +437,9 @@ void Grammar::ProcessTerminals(Tuple<int> &declared_terminals)
     // to the term_set. Note that the recovery terminals are considered
     // to be implicitly imported.
     //
-    for (int i = 0; i < parser.recovers.Length(); i++)
+    for (int j = 0; j < parser.recovers.Length(); j++)
     {
-        VariableSymbol *symbol = lex_stream -> GetVariableSymbol(parser.recovers[i]);
+        VariableSymbol *symbol = lex_stream -> GetVariableSymbol(parser.recovers[j]);
         if (! nterm_set[symbol -> Index()])
         {
             term_set.AddElement(symbol -> Index());
@@ -731,19 +731,19 @@ void Grammar::ProcessRemainingAliases(Tuple<int> &remaining_aliases)
 //     if (! option -> ActionBlocks.IsIgnoredBlock(block -> BlockBegin(), block -> BlockBeginLength()))
 //     {
 //         TextBuffer *buffer = block -> Buffer();
-// 
+//
 //         if (block != option -> DefaultBlock())
 //         {
 //             option -> EmitError(block_token, "Only default blocks may appear in a Title or Global segment");
 //             control -> Exit(12);
 //         }
-// 
+//
 //         action.rule_number = 0;
 //         action.location = ActionBlockElement::INITIALIZE; // does not matter - block must be default block...
 //         action.block_token = block_token;
 //         action.buffer = (buffer ? buffer : block -> ActionfileSymbol() -> InitialHeadersBuffer());
 //     }
-// 
+//
 //     return;
 // }
 
@@ -985,7 +985,7 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
         }
 
         //
-        // Find the last token in the right-hand side of the rule that is 
+        // Find the last token in the right-hand side of the rule that is
         // a grammar symbol (not a block).
         //
         int last_symbol_index = parser.rules[k].separator_index;
@@ -1075,7 +1075,7 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
                 assert(image != 0);
 
                 //
-                // This may occur if the first symbol appearing in a rule was aliased to 
+                // This may occur if the first symbol appearing in a rule was aliased to
                 // %empty.
                 //
                 if (image == empty)
@@ -1087,14 +1087,14 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
                 //
                 // We have two cases to consider here. Either the empty macro, $,
                 // was specified or a named macro was specified.
-                // 
+                //
                 // 1. A named macro was specified:
                 //    a. If there was a definition already generated automatically for
                 //       that symbol, we simply need to override it with the user's
                 //       definition.
-                // 
+                //
                 //    b. otherwise, we create a new definition for the macro
-                // 
+                //
                 // 2. The empty macro ($) was specified:
                 //    if there was a definition already generated for that symbol,
                 //    remove it.
@@ -1102,8 +1102,8 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
                 int position = rhs_sym.Length() - rules[rule_index].rhs_index;
                 if (lex_stream -> NameStringLength(i) > 1)
                 {
-                    if ((option -> variables == Option::BOTH) || 
-                        (option -> variables == Option::TERMINALS && IsTerminal(image)) || 
+                    if ((option -> variables == Option::BOTH) ||
+                        (option -> variables == Option::TERMINALS && IsTerminal(image)) ||
                         (option -> variables == Option::NON_TERMINALS && (! IsTerminal(image)))) // override previous definition
                     {
                         ProcessedRuleElement &processed_rule_element = processed_rule_elements[processed_rule_elements.Length() - 1];
@@ -1119,8 +1119,8 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
                         processed_rule_element.position = position;
                     }
                 }
-                else if ((option -> variables == Option::BOTH) || 
-                         (option -> variables == Option::TERMINALS && IsTerminal(image)) || 
+                else if ((option -> variables == Option::BOTH) ||
+                         (option -> variables == Option::TERMINALS && IsTerminal(image)) ||
                          (option -> variables == Option::NON_TERMINALS && (! IsTerminal(image)))) // remove previous definition
                 {
                     assert(processed_rule_elements[processed_rule_elements.Length() - 1].position == position);
@@ -1145,8 +1145,8 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
                 {
                     rhs_sym.Next() = image;
 
-                    if ((option -> variables == Option::BOTH) || 
-                        (option -> variables == Option::TERMINALS && IsTerminal(image)) || 
+                    if ((option -> variables == Option::BOTH) ||
+                        (option -> variables == Option::TERMINALS && IsTerminal(image)) ||
                         (option -> variables == Option::NON_TERMINALS && (!IsTerminal(image))))
                     {
                         int position = rhs_sym.Length() - rules[rule_index].rhs_index;
@@ -1274,7 +1274,7 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
 
                 //
                 // If we are dealing with an array (typed or untyped) without an explicit
-                // classname specified for it, we compose its name here. Otherwise, we accept 
+                // classname specified for it, we compose its name here. Otherwise, we accept
                 // "name" as the name of the class.
                 //
                 if (array_element_type_index != 0 && lex_stream -> NameStringLength(classname_index) == 1) // The classname is the null macro?
@@ -1393,7 +1393,7 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
     //
     //     prostheticAst[i] = new ProstheticAst() { Ast create(Token error_token) { return $allocation; } }
     //
-    // otherwise, 
+    // otherwise,
     //
     //     prostheticAst[i] = new ProstheticAst() { Ast create(Token error_token) { return null; } }
     //
@@ -1517,7 +1517,7 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
         assert(classname_set.Size() == classname.Length());
         action -> ProcessAstActions(ast_actions, notice_actions, initial_actions, typestring, processed_rule_map, classname_set, classname);
     }
-    else 
+    else
     {
         action -> ProcessCodeActions(initial_actions, typestring, processed_rule_map);
         action -> ProcessCodeActions(code_actions, typestring, processed_rule_map);
