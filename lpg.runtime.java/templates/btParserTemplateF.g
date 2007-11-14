@@ -237,6 +237,8 @@
             } 
         }
         
+        public $action_type() {}
+        
         public $action_type(ILexStream lexStream)
         {
             reset(lexStream);
