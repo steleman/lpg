@@ -69,9 +69,10 @@ public class BacktrackingParser extends Stacks
 
     public void setMonitor(Monitor monitor) { this.monitor = monitor; }
     
-    public BacktrackingParser(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
-                                                                                           NotBacktrackParseTableException
+    public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                                    NotBacktrackParseTableException
     {
+        this.monitor = monitor;
         this.tokStream = (TokenStream) tokStream;
         this.prs = prs;
         this.ra = ra;
@@ -88,12 +89,25 @@ public class BacktrackingParser extends Stacks
         if (! prs.isValidForParser()) throw new BadParseSymFileException();
         if (! prs.getBacktrack()) throw new NotBacktrackParseTableException();
     }
+    
+    public void reset(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                                    NotBacktrackParseTableException
+    {
+        reset(null, tokStream, prs, ra);
+    }
+
+    public BacktrackingParser() {}
+
+    public BacktrackingParser(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                           NotBacktrackParseTableException
+    {
+        reset(null, tokStream, prs, ra);
+    }
 
     public BacktrackingParser(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
                                                                                                             NotBacktrackParseTableException
     {
-        this(tokStream, prs, ra);
-        this.monitor = monitor;
+        reset(monitor, tokStream, prs, ra);
     }
 
     //

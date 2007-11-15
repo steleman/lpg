@@ -8,7 +8,9 @@ public class DeterministicParser extends Stacks
     private Monitor monitor = null;
     private int START_STATE,
                 NUM_RULES,
+                NT_OFFSET,
                 LA_STATE_OFFSET,
+                EOFT_SYMBOL,                
                 ACCEPT_ACTION,
                 ERROR_ACTION,
                 ERROR_SYMBOL;
@@ -127,34 +129,45 @@ public class DeterministicParser extends Stacks
 
     public void setMonitor(Monitor monitor) { this.monitor = monitor; }
     
-    public DeterministicParser(TokenStream tokStream,
-                               ParseTable prs,
-                               RuleAction ra)
-           throws BadParseSymFileException, NotDeterministicParseTableException
+    public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                                   NotDeterministicParseTableException
     {
-        this.tokStream = tokStream;
+        this.monitor = monitor;
+        this.tokStream = (TokenStream) tokStream;
         this.prs = prs;
         this.ra = ra;
 
         START_STATE = prs.getStartState();
         NUM_RULES = prs.getNumRules();
+        NT_OFFSET = prs.getNtOffset();
         LA_STATE_OFFSET = prs.getLaStateOffset();
+        EOFT_SYMBOL = prs.getEoftSymbol();
+        ERROR_SYMBOL = prs.getErrorSymbol();
         ACCEPT_ACTION = prs.getAcceptAction();
         ERROR_ACTION = prs.getErrorAction();
-        ERROR_SYMBOL = prs.getErrorSymbol();
 
         if (! prs.isValidForParser()) throw new BadParseSymFileException();
         if (prs.getBacktrack()) throw new NotDeterministicParseTableException();
     }
 
-    public DeterministicParser(Monitor monitor,
-                               TokenStream tokStream,
-                               ParseTable prs,
-                               RuleAction ra)
-           throws BadParseSymFileException, NotDeterministicParseTableException
+    public void reset(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                   NotDeterministicParseTableException
     {
-        this(tokStream, prs, ra);
-        this.monitor = monitor;
+        reset(null, tokStream, prs, ra);
+    }
+
+    public DeterministicParser() {}
+    
+    public DeterministicParser(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                            NotDeterministicParseTableException
+    {
+        reset(null, tokStream, prs, ra);
+    }
+
+    public DeterministicParser(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                                             NotDeterministicParseTableException
+    {
+        reset(monitor, tokStream, prs, ra);
     }
     
     //

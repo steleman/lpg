@@ -17,9 +17,7 @@ public class LexParser
     private RuleAction ra;
     private IntTuple action = null;
 
-    public LexParser() {}
-
-    public LexParser(ILexStream tokStream, ParseTable prs, RuleAction ra)
+    public void reset(ILexStream tokStream, ParseTable prs, RuleAction ra)
     {
         this.tokStream = tokStream;
         this.prs = prs;
@@ -32,6 +30,13 @@ public class LexParser
         ERROR_ACTION = prs.getErrorAction();
         START_SYMBOL = prs.getStartSymbol();
         NUM_RULES = prs.getNumRules();
+    }
+
+    public LexParser() {}
+
+    public LexParser(ILexStream tokStream, ParseTable prs, RuleAction ra)
+    {
+    	reset(tokStream, prs, ra);
     }
 
     //
