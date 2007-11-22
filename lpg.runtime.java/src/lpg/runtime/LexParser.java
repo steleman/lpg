@@ -17,6 +17,11 @@ public class LexParser
     private RuleAction ra;
     private IntTuple action = null;
 
+    public void reset(ILexStream tokStream)
+    {
+        this.tokStream = tokStream;
+    }
+
     public void reset(ILexStream tokStream, ParseTable prs, RuleAction ra)
     {
         this.tokStream = tokStream;

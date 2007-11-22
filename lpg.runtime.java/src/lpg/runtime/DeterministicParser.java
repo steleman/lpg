@@ -5,7 +5,7 @@ public class DeterministicParser extends Stacks
     private boolean taking_actions = false;
     private int markerKind = 0;
     
-    private Monitor monitor = null;
+    private Monitor monitor;
     private int START_STATE,
                 NUM_RULES,
                 NT_OFFSET,
@@ -128,15 +128,36 @@ public class DeterministicParser extends Stacks
     }
 
     public void setMonitor(Monitor monitor) { this.monitor = monitor; }
-    
-    public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
-                                                                                                   NotDeterministicParseTableException
+
+    public void reset()
+    {
+        this.taking_actions = false;
+        this.markerKind = 0;
+
+        if (action != null) action.reset();
+    }
+
+    public void reset(Monitor monitor, TokenStream tokStream)
     {
         this.monitor = monitor;
         this.tokStream = (TokenStream) tokStream;
-        this.prs = prs;
-        this.ra = ra;
 
+        reset();
+    }
+    
+    public void reset(TokenStream tokStream)
+    {
+    	reset(null, tokStream);
+    }
+    
+    public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                                    NotDeterministicParseTableException
+    {
+    	reset(monitor, tokStream);
+
+    	this.prs = prs;
+        this.ra = ra;
+        
         START_STATE = prs.getStartState();
         NUM_RULES = prs.getNumRules();
         NT_OFFSET = prs.getNtOffset();

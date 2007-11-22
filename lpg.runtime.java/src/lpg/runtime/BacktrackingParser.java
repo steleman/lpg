@@ -2,7 +2,7 @@ package lpg.runtime;
 
 public class BacktrackingParser extends Stacks
 {
-    private Monitor monitor = null;
+    private Monitor monitor;
     private int START_STATE,
                 NUM_RULES,
                 NT_OFFSET,
@@ -69,29 +69,50 @@ public class BacktrackingParser extends Stacks
 
     public void setMonitor(Monitor monitor) { this.monitor = monitor; }
     
-    public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
-                                                                                                    NotBacktrackParseTableException
+    public void reset()
+    {
+    	action.reset();
+    	skipTokens = false;
+    	markerTokenIndex = 0;
+    }
+    
+    public void reset(Monitor monitor, TokenStream tokStream)
     {
         this.monitor = monitor;
         this.tokStream = (TokenStream) tokStream;
-        this.prs = prs;
+        reset();
+    }
+
+
+    public void reset(TokenStream tokStream)
+    {
+        reset (null, tokStream);
+    }
+
+
+    public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
+                                                                                                    NotBacktrackParseTableException
+    {
+    	reset(monitor, tokStream);
+
+    	this.prs = prs;
         this.ra = ra;
 
-        START_STATE = prs.getStartState();
-        NUM_RULES = prs.getNumRules();
-        NT_OFFSET = prs.getNtOffset();
-        LA_STATE_OFFSET = prs.getLaStateOffset();
-        EOFT_SYMBOL = prs.getEoftSymbol();
-        ERROR_SYMBOL = prs.getErrorSymbol();
-        ACCEPT_ACTION = prs.getAcceptAction();
-        ERROR_ACTION = prs.getErrorAction();
+    	START_STATE = prs.getStartState();
+    	NUM_RULES = prs.getNumRules();
+    	NT_OFFSET = prs.getNtOffset();
+    	LA_STATE_OFFSET = prs.getLaStateOffset();
+    	EOFT_SYMBOL = prs.getEoftSymbol();
+    	ERROR_SYMBOL = prs.getErrorSymbol();
+    	ACCEPT_ACTION = prs.getAcceptAction();
+    	ERROR_ACTION = prs.getErrorAction();
 
-        if (! prs.isValidForParser()) throw new BadParseSymFileException();
-        if (! prs.getBacktrack()) throw new NotBacktrackParseTableException();
+    	if (! prs.isValidForParser()) throw new BadParseSymFileException();
+    	if (! prs.getBacktrack()) throw new NotBacktrackParseTableException();
     }
     
     public void reset(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
-                                                                                                    NotBacktrackParseTableException
+                                                                                   NotBacktrackParseTableException
     {
         reset(null, tokStream, prs, ra);
     }
