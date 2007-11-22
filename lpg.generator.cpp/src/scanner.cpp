@@ -1048,10 +1048,9 @@ void Scanner::ClassifyEscapedSymbol()
         current_token -> SetKind(TK_MACRO_NAME); // ... then it's a macro
         current_token -> SetSymbol(macro_table -> FindOrInsertName(cursor, len));
     }
-    else // if legacy option is on treat as keyword only
+    else if (option -> escape != '%') // if legacy option is on treat as keyword only
     {
         assert(option -> legacy);
-
         AddWarningToken(LEGACY_KEYWORD, current_token_index);
         current_token -> SetKind(kind); // it's a keyword
         if (kind == TK_INCLUDE_KEY)

@@ -574,7 +574,7 @@ void Grammar::ProcessTerminals(Tuple<int> &declared_terminals)
     }
 
     //
-    // Check to see if a terminal symbol that was declared in this file
+    // Check to see if a terminal symbol that was used in this file
     // was not exported from one of the files imported by this grammar.
     //
     if (option -> warnings && option -> import_file.Length() > 0)
@@ -588,13 +588,23 @@ void Grammar::ProcessTerminals(Tuple<int> &declared_terminals)
                 RestoreSymbol(tok, RetrieveString(symbol -> SymbolIndex()));
 
                 Tuple<const char *> msg;
-                msg.Next() = "The declared terminal symbol \"";
+                msg.Next() = "The terminal symbol \"";
                 msg.Next() = tok;
-                msg.Next() = "\" was not imported from:";
-                for (int p = 0; p < option -> import_file.Length(); p++)
+                msg.Next() = "\" was not imported from";
+                if (option -> import_file.Length() == 1)
                 {
-                    msg.Next() = "; ";
-                    msg.Next() = option -> import_file[p];
+                    msg.Next() = " ";
+                    msg.Next() = option -> import_file[0];
+                }
+                else
+                {
+                    msg.Next() = ": ";
+                    for (int p = 0; p < option -> import_file.Length(); p++)
+                    {
+                        msg.Next() = option -> import_file[p];
+                        if (p < option -> import_file.Length() - 1)
+                            msg.Next() = ", ";
+                    }
                 }
                 option -> EmitWarning(RetrieveTokenLocation(symbol -> SymbolIndex()), msg);
             }
