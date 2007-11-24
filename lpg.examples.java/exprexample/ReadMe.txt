@@ -11,7 +11,7 @@ Expr3:
     This grammar uses automatically generated Ast nodes to compute
     the result of a given expression on the fly. It stores the result
     of each subexpression in the Ast node corresponding to that
-    subexpression. At the end of the parser, the final result is obtained
+    subexpression. At the end of the parsing, the final result is obtained
     from the root node.
 
 Expr4:

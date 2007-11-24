@@ -1,281 +1,53 @@
 
-Options in effect for C:/eclipse/workspace/lpg.javaruntime.examples/exprexample/expr4/ExprParser.g:
+Options in effect for C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:
 
-    ACTION-BLOCK=("C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParser.java","/.","./")
-    HEADERS=("C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParser.java","/:",":/")
+    ACTION-BLOCK=("C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParser.java","/.","./")
+    HEADERS=("C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParser.java","/:",":/")
 
     AST-DIRECTORY=""  AST-TYPE="Integer"  NOATTRIBUTES  NOAUTOMATIC-AST  
     NOBACKTRACK  BYTE  CONFLICTS  
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\"
-    DAT-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParserdcl.data"
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\"
-    DCL-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParserdcl.java"
-    DAT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\"
+    DAT-DIRECTORY="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\"  
+    DAT-FILE="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParserdcl.data"
+    DAT-DIRECTORY="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\"  
+    DCL-FILE="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParserdcl.java"
+    DAT-DIRECTORY="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\"  
     NODEBUG  
-    DEF-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParserdef.java"
+    DEF-FILE="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParserdef.java"
     NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  
-    EXPORT-TERMINALS=("C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParserexp.java","","")
+    EXPORT-TERMINALS=("C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParserexp.java","","")
     NODEBUG  NOEDIT  ERROR-MAPS  ESCAPE='$'  EXTENDS-PARSETABLE  FACTORY="new "
     FILE-PREFIX="ExprParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    GRM-FILE="C:/eclipse/workspace/lpg.javaruntime.examples/exprexample/expr4/ExprParser.g"
+    GRM-FILE="C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
     FILE-PREFIX="ExprParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
-    IMP-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParserimp.java"
+    IMP-FILE="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParserimp.java"
     FILE-PREFIX="ExprParser"  NOFIRST  NOFOLLOW  NOGLR  NOGOTO-DEFAULT  
     IMPORT-TERMINALS="ExprLexer.g"  
-    INCLUDE-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\;.;C:\eclipse\workspace\lpg.javaruntime.v2\include;C:\eclipse\workspace;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003;C:\eclipse\workspace\com.ibm.db.parsers.sql2003\src\com\ibm\db\parsers\sql2003\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.common.db2.lexer\src\com\ibm\db\parsers\sql\common\db2\lexer;C:\eclipse\workspace\com.ibm.db.parsers.sql.routines.db2.common\src\com\ibm\db\parsers\sql\routines\db2\common;"
-    IMPORT-TERMINALS="ExprLexer.g"  LALR=1  LIST  MARGIN=8  MAX-CASES=1024  
-    NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  
-    OUT-DIRECTORY="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\"
+    INCLUDE-DIRECTORY="C:\workspace-3.2.2\lpg.runtime.java\templates;C:\workspace-3.2.2\org.eclipse.imp.lpg.metatooling\templates;C:\workspace-3.2.2\lpg.runtime.java\include;"
+    IMPORT-TERMINALS="ExprLexer.g"  LALR=1  LEGACY  NOLIST  MARGIN=8  
+    MAX-CASES=1024  NAMES=OPTIMIZED  NONT-CHECK  OR_MARKER='|'  
+    OUT-DIRECTORY="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\"  
     PACKAGE="expr4"  NOPARENT-SAVE  
-    PARSETABLE-INTERFACES="lpg.javaruntime.ParseTable"  PREFIX="TK_"  PRIORITY
+    PARSETABLE-INTERFACES="lpg.runtime.ParseTable"  PREFIX="TK_"  PRIORITY  
     PROGRAMMING_LANGUAGE=JAVA  
-    PRS-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParserprs.java"
+    PRS-FILE="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParserprs.java"
     PROGRAMMING_LANGUAGE=JAVA  NOQUIET  READ-REDUCE  REMAP-TERMINALS  SCOPES  
     NOSERIALIZE  NOSHIFT-DEFAULT  NOSINGLE-PRODUCTIONS  NOSOFT-KEYWORDS  
     NOSTATES  SUFFIX=""  
-    SYM-FILE="C:\eclipse\workspace\lpg.javaruntime.examples\exprexample\expr4\ExprParsersym.java"
+    SYM-FILE="C:\workspace-3.2.2\lpg.examples.java\exprexample\expr4\ExprParsersym.java"
     NOSTATES  SUFFIX=""  TAB-FILE="ExprParser.t"  TABLE  
     TEMPLATE="dtParserTemplateE.g"  TRACE=CONFLICTS  VARIABLES=NONTERMINALS  
     NOVERBOSE  NOVISITOR  VISITOR-TYPE="Visitor"  WARNINGS  NOXREF  
 
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:8:1:8:10:191:200: Warning: The use of the escaped symbol "$Terminals" as a keyword has been deprecated. The proper spelling is %Terminals
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:13:1:13:4:275:278: Warning: The use of the escaped symbol "$End" as a keyword has been deprecated. The proper spelling is %End
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:15:1:15:6:283:288: Warning: The use of the escaped symbol "$Types" as a keyword has been deprecated. The proper spelling is %Types
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:17:1:17:4:318:321: Warning: The use of the escaped symbol "$End" as a keyword has been deprecated. The proper spelling is %End
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:19:1:19:6:326:331: Warning: The use of the escaped symbol "$Rules" as a keyword has been deprecated. The proper spelling is %Rules
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g:42:1:42:4:917:920: Warning: The use of the escaped symbol "$End" as a keyword has been deprecated. The proper spelling is %End
 
-Predefined Macros:
 
-    $rule_number
-    $rule_text
-    $rule_size
-    $input_file
-    $current_line
-    $next_line
-    $#identifier
-    $symbol_declarations
-    $num_rules
-    $num_terminals
-    $num_nonterminals
-    $num_non_terminals
-    $num_symbols
-    $template
-    $file_prefix
-    $package
-    $ast_package
-    $ast_type
-    $exp_type
-    $prs_type
-    $sym_type
-    $action_type
-    $visitor_type
 
-
-
-Defined Symbols:
-
-
-
-    $DefaultAllocation
-    /:    
-                    ruleAction[$rule_number] = new act$rule_number$();:/
-
-
-    $NoAllocation
-    /:    
-                    ruleAction[$rule_number] = new NoAction();:/
-
-
-    $NullAllocation
-    /:    
-                    ruleAction[$rule_number] = new NullAction();:/
-
-
-    $BadAllocation
-    /:    
-                    ruleAction[$rule_number] = new BadAction();:/
-
-
-    $Header
-    /.    
-                //    
-                // Rule $rule_number:  $rule_text    
-                //./
-
-
-    $DefaultAction
-    /.$DefaultAllocation $Header    
-                final class act$rule_number extends Action./
-
-
-    $NullAction
-    /. $NullAllocation $Header    
-                //    
-                // final class NullAction extends Action    
-                //    
-            ./
-
-
-    $NoAction
-    /. $NoAllocation $Header    
-                //    
-                // final class NullAction extends Action    
-                //    
-            ./
-
-
-    $BadAction
-    /. $BadAllocation $Header    
-                //    
-                // final class NullAction extends Action    
-                //    
-            ./
-
-
-    $BeginAction
-    /.$DefaultAllocation $Header    
-                final class act$rule_number extends Action    
-                {    
-                    public void action()    
-                    {./
-
-
-    $EndAction
-    /.          return;    
-                    }    
-                }./
-
-
-    $BeginJava
-    /.$BeginAction    
-                        $symbol_declarations./
-
-
-    $EndJava
-    /.$EndAction./
-
-
-    $SplitActions
-    /../
-
-
-    $additional_interfaces
-    /../
-
-
-    $ast_class
-    /.$ast_type./
-
-
-    $unimplemented_symbols_warning
-    /.false./
-
-
-    $setSym1
-    /. // macro setSym1 is deprecated. Use function setResult    
-                        getParser().setSym1./
-
-
-    $setResult
-    /. // macro setResult is deprecated. Use function setResult    
-                         getParser().setSym1./
-
-
-    $getSym
-    /. // macro getSym is deprecated. Use function getRhsSym    
-                      getParser().getSym./
-
-
-    $getToken
-    /. // macro getToken is deprecated. Use function getRhsTokenIndex    
-                        getParser().getToken./
-
-
-    $getIToken
-    /. // macro getIToken is deprecated. Use function getRhsIToken    
-                         super.getIToken./
-
-
-    $getLeftSpan
-    /. // macro getLeftSpan is deprecated. Use function getLeftSpan    
-                           getParser().getFirstToken./
-
-
-    $getRightSpan
-    /. // macro getRightSpan is deprecated. Use function getRightSpan    
-                            getParser().getLastToken./
-
-
-Aliases:
-
-    + ::= PLUS
-    * ::= MULTIPLY
-    ( ::= LPAREN
-    ) ::= RPAREN
-
-
-Eof:
-
-    EOF_TOKEN
-
-Error:
-
-    ERROR_TOKEN
-
-Terminals:
-
-    PLUS
-    MULTIPLY
-    LPAREN
-    RPAREN
-    EOF_TOKEN
-    IntegerLiteral
-    ERROR_TOKEN
-
-
-Soft Keywords:
-
-
-
-Rules:
-
-1      E ::= E + T
-2          | T
-3      T ::= T * F
-4          | F
-5      F ::= IntegerLiteral $number
-6      F$ParenExpr ::= ( E )
-
-
-Types:
-
-    Integer ::= E
-              | T
-              | F
-
-
-
- IBM LALR Parser Generator              1.00 (Feb 14 2007)
-
-
-Name map:
-
-'$empty' ::= '$empty'
-PLUS ::= +
-MULTIPLY ::= *
-LPAREN ::= (
-RPAREN ::= )
-EOF_TOKEN ::= EOF_TOKEN
-IntegerLiteral ::= IntegerLiteral
-ERROR_TOKEN ::= ERROR_TOKEN
-E ::= E
-T ::= T
-F ::= F
-
- IBM LALR Parser Generator              1.00 (Feb 14 2007)
-
-
-Scopes:
-
-F ::= LPAREN E  .RPAREN 
-
-
-C:/eclipse/workspace/lpg.javaruntime.examples/exprexample/expr4/ExprParser.g is LALR(1).
+C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g is LALR(1).
 
 
 Number of Terminals: 7

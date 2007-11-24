@@ -1,6 +1,6 @@
 package expr4;
 
-import lpg.runtime.java.*;
+import lpg.runtime.*;
 
 public class ExprParser extends PrsStream implements RuleAction
 {
@@ -129,6 +129,11 @@ public class ExprParser extends PrsStream implements RuleAction
         return null;
     }
 
+    //
+    // Additional entry points, if any
+    //
+    
+
     public class BadActionException extends Exception
     {
         private static final long serialVersionUID = 1L;
@@ -204,9 +209,9 @@ public class ExprParser extends PrsStream implements RuleAction
     {
         public void action()
         {
-            //#line 20 "C:/eclipse/workspace/lpg.runtime.java.examples/exprexample/expr4/ExprParser.g"
+            //#line 20 "C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
             Integer E = (Integer) getRhsSym(1);
-            //#line 20 "C:/eclipse/workspace/lpg.runtime.java.examples/exprexample/expr4/ExprParser.g"
+            //#line 20 "C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
             Integer T = (Integer) getRhsSym(3);
             setResult(new Integer(E.intValue() + T.intValue()));
             return;
@@ -220,9 +225,9 @@ public class ExprParser extends PrsStream implements RuleAction
     {
         public void action()
         {
-            //#line 26 "C:/eclipse/workspace/lpg.runtime.java.examples/exprexample/expr4/ExprParser.g"
+            //#line 26 "C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
             Integer T = (Integer) getRhsSym(1);
-            //#line 26 "C:/eclipse/workspace/lpg.runtime.java.examples/exprexample/expr4/ExprParser.g"
+            //#line 26 "C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
             Integer F = (Integer) getRhsSym(3);
             setResult(new Integer(T.intValue() * F.intValue()));
             return;
@@ -236,7 +241,7 @@ public class ExprParser extends PrsStream implements RuleAction
     {
         public void action()
         {
-            //#line 32 "C:/eclipse/workspace/lpg.runtime.java.examples/exprexample/expr4/ExprParser.g"
+            //#line 32 "C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
             IToken number = (IToken) getRhsIToken(1);
             setResult(new Integer(number.toString()));
             return;
@@ -250,7 +255,7 @@ public class ExprParser extends PrsStream implements RuleAction
     {
         public void action()
         {
-            //#line 37 "C:/eclipse/workspace/lpg.runtime.java.examples/exprexample/expr4/ExprParser.g"
+            //#line 37 "C:/workspace-3.2.2/lpg.examples.java/exprexample/expr4/ExprParser.g"
             Integer E = (Integer) getRhsSym(2);
             setResult(E);
             return;

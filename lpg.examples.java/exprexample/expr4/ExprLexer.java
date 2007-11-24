@@ -1,6 +1,6 @@
 package expr4;
 
-import lpg.runtime.java.*;
+import lpg.runtime.*;
 
 public class ExprLexer extends LpgLexStream implements ExprParsersym, ExprLexersym, RuleAction
 {
@@ -14,7 +14,7 @@ public class ExprLexer extends LpgLexStream implements ExprParsersym, ExprLexers
     public int getRhsFirstTokenIndex(int i) { return lexParser.getFirstToken(i); }
     public int getRhsLastTokenIndex(int i) { return lexParser.getLastToken(i); }
 
-    public int getLeftSpan() { return lexParser.getFirstToken(); }
+    public int getLeftSpan() { return lexParser.getToken(1); }
     public int getRightSpan() { return lexParser.getLastToken(); }
 
     public ExprLexer(String filename, int tab) throws java.io.IOException 
@@ -37,6 +37,21 @@ public class ExprLexer extends LpgLexStream implements ExprParsersym, ExprLexers
     public String[] orderedExportedSymbols() { return ExprParsersym.orderedTerminalSymbols; }
     public LexStream getLexStream() { return (LexStream) this; }
 
+    private void initializeLexer(IPrsStream prsStream)
+    {
+        if (getInputChars() == null)
+            throw new NullPointerException("LexStream was not initialized");
+        setPrsStream(prsStream);
+        prsStream.makeToken(0, -1, 0); // Token list must start with a bad token
+    }
+
+    private void addEOF(IPrsStream prsStream)
+    {
+        int i = getStreamIndex();
+        prsStream.makeToken(i, i, TK_EOF_TOKEN); // and end with the end of file token
+        prsStream.setStreamLength(prsStream.getSize());
+    }
+
     public void lexer(IPrsStream prsStream)
     {
         lexer(null, prsStream);
@@ -44,20 +59,44 @@ public class ExprLexer extends LpgLexStream implements ExprParsersym, ExprLexers
 
     public void lexer(Monitor monitor, IPrsStream prsStream)
     {
-        if (getInputChars() == null)
-            throw new NullPointerException("LexStream was not initialized");
+        initializeLexer(prsStream);
+        lexParser.parseCharacters(monitor);  // Lex the input characters
+        addEOF(prsStream);
+    }
 
-        setPrsStream(prsStream);
+    public void lexer(IPrsStream prsStream, int start_offset, int end_offset)
+    {
+        lexer(null, prsStream, start_offset, end_offset);
+    }
 
-        prsStream.makeToken(0, 0, 0); // Token list must start with a bad token
-        
-        lexParser.parseCharacters(monitor); // Lex the input characters
-        
-        int i = getStreamIndex();
-        prsStream.makeToken(i, i, TK_EOF_TOKEN); // and end with the end of file token
-        prsStream.setStreamLength(prsStream.getSize());
-        
-        return;
+    public void lexer(Monitor monitor, IPrsStream prsStream, int start_offset, int end_offset)
+    {
+        initializeLexer(prsStream);
+        lexParser.parseCharacters(monitor, start_offset, end_offset);
+        addEOF(prsStream);
+    }
+
+    /**
+     * If a parse stream was not passed to this Lexical analyser then we
+     * simply report a lexical error. Otherwise, we produce a bad token.
+     */
+    public void reportLexicalError(int startLoc, int endLoc) {
+        IPrsStream prs_stream = getPrsStream();
+        if (prs_stream == null)
+            super.reportLexicalError(startLoc, endLoc);
+        else {
+            //
+            // Remove any token that may have been processed that fall in the
+            // range of the lexical error... then add one error token that spans
+            // the error range.
+            //
+            for (int i = prs_stream.getSize() - 1; i > 0; i--) {
+                if (prs_stream.getStartOffset(i) >= startLoc)
+                     prs_stream.removeLastToken();
+                else break;
+            }
+            prs_stream.makeToken(startLoc, endLoc, 0); // add an error token to the prsStream
+        }        
     }
 
     public final void ruleAction(int act)

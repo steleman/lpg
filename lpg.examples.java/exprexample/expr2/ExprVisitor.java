@@ -2,44 +2,45 @@
  * Created on Aug 13, 2005
  *
  */
-package expr5;
+package expr2;
 
-import expr5.ExprAst.*;
+import expr2.ExprAst.*;
 import lpg.runtime.*;
 
 /**
  * @author Gerry Fisher
  *
  */
-public class JavaVisitor extends AbstractVisitor
+public class ExprVisitor extends AbstractVisitor
 {
     public void unimplementedVisitor(String s) {
-        System.out.println("unimplemented visitor \"" + s + "\"");
+        System.out.println(s);
     }
 
-    public boolean visit(E expr) { return true; }
-    public void endVisit(E expr) 
+    public void visit(E expr) 
     {
+        expr.getE().accept(this);
+        expr.getT().accept(this);
         expr.setValue(((Ast) expr.getE()).getValue() +
                       ((Ast) expr.getT()).getValue());
     }
 
-    public boolean visit(T expr) { return true; }
-    public void endVisit(T expr) 
+    public void visit(T expr) 
     {
+        expr.getT().accept(this);
+        expr.getF().accept(this);
         expr.setValue(((Ast) expr.getT()).getValue() *
                       ((Ast) expr.getF()).getValue());
     }
 
-    public boolean visit(F expr) { return true; }
-    public void endVisit(F expr) 
+    public void visit(F expr) 
     {
         expr.setValue(new Integer(expr.getIToken().toString()).intValue());
     }
 
-    public boolean visit(ParenExpr expr) { return true; }
-    public void endVisit(ParenExpr expr) 
+    public void visit(ParenExpr expr)
     {
+        expr.getE().accept(this);
         expr.setValue(((Ast) expr.getE()).getValue());
     }
 }

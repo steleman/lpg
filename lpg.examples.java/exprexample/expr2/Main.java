@@ -1,4 +1,5 @@
-package expr6;
+package expr2;
+import expr2.ExprAst.*;
 
 public class Main
 {
@@ -7,7 +8,8 @@ public class Main
         Option option;
         ExprLexer Expr_lexer;
         ExprParser Expr_parser;
-        ExprVisitor Expr_visitor = new ExprVisitor();
+
+        Ast ast;
 
         try
         {
@@ -20,8 +22,15 @@ public class Main
                 System.out.println("\n****Output Tokens: \n");
                 Expr_parser.dumpTokens();
             }
-            // Parse the token stream creating an Ast and then visit the Ast to obtain the result
-            System.out.println(Expr_visitor.visitAst(Expr_parser.parser()));
+            ast = Expr_parser.parser(); // Parse the token stream to produce an AST
+            if (ast == null) 
+                 System.out.println("****Failure");
+            else
+            {
+                ast.accept(new ExprVisitor());
+                System.out.println("The value is : " + ast.getValue());
+            }
+
             return;
         }
         catch (Exception e)
