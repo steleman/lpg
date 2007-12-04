@@ -144,7 +144,7 @@ class Grammar : public Util
 {
 public:
 
-    friend Action;
+    friend class Action;
 
     enum { DEFAULT_SYMBOL = 0 };
 
