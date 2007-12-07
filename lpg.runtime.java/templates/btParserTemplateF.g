@@ -4,7 +4,7 @@
 --     $additional_interfaces
 --     $ast_class
 --
--- B E G I N N I N G   O F   T E M P L A T E   btParserTemplateD
+-- B E G I N N I N G   O F   T E M P L A T E   btParserTemplateF
 --
 %Options programming_language=java,margin=4,backtrack
 %Options table,error_maps,scopes
@@ -163,7 +163,7 @@
     /.
     public class $action_type implements RuleAction$additional_interfaces
     {
-        private PrsStream prsStream;
+        private PrsStream prsStream = null;
         
         private boolean unimplementedSymbolsWarning = $unimplemented_symbols_warning;
 
@@ -207,6 +207,7 @@
         public void reset(ILexStream lexStream)
         {
             prsStream = new PrsStream(lexStream);
+            btParser.reset(prsStream);
 
             try
             {
@@ -237,12 +238,8 @@
             } 
         }
         
-        public $action_type() {}
-        
-        public $action_type(ILexStream lexStream)
+        public $action_type()
         {
-            reset(lexStream);
-
             try
             {
                 btParser = new BacktrackingParser(prsStream, prsTable, (RuleAction) this);
@@ -257,12 +254,18 @@
                 throw new Error(new BadParseSymFileException("Bad Parser Symbol File -- $sym_type.java"));
             }
         }
-
+        
+        public $action_type(ILexStream lexStream)
+        {
+            this();
+            reset(lexStream);
+        }
+        
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
         public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }
         public int getEOFTokenKind() { return $prs_type.EOFT_SYMBOL; }
-        public PrsStream getParseStream() { return (PrsStream) prsStream; }
-        
+        public PrsStream getParseStream() { return prsStream; }
+
         public $ast_class parser()
         {
             return parser(null, 0);

@@ -4,7 +4,7 @@
 --     $additional_interfaces
 --     $ast_class
 --
--- B E G I N N I N G   O F   T E M P L A T E   dtParserTemplateD
+-- B E G I N N I N G   O F   T E M P L A T E   dtParserTemplateF
 --
 %Options programming_language=java,margin=4
 %Options table,error_maps,scopes
@@ -161,7 +161,7 @@
     /.
     public class $action_type implements RuleAction$additional_interfaces
     {
-        private PrsStream prsStream;
+        private PrsStream prsStream = null;
         
         private boolean unimplementedSymbolsWarning = $unimplemented_symbols_warning;
 
@@ -205,6 +205,7 @@
         public void reset(ILexStream lexStream)
         {
             prsStream = new PrsStream(lexStream);
+            dtParser.reset(prsStream);
 
             try
             {
@@ -235,12 +236,8 @@
             }
         }
         
-        public $action_type() {}
-        
-        public $action_type(ILexStream lexStream)
+        public $action_type()
         {
-            reset(lexStream);
-            
             try
             {
                 dtParser = new DeterministicParser(prsStream, prsTable, (RuleAction) this);
@@ -248,18 +245,24 @@
             catch (NotDeterministicParseTableException e)
             {
                 throw new Error(new NotDeterministicParseTableException
-                                     ("Regenerate $prs_type.java with -NOBACKTRACK option"));
+                                    ("Regenerate $prs_type.java with -NOBACKTRACK option"));
             }
             catch (BadParseSymFileException e)
             {
                 throw new Error(new BadParseSymFileException("Bad Parser Symbol File -- $sym_type.java. Regenerate $prs_type.java"));
             }
         }
- 
+
+        public $action_type(ILexStream lexStream)
+        {
+            this();
+            reset(lexStream);
+        }
+
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
         public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }            
         public int getEOFTokenKind() { return $prs_type.EOFT_SYMBOL; }
-        public PrsStream getParseStream() { return (PrsStream) prsStream; }
+        public PrsStream getParseStream() { return prsStream; }
 
         public $ast_class parser()
         {
@@ -279,7 +282,7 @@
         public $ast_class parser(Monitor monitor, int error_repair_count)
         {
             dtParser.setMonitor(monitor);
-            
+
             try
             {
                 return ($ast_class) dtParser.parse();
