@@ -33,10 +33,10 @@
                 }
                 else new_lexer = new $action_type(new_file);
     
-                PrsStream old_stream = new PrsStream(old_lexer);
+                PrsStream old_stream = new PrsStream(old_lexer.getLexStream());
                 old_lexer.lexer(old_stream);
     
-                PrsStream new_stream = new PrsStream(new_lexer);
+                PrsStream new_stream = new PrsStream(new_lexer.getLexStream());
                 new_lexer.lexer(new_stream);
 
                 Differ diff = (differ_mode == TOKENS ? (Differ) new DifferTokens(old_stream, new_stream)
