@@ -97,17 +97,17 @@
 
     $SplitActions
     /.
-	            default:
-	                ruleAction$rule_number(ruleNumber);
-	                break;
-	        }
-	        return;
-	    }
-	
-	    public void ruleAction$rule_number(int ruleNumber)
-	    {
-	        switch (ruleNumber)
-	        {./
+                    default:
+                        ruleAction$rule_number(ruleNumber);
+                        break;
+                }
+                return;
+            }
+
+            public void ruleAction$rule_number(int ruleNumber)
+            {
+                switch (ruleNumber)
+                {./
 
     $EndActions
     /.
@@ -160,18 +160,17 @@
         public String[] orderedExportedSymbols() { return $exp_type.orderedTerminalSymbols; }
         public LexStream getLexStream() { return (LexStream) this; }
 
-        private void initializeLexer($prs_stream_class prsStream)
+        private void initializeLexer($prs_stream_class prsStream, int start_offset, int end_offset)
         {
             if (getInputChars() == null)
                 throw new NullPointerException("LexStream was not initialized");
             setPrsStream(prsStream);
-            prsStream.makeToken(0, -1, 0); // Token list must start with a bad token
+            prsStream.makeToken(start_offset, end_offset, 0); // Token list must start with a bad token
         }
 
-        private void addEOF($prs_stream_class prsStream)
+        private void addEOF($prs_stream_class prsStream, int end_offset)
         {
-            int i = getStreamIndex();
-            prsStream.makeToken(i, i, $eof_token); // and end with the end of file token
+            prsStream.makeToken(end_offset, end_offset, $eof_token); // and end with the end of file token
             prsStream.setStreamLength(prsStream.getSize());
         }
 
@@ -182,9 +181,9 @@
         
         public void lexer(Monitor monitor, $prs_stream_class prsStream)
         {
-            initializeLexer(prsStream);
+            initializeLexer(prsStream, 0, -1);
             lexParser.parseCharacters(monitor);  // Lex the input characters
-            addEOF(prsStream);
+            addEOF(prsStream, getStreamIndex());
         }
 
         public void lexer($prs_stream_class prsStream, int start_offset, int end_offset)
@@ -194,9 +193,13 @@
         
         public void lexer(Monitor monitor, $prs_stream_class prsStream, int start_offset, int end_offset)
         {
-            initializeLexer(prsStream);
+            if (start_offset <= 1)
+                 initializeLexer(prsStream, 0, -1);
+            else initializeLexer(prsStream, start_offset - 1, start_offset - 1);
+
             lexParser.parseCharacters(monitor, start_offset, end_offset);
-            addEOF(prsStream);
+
+            addEOF(prsStream, (end_offset >= getStreamIndex() ? getStreamIndex() : end_offset + 1));
         }
 
         /**
