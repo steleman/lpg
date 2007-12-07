@@ -43,4 +43,14 @@
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="lpg.generator.macosx_x86"
+         os="macosx"
+         arch="x86"
+         download-size="1280"
+         install-size="1280"
+         version="2.0.10"
+         fragment="true"
+         unpack="false"/>
+
 </feature>
