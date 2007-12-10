@@ -5,6 +5,7 @@
 #include "symbol.h"
 #include "LexStream.h"
 #include "Action.h"
+#include "spell.h"
 
 //
 //
@@ -1787,6 +1788,82 @@ void Action::EmitMacroWarning(const char *filename, const char *cursor, const ch
 
 
 //
+//
+//
+Symbol *Action::FindClosestMatchForMacro(const char *filename, const char *cursor, const char *end_cursor)
+{
+    int length = end_cursor - cursor;
+    char *macro_name = new char[length + 1];
+    strncpy(macro_name, cursor, length);
+    macro_name[length] = '\0';
+
+    Symbol *symbol = NULL;
+    int index = 0;
+
+    //
+    // First look for a close match in the user-defined macros (give them precedence in case of a tie).
+    //
+    for (int i = 0; i < macro_table -> Size(); i++)
+    {
+        MacroSymbol *macro = (*macro_table)[i];
+        int new_index = Spell::Index(macro -> Name(), macro_name);
+        if (macro -> Block() != 0 && new_index > index)
+        {
+            index = new_index;
+            symbol = macro;
+        }
+    }
+
+    //
+    // Next, look for a close match in the rule macros, export macros, filter macros or local macros.
+    //
+    SimpleMacroLookupTable *table[] = { &rule_macro_table, &export_macro_table, &filter_macro_table, &local_macro_table };
+    for (int k = 0; k < 4; k++)
+    {
+        for (int i = 0; i < table[k] -> Size(); i++)
+        {
+            SimpleMacroSymbol *macro = (*table[k])[i];
+            int new_index = Spell::Index(macro -> Name(), macro_name);
+            if (new_index > index)
+            {
+                index = new_index;
+                symbol = macro;
+            }
+        }
+    }
+
+
+    //
+    // Issue the message
+    //
+    Tuple <const char *> msg;
+    msg.Next() = "The macro \"";
+    msg.Next() = macro_name;
+    msg.Next() = "\" is undefined. ";
+    if (index < 4)
+        msg.Next() = "No substitution made";
+    else if (index < 10)
+    {
+        msg.Next() = "Do you mean \"";
+        msg.Next() = symbol -> Name();
+        msg.Next() = "\"";
+    }
+    else // same name except for case
+    {
+        msg.Next() = "LPG will assume you meant \"";
+        msg.Next() = symbol -> Name();
+        msg.Next() = "\"";
+    }
+
+    EmitMacroWarning(filename, cursor, end_cursor, msg);
+
+    delete [] macro_name;
+
+    return (index == 10 ? symbol : NULL); // an index 0f 10 indicates a perfect match except for case differences.
+}
+
+
+//
 // PROCESS_ACTION_LINE takes as arguments a line of text from an action
 // block and the rule number with which the block is associated.
 // It first scans the text for local macro names and then for
@@ -1962,7 +2039,27 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                 }
 
                 BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
-                if (block)
+                if (block == NULL) // if the macro was not found, see if there is a close match.
+                {
+                    Symbol *symbol = FindClosestMatchForMacro(filename, cursor, end_cursor);
+                    if (symbol == NULL)
+                    {
+                        buffer -> PutChar(*cursor);
+                        cursor++;
+                    }
+                    else // A perfect substitution (except for case difference) was found. Use it.
+                    {
+                        ProcessActionLine(location,
+                                          buffer,
+                                          filename,
+                                          symbol -> Name(),
+                                          &(symbol -> Name()[symbol -> NameLength()]),
+                                          line_no,
+                                          rule_no);
+                        cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
+                    }
+                }
+                else
                 {
                     int start = lex_stream -> StartLocation(block_token) + block -> BlockBeginLength(),
                         end   = lex_stream -> EndLocation(block_token) - block -> BlockEndLength() + 1;
@@ -2043,37 +2140,26 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
 
                     cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
                 }
-                else
-                {
-                    Tuple <const char *> msg;
-                    msg.Next() = "The macro \"";
-                    msg.Next() = macro -> Name();
-                    msg.Next() = "\" is undefined. No substitution made";
-
-                    EmitMacroWarning(filename, cursor, end_cursor, msg);
-
-                    buffer -> PutChar(*cursor);
-                    cursor++;
-                }
             }
             else
             {
-                int length = end_cursor - cursor;
-                char *macro_name = new char[length + 1];
-                strncpy(macro_name, cursor, length);
-                macro_name[length] = '\0';
-
-                Tuple <const char *> msg;
-                msg.Next() = "The macro \"";
-                msg.Next() = macro_name;
-                msg.Next() = "\" is undefined. No substitution made";
-
-                EmitMacroWarning(filename, cursor, end_cursor, msg);
-
-                delete [] macro_name;
-
-                buffer -> PutChar(*cursor); // process the escape symbol
-                cursor++;
+                Symbol *symbol = FindClosestMatchForMacro(filename, cursor, end_cursor);
+                if (symbol == NULL)
+                {
+                    buffer -> PutChar(*cursor); // process the escape symbol
+                    cursor++;
+                }
+                else // A perfect substitution (except for case difference) was found. Use it.
+                {
+                    ProcessActionLine(location,
+                                      buffer,
+                                      filename,
+                                      symbol -> Name(),
+                                      &(symbol -> Name()[symbol -> NameLength()]),
+                                      line_no,
+                                      rule_no);
+                    cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
+                }
             }
         }
     }
