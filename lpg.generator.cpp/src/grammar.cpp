@@ -87,7 +87,7 @@ void Grammar::Process()
     //
     // Add all the exported symbols to the export_macro_table.
     //
-    action -> InsertExportMacros();
+    action -> InsertExportMacros(); // make sure that this is processed first
     action -> InsertImportedFilterMacros();
     action -> CheckMacrosForConsistency();
 

@@ -157,6 +157,11 @@ void Scanner::ReportErrors()
                      msg.Next() = "Block not properly terminated";
                      option -> EmitError(token_index, msg);
                      break;
+                case INCLUDE_OPTIONS:
+                     msg.Next() = "Options in this %Include segment will be ignored. "
+                                  "To avoid this error, precede the include segment with an empty %Options directive";
+                     option -> EmitError(token_index, msg);
+                     break;
                 default:
 
                      assert(false);
@@ -390,6 +395,13 @@ void Scanner::Scan(char *buffer_start, char *buffer_tail)
 //
 void Scanner::ScanOptions(InputFileSymbol *file)
 {
+    SkipSpaces();
+    if (strxeq(cursor, "%include"))
+    {
+        AddErrorToken(INCLUDE_OPTIONS, 0);
+        return;
+    }
+
     for (SkipSpaces(); strxeq(cursor, "%options"); SkipSpaces())
     {
         char *start = cursor + strlen("%options"),

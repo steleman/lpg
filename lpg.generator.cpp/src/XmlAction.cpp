@@ -1,5 +1,21 @@
 #include "XmlAction.h"
 
+//
+//
+//
+void XmlAction::ProcessRuleActionBlock(ActionBlockElement &action)
+{
+    //
+    // TODO: Do whatever preprocessing that is required here!
+    //
+
+    ProcessActionBlock(action);
+
+    //
+    // TODO: Do whatever postprocessing that is required here!
+    //
+}
+
 void XmlAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &) {}
 ActionFileSymbol *XmlAction::GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}
 ActionFileSymbol *XmlAction::GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}

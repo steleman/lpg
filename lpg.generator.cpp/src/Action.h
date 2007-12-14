@@ -39,6 +39,8 @@ protected:
     LexStream *lex_stream;
 
     char *abstract_ast_list_classname;
+    int first_locally_exported_macro,
+        locally_exported_macro_gate;
 
     Stack<const char *> file_location_stack,
                         cursor_location_stack,
@@ -228,6 +230,7 @@ protected:
      * declared here as asbstract (= 0;) functions.
      */
 public:
+    virtual void ProcessRuleActionBlock(ActionBlockElement &) = 0;
     virtual const char *GetDefaultTerminalType() = 0;
     virtual const char *GetDefaultNonterminalType() = 0;
     virtual void GenerateDefaultTitle(Tuple<ActionBlockElement> &) = 0;

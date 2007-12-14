@@ -17,6 +17,8 @@ Action::Action(Control *control_, Blocks *action_blocks_, Grammar *grammar_, Mac
          grammar(grammar_),
          option(control_ -> option),
          lex_stream(control_ -> lex_stream),
+         first_locally_exported_macro(0),
+         locally_exported_macro_gate(0),
          macro_table(macro_table_)
 {
 
@@ -53,8 +55,13 @@ void Action::ComputeInterfaces(ClassnameElement &element, Array<const char *> &t
 }
 
 
+//
+//
+//
 void Action::InsertExportMacros()
 {
+    first_locally_exported_macro = export_macro_table.Size();
+
     for (int i = 0; i < grammar -> parser.exports.Length(); i++)
     {
         int export_token = grammar -> parser.exports[i];
@@ -70,15 +77,19 @@ void Action::InsertExportMacros()
             return_code = 12;
         }
     }
+
+    locally_exported_macro_gate = export_macro_table.Size();
+
+    return;
 }
 
 
 //
-// Make sure that exported terminals were generated.
+// Make sure that all terminals exported locally in this file were also generated locally.
 //
 void Action::CheckExportMacros()
 {
-    for (int i = 0; i < export_macro_table.Size(); i++)
+    for (int i = first_locally_exported_macro; i < locally_exported_macro_gate; i++)
     {
         SimpleMacroSymbol *simple_macro = export_macro_table[i];
         if ( ! simple_macro -> IsUsed())
@@ -535,7 +546,7 @@ void Action::ProcessCodeActions(Tuple<ActionBlockElement> &actions, Array<const 
             symbol_declarations_macro = InsertLocalMacro("symbol_declarations", str);
         }
 
-        ProcessActionBlock(actions[k]);
+        ProcessRuleActionBlock(actions[k]);
 
         delete [] str;
         symbol_declarations_macro = save_symbol_declarations_macro;
@@ -1373,11 +1384,11 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
             }
             else
             {
-                ActionFileSymbol *file_symbol = GenerateTitle(ast_filename_table, notice_actions, visitor_type, false);
+                ActionFileSymbol *file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, visitor_type, false);
                 GeneratePreorderVisitorInterface(*file_symbol -> BodyBuffer(), "", visitor_type, type_set);
                 file_symbol -> Flush();
 
-                file_symbol = GenerateTitle(ast_filename_table, notice_actions, abstract_visitor_type, false);
+                file_symbol = GenerateTitleAndGlobals(ast_filename_table, notice_actions, abstract_visitor_type, false);
                 GeneratePreorderVisitorAbstractClass(*file_symbol -> BodyBuffer(), "", abstract_visitor_type, type_set);
                 file_symbol -> Flush();
             }
@@ -1629,7 +1640,8 @@ void Action::ProcessActionBlock(ActionBlockElement &action)
             line_no++;
         }
 
-        cursor = SkipMargin(buffer, cursor, tail);
+        if (cursor > head) // any '\n' processed?
+            cursor = SkipMargin(buffer, cursor, tail);
 
         //
         // When we encounter the sequence \r\n we only consider \n as end-of-line.

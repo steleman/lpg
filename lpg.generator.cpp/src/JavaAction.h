@@ -13,6 +13,8 @@ public:
     {}
     virtual ~JavaAction() {}
 
+    virtual void ProcessRuleActionBlock(ActionBlockElement &);
+
     virtual const char *GetDefaultTerminalType() { return "IToken"; }
     virtual const char *GetDefaultNonterminalType() { return "Object"; }
     virtual void GenerateDefaultTitle(Tuple<ActionBlockElement> &);

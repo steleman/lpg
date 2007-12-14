@@ -5,6 +5,125 @@
 //
 //
 //
+void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
+{
+    BlockSymbol *block = lex_stream -> GetBlockSymbol(action.block_token);
+    TextBuffer *buffer = action.buffer;
+    int rule_number = action.rule_number;
+
+    if (option -> automatic_ast || rule_number == 0)
+        ProcessActionBlock(action);
+    else
+    {
+        int line_no = lex_stream -> Line(action.block_token),
+            start = lex_stream -> StartLocation(action.block_token) + block -> BlockBeginLength(),
+            end   = lex_stream -> EndLocation(action.block_token) - block -> BlockEndLength() + 1;
+        const char *head = &(lex_stream -> InputBuffer(action.block_token)[start]),
+                   *tail = &(lex_stream -> InputBuffer(action.block_token)[end]);
+        char *beginaction = " BeginAction",
+             *beginjava = " BeginJava",
+             *endjava   = " EndJava";
+        int beginaction_length = strlen(beginaction),
+            beginjava_length = strlen(beginjava),
+            endjava_length = strlen(endjava);
+        *beginaction = option -> escape;
+        *beginjava = option -> escape;
+        *endjava   = option -> escape;
+        MacroSymbol *beginjava_macro = FindUserDefinedMacro(beginjava, beginjava_length),
+                    *endjava_macro   = FindUserDefinedMacro(endjava, endjava_length);
+        bool head_macro_found = false;
+        for (const char *p = head; p < tail; p++)
+        {
+            if (*p == option -> escape)
+            {
+                const char *cursor = p,
+                           *end_cursor; // Find end macro name.
+                for (end_cursor = cursor + 1;
+                     end_cursor < tail && (Code::IsAlnum(*end_cursor) && *end_cursor != option -> escape);
+                     end_cursor++)
+                     ;
+                if (end_cursor - cursor == beginaction_length)
+                {
+                    const char *q = cursor + 1;
+                    for (int i = 1; q < end_cursor; i++, q++)
+                        if (tolower(*q) != tolower(beginaction[i]))
+                            break;
+                    if (q == end_cursor)
+                    {
+                        head_macro_found = true;
+                        break;
+                    }
+                }
+
+                if (end_cursor - cursor == beginjava_length)
+                {
+                    const char *q = cursor + 1;
+                    for (int i = 1; q < end_cursor; i++, q++)
+                        if (tolower(*q) != tolower(beginjava[i]))
+                            break;
+                    if (q == end_cursor)
+                    {
+                        head_macro_found = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (! head_macro_found)
+        {
+            if (beginjava_macro != NULL)
+            {
+                ProcessActionLine(action.location,
+                                  buffer,
+                                  lex_stream -> FileName(action.block_token),
+                                  beginjava,
+                                  &beginjava[strlen(beginjava)],
+                                  line_no,
+                                  rule_number);
+            }
+            else
+            {
+                Tuple <const char *> msg;
+                msg.Next() = "The macro \"";
+                msg.Next() = beginjava;
+                msg.Next() = "\" is undefined. ";
+
+                EmitMacroWarning(lex_stream -> FileName(action.block_token), head - 1, head - 1, msg);
+            }
+        }
+
+        ProcessActionBlock(action);
+
+        if (! head_macro_found)
+        {
+            if (endjava_macro != NULL)
+            {
+                ProcessActionLine(action.location,
+                                  buffer,
+                                  lex_stream -> FileName(action.block_token),
+                                  endjava,
+                                  &endjava[strlen(endjava)],
+                                  lex_stream -> EndLine(action.block_token),
+                                  rule_number);
+            }
+            else
+            {
+                Tuple <const char *> msg;
+                msg.Next() = "The macro \"";
+                msg.Next() = endjava;
+                msg.Next() = "\" is undefined. ";
+
+                EmitMacroWarning(lex_stream -> FileName(action.block_token), tail + 1, tail + 1, msg);
+            }
+        }
+    }
+}
+
+
+//
+//
+//
 void JavaAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &notice_actions)
 {
     //
@@ -160,12 +279,16 @@ void JavaAction::GenerateVisitorHeaders(TextBuffer &ast_buffer, const char *inde
         strcat(header, modifiers);
 
         ast_buffer.Put(header);
-        ast_buffer.Put("void accept(");
-        ast_buffer.Put(option -> visitor_type);
-        ast_buffer.Put(" v);");
-
-        if (option -> visitor == Option::DEFAULT)
+        if (option -> visitor == Option::PREORDER)
         {
+            ast_buffer.Put("void accept(IAstVisitor v);");
+        }
+        else if (option -> visitor == Option::DEFAULT)
+        {
+            ast_buffer.Put("void accept(");
+            ast_buffer.Put(option -> visitor_type);
+            ast_buffer.Put(" v);");
+
             ast_buffer.Put("\n");
 
             ast_buffer.Put(header);
@@ -223,12 +346,12 @@ void JavaAction::GenerateVisitorMethods(NTC &ntc,
     else if (option -> visitor == Option::PREORDER)
     {
         ast_buffer.Put("\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("    public void accept(");
-                                     ast_buffer.Put(option -> visitor_type);
-                                     ast_buffer.Put(" v)\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("    public void accept(IAstVisitor v)\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
         ast_buffer.Put(indentation); ast_buffer.Put("        if (! v.preVisit(this)) return;\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        enter(v);\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("        enter(("); 
+                                     ast_buffer.Put(option -> visitor_type);
+                                     ast_buffer.Put(") v);\n");
         ast_buffer.Put(indentation); ast_buffer.Put("        v.postVisit(this);\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
@@ -549,16 +672,25 @@ void JavaAction::GeneratePreorderVisitorInterface(TextBuffer &ast_buffer,
     assert(option -> visitor == Option::PREORDER);
     ast_buffer.Put(indentation); ast_buffer.Put("public interface ");
                                  ast_buffer.Put(interface_name);
-                                 ast_buffer.Put("\n");
+                                 ast_buffer.Put(" extends IAstVisitor\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    boolean preVisit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" element);\n\n");
+    //    ast_buffer.Put(indentation); ast_buffer.Put("    boolean preVisit(");
+    //                                 ast_buffer.Put(option -> ast_type);
+    //                                 ast_buffer.Put(" element);\n");
+    //
+    //    ast_buffer.Put(indentation); ast_buffer.Put("    void postVisit(");
+    //                                 ast_buffer.Put(option -> ast_type);
+    //                                 ast_buffer.Put(" element);\n\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    void postVisit(");
+    ast_buffer.Put(indentation); ast_buffer.Put("    boolean visit");
+                                 ast_buffer.Put("(");
                                  ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" element);\n\n");
+                                 ast_buffer.Put(" n);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    void endVisit");
+                                 ast_buffer.Put("(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" n);\n\n");
 
     for (int i = 0; i < type_set.Size(); i++)
     {
@@ -573,15 +705,6 @@ void JavaAction::GeneratePreorderVisitorInterface(TextBuffer &ast_buffer,
                                      ast_buffer.Put(" n);\n");
         ast_buffer.Put("\n");
     }
-
-    ast_buffer.Put(indentation); ast_buffer.Put("    boolean visit");
-                                 ast_buffer.Put("(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" n);\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    void endVisit");
-                                 ast_buffer.Put("(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" n);\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
@@ -646,9 +769,7 @@ void JavaAction::GenerateNoResultVisitorAbstractClass(TextBuffer &ast_buffer,
                                          ast_buffer.Put(") n);\n");
         }
     }
-    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(\" + n.getClass().toString() + \")\");\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
 
@@ -670,9 +791,7 @@ void JavaAction::GenerateNoResultVisitorAbstractClass(TextBuffer &ast_buffer,
                                          ast_buffer.Put(") n, o);\n");
         }
     }
-    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(\" + n.getClass().toString() + \")\");\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
@@ -733,9 +852,7 @@ void JavaAction::GenerateResultVisitorAbstractClass(TextBuffer &ast_buffer,
                                          ast_buffer.Put(") n);\n");
         }
     }
-    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(\" + n.getClass().toString() + \")\");\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
 
@@ -757,9 +874,7 @@ void JavaAction::GenerateResultVisitorAbstractClass(TextBuffer &ast_buffer,
                                          ast_buffer.Put(") n, o);\n");
         }
     }
-    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(\" + n.getClass().toString() + \")\");\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
@@ -783,12 +898,8 @@ void JavaAction::GeneratePreorderVisitorAbstractClass(TextBuffer &ast_buffer,
                                  ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public abstract void unimplementedVisitor(String s);\n\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean preVisit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" element) { return true; }\n\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    public void postVisit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" element) {}\n\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean preVisit(IAst element) { return true; }\n\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void postVisit(IAst element) {}\n\n");
     {
         for (int i = 0; i < type_set.Size(); i++)
         {
@@ -828,9 +939,7 @@ void JavaAction::GeneratePreorderVisitorAbstractClass(TextBuffer &ast_buffer,
                                          ast_buffer.Put(") n);\n");
         }
     }
-    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(\" + n.getClass().toString() + \")\");\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public void endVisit");
@@ -851,9 +960,7 @@ void JavaAction::GeneratePreorderVisitorAbstractClass(TextBuffer &ast_buffer,
                                          ast_buffer.Put(") n);\n");
         }
     }
-    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(")\");\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException(\"visit(\" + n.getClass().toString() + \")\");\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n");
@@ -1438,12 +1545,12 @@ void JavaAction::GenerateListMethods(CTC &ctc,
     else if (option -> visitor == Option::PREORDER)
     {
         ast_buffer.Put("\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("    public void accept(");
-                                     ast_buffer.Put(option -> visitor_type);
-                                     ast_buffer.Put(" v)\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("    public void accept(IAstVisitor v)\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
         ast_buffer.Put(indentation); ast_buffer.Put("        if (! v.preVisit(this)) return;\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        enter(v);\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("        enter((");
+                                     ast_buffer.Put(option -> visitor_type);
+                                     ast_buffer.Put(") v);\n");
         ast_buffer.Put(indentation); ast_buffer.Put("        v.postVisit(this);\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    public void enter(");
@@ -2305,7 +2412,7 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
                     {
                         const char *actual_type = ctc.FindBestTypeFor(type_index[i]);
 
-		        if (strcmp(actual_type, grammar -> Get_ast_token_classname()) != 0)
+                        if (strcmp(actual_type, grammar -> Get_ast_token_classname()) != 0)
                         {
                             GenerateCode(&ast_buffer, lparen, rule_no);
                             GenerateCode(&ast_buffer, actual_type, rule_no);

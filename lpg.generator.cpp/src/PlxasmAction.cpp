@@ -1,5 +1,21 @@
 #include "PlxasmAction.h"
 
+//
+//
+//
+void PlxasmAction::ProcessRuleActionBlock(ActionBlockElement &action)
+{
+    //
+    // TODO: Do whatever preprocessing that is required here!
+    //
+
+    ProcessActionBlock(action);
+
+    //
+    // TODO: Do whatever postprocessing that is required here!
+    //
+}
+
 void PlxasmAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &) {}
 ActionFileSymbol *PlxasmAction::GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}
 ActionFileSymbol *PlxasmAction::GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}

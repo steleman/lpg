@@ -19,6 +19,8 @@ public:
     }
     virtual ~CppAction() {}
 
+    virtual void ProcessRuleActionBlock(ActionBlockElement &);
+
     virtual const char *GetDefaultTerminalType() { return "void *"; }
     virtual const char *GetDefaultNonterminalType() { return "void *"; }
     virtual void GenerateDefaultTitle(Tuple<ActionBlockElement> &);

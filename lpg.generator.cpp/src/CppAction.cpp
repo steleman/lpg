@@ -1,5 +1,21 @@
 #include "CppAction.h"
 
+//
+//
+//
+void CppAction::ProcessRuleActionBlock(ActionBlockElement &action)
+{
+    //
+    // TODO: Do whatever preprocessing that is required here!
+    //
+
+    ProcessActionBlock(action);
+
+    //
+    // TODO: Do whatever postprocessing that is required here!
+    //
+}
+
 void CppAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &) {}
 ActionFileSymbol *CppAction::GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}
 ActionFileSymbol *CppAction::GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}

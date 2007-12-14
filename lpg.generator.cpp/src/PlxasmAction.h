@@ -19,6 +19,8 @@ public:
     }
     virtual ~PlxasmAction() {}
 
+    virtual void ProcessRuleActionBlock(ActionBlockElement &);
+
     virtual const char *GetDefaultTerminalType() { return NULL; }
     virtual const char *GetDefaultNonterminalType() { return NULL; }
     virtual void GenerateDefaultTitle(Tuple<ActionBlockElement> &);
