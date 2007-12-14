@@ -1096,6 +1096,13 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
 
     GenerateVisitorHeaders(ast_buffer, indentation, "    public abstract ");
 
+    //
+    // Not Preorder visitor? generate dummy accept method to satisfy IAst abstract declaration of accept(IAstVisitor);
+    // TODO: Should IAstVisitor be used for default visitors also? If (when) yes then we should remove it from the test below
+    //
+    if (option -> visitor == Option::NONE || option -> visitor == Option::DEFAULT) // ??? Don't need this for DEFAULT case after upgrade
+        ast_buffer.Put("    public void accept(IAstVisitor v) {}\n");
+
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
     return;
