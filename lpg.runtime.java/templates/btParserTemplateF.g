@@ -37,7 +37,7 @@
                 case $rule_number: {./
 
     $EndAction
-    /.          break;
+    /.                break;
                 }./
 
     $BeginJava
