@@ -10,6 +10,7 @@ public interface IAst
     public IToken[] getFollowingAdjuncts();
     public java.util.ArrayList getChildren();
     public java.util.ArrayList getAllChildren();
+    public void accept(IAstVisitor v);
 }
 
 
