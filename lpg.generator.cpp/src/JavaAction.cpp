@@ -20,17 +20,22 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
             end   = lex_stream -> EndLocation(action.block_token) - block -> BlockEndLength() + 1;
         const char *head = &(lex_stream -> InputBuffer(action.block_token)[start]),
                    *tail = &(lex_stream -> InputBuffer(action.block_token)[end]);
-        char *beginaction = " BeginAction",
-             *beginjava = " BeginJava",
-             *endjava   = " EndJava";
-        int beginaction_length = strlen(beginaction),
-            beginjava_length = strlen(beginjava),
-            endjava_length = strlen(endjava);
-        *beginaction = option -> escape;
-        *beginjava = option -> escape;
-        *endjava   = option -> escape;
-        MacroSymbol *beginjava_macro = FindUserDefinedMacro(beginjava, beginjava_length),
-                    *endjava_macro   = FindUserDefinedMacro(endjava, endjava_length);
+        const char beginjava[]   = { option -> escape, 'B', 'e', 'g', 'i', 'n', 'J', 'a', 'v', 'a', '\0'},
+                   endjava[]     = { option -> escape, 'E', 'n', 'd', 'J', 'a', 'v', 'a', '\0'},
+                   beginaction[] = { option -> escape, 'B', 'e', 'g', 'i', 'n', 'A', 'c', 't', 'i', 'o', 'n', '\0'},
+                   noaction[]    = { option -> escape, 'N', 'o', 'A', 'c', 't', 'i', 'o', 'n', '\0'},
+                   nullaction[]  = { option -> escape, 'N', 'u', 'l', 'l', 'A', 'c', 't', 'i', 'o', 'n', '\0'},
+                   badaction[]   = { option -> escape, 'B', 'a', 'd', 'A', 'c', 't', 'i', 'o', 'n', '\0'};
+        const char *macro_name[] = {
+                                       beginjava,
+                                       beginaction,
+                                       noaction,
+                                       nullaction,
+                                       badaction,
+                                       NULL // WARNING: this NULL gate must appear last in this list
+                                   };
+        MacroSymbol *beginjava_macro = FindUserDefinedMacro(beginjava, strlen(beginjava)),
+                    *endjava_macro   = FindUserDefinedMacro(endjava, strlen(endjava));
         bool head_macro_found = false;
         for (const char *p = head; p < tail; p++)
         {
@@ -42,30 +47,23 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                      end_cursor < tail && (Code::IsAlnum(*end_cursor) && *end_cursor != option -> escape);
                      end_cursor++)
                      ;
-                if (end_cursor - cursor == beginaction_length)
+                int k;
+                for (k = 0; macro_name[k] != NULL; k++)
                 {
-                    const char *q = cursor + 1;
-                    for (int i = 1; q < end_cursor; i++, q++)
-                        if (tolower(*q) != tolower(beginaction[i]))
-                            break;
-                    if (q == end_cursor)
+                    if (end_cursor - cursor == strlen(macro_name[k]))
                     {
-                        head_macro_found = true;
-                        break;
+                        const char *q = cursor + 1;
+                        for (int i = 1; q < end_cursor; i++, q++)
+                            if (tolower(*q) != tolower(macro_name[k][i]))
+                                break;
+                        if (q == end_cursor) // found a match
+                            break;
                     }
                 }
-
-                if (end_cursor - cursor == beginjava_length)
+                if (macro_name[k] != NULL) // macro was found in the list... Stop searching
                 {
-                    const char *q = cursor + 1;
-                    for (int i = 1; q < end_cursor; i++, q++)
-                        if (tolower(*q) != tolower(beginjava[i]))
-                            break;
-                    if (q == end_cursor)
-                    {
-                        head_macro_found = true;
-                        break;
-                    }
+                    head_macro_found = true;
+                    break;
                 }
             }
         }
