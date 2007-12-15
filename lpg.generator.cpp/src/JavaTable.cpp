@@ -647,12 +647,13 @@ void JavaTable::print_symbols(void)
 
     fprintf(syssym, "%s", sym_line);
 
-    fprintf(syssym, "\n      public final static String orderedTerminalSymbols[] = {\n"
+    fprintf(syssym, "\n    public final static String orderedTerminalSymbols[] = {\n"
                     "                 \"\",\n");
     for (int i = 1; i < grammar -> num_terminals; i++)
         fprintf(syssym, "                 \"%s\",\n", symbol_name[i]);
     fprintf(syssym, "                 \"%s\"\n             };\n",
             symbol_name[grammar -> num_terminals]);
+    fprintf(syssym, "\n    public final static int numTokenKinds = orderedTerminalSymbols.length;");
     fprintf(syssym, "\n    public final static boolean isValidForParser = true;\n}\n");
 
     return;
@@ -725,7 +726,7 @@ void JavaTable::print_exports(void)
     }
 
     fprintf(sysexp, "%s", exp_line);
-    fprintf(sysexp, "\n      public final static String orderedTerminalSymbols[] = {\n"
+    fprintf(sysexp, "\n    public final static String orderedTerminalSymbols[] = {\n"
                     "                 \"\",\n");
     {
         for (int i = 1; i < grammar -> exported_symbols.Length(); i++)
@@ -738,7 +739,8 @@ void JavaTable::print_exports(void)
             symbol_name[grammar -> exported_symbols.Length()]);
     delete [] symbol_name[grammar -> exported_symbols.Length()];
 
-    fprintf(sysexp, "\n\n    public final static boolean isValidForParser = false;\n}\n");
+    fprintf(sysexp, "\n\n    public final static int numTokenKinds = orderedTerminalSymbols.length;");
+    fprintf(sysexp, "\n    public final static boolean isValidForParser = false;\n}\n");
 
     return;
 }
