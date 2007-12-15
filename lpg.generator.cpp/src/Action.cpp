@@ -1454,7 +1454,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
                                                 rule_no);
                 }
 
-                GenerateCode(&ast_buffer, "\n          ", rule_no);
+                GenerateCode(&ast_buffer, "\n    ", rule_no);
                 ProcessMacro(&ast_buffer, "EndAction", rule_no);
             }
             else
