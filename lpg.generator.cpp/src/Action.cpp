@@ -193,6 +193,8 @@ void Action::SetupBuiltinMacros()
     (void) InsertLocalMacro("sym_type", option -> sym_type);
     (void) InsertLocalMacro("action_type", option -> action_type);
     (void) InsertLocalMacro("visitor_type", option -> visitor_type);
+    (void) InsertLocalMacro("prefix", option -> prefix);
+    (void) InsertLocalMacro("suffix", option -> suffix);
 
     entry_name_macro = InsertLocalMacro("entry_name"); // Reserved macro. Prevent user redefinition
     entry_marker_macro = InsertLocalMacro("entry_marker"); // Reserved macro. Prevent user redefinition
@@ -1689,16 +1691,29 @@ void Action::ProcessMacro(TextBuffer *buffer, const char *name, int rule_no)
     macroname[0] = option -> escape;
     strcpy(&macroname[1], name);
 
-    const char *filename = lex_stream -> FileName(grammar -> rules[rule_no].first_token_index);
-    int line_offset = lex_stream -> Line(grammar -> rules[rule_no].first_token_index) - 1;
+    if (FindUserDefinedMacro(macroname, length))
+    {
+        const char *filename = lex_stream -> FileName(grammar -> rules[rule_no].first_token_index);
+        int line_offset = lex_stream -> Line(grammar -> rules[rule_no].first_token_index) - 1;
 
-    ProcessActionLine(ActionBlockElement::BODY,
-                      buffer,
-                      filename,
-                      macroname,
-                      &macroname[length],
-                      line_offset,
-                      rule_no);
+        ProcessActionLine(ActionBlockElement::BODY,
+                          buffer,
+                          filename,
+                          macroname,
+                          &macroname[length],
+                          line_offset,
+                          rule_no);
+    }
+    else if (! FindUndeclaredMacro(macroname, length))
+    {
+        Tuple <const char *> msg;
+        msg.Next() = "The macro \"";
+        msg.Next() = macroname;
+        msg.Next() = "\" must be defined when the \"automatic_ast\" option is in effect";
+
+        option -> EmitWarning(0, msg);
+        InsertUndeclaredMacro(macroname); // to avoid repeating error message about this macro
+    }
 
     delete [] macroname;
 
@@ -1869,6 +1884,8 @@ Symbol *Action::FindClosestMatchForMacro(const char *filename, const char *curso
 
     EmitMacroWarning(filename, cursor, end_cursor, msg);
 
+    InsertUndeclaredMacro(macro_name); // to avoid repeating error message about this macro
+
     delete [] macro_name;
 
     return (index == 10 ? symbol : NULL); // an index 0f 10 indicates a perfect match except for case differences.
@@ -2037,6 +2054,10 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                 buffer -> Put(option -> exp_suffix);
                 cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
             }
+            else if ((simple_macro = FindUndeclaredMacro(cursor, end_cursor - cursor)) != NULL) // just skip undeclared macro
+            {
+                  cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
+            }
             else if ((macro = FindUserDefinedMacro(cursor, end_cursor - cursor)) != NULL)
             {
                 int block_token = macro -> Block();
@@ -2153,7 +2174,7 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                     cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
                 }
             }
-            else
+            else // undefined macro
             {
                 Symbol *symbol = FindClosestMatchForMacro(filename, cursor, end_cursor);
                 if (symbol == NULL)

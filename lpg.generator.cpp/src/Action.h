@@ -51,7 +51,8 @@ protected:
     SimpleMacroLookupTable local_macro_table,
                            rule_macro_table,
                            filter_macro_table,
-                           export_macro_table;
+                           export_macro_table,
+                           undeclared_macro_table;
 
     SimpleMacroSymbol *rule_number_macro,
                       *rule_text_macro,
@@ -139,6 +140,12 @@ protected:
         return InsertRuleMacro(macro_name, num.String());
     }
 
+    SimpleMacroSymbol *InsertUndeclaredMacro(const char *macro_name)
+    {
+        SimpleMacroSymbol *macro_symbol = undeclared_macro_table.InsertName(macro_name, strlen(macro_name));
+        return macro_symbol;
+    }
+
     SimpleMacroSymbol *FindLocalMacro(const char *str, int length)
     {
         char *macro_name = new char[length + 1];
@@ -171,6 +178,11 @@ protected:
     inline MacroSymbol *FindUserDefinedMacro(const char *str, int length)
     {
         return macro_table -> FindName(str, length);
+    }
+
+    inline SimpleMacroSymbol *FindUndeclaredMacro(const char *str, int length)
+    {
+        return undeclared_macro_table.FindName(str, length);
     }
 
     /**
