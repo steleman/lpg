@@ -3208,7 +3208,8 @@ void Option::PrintOptionsInEffect()
         {
             report.Put(output_line);
             report.PutChar('\n');
-            report.Put("    ");
+            strcpy(output_line, "    ");
+            report.Put(output_line);
             report.Put(opt_string[k]);
             report.PutChar('\n');
         }
