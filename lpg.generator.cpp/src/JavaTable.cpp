@@ -534,11 +534,10 @@ void JavaTable::print_deserialization_functions(int buffer_size)
                    "\n"
                    "    static {\n"
                    "        try {\n"
-                   "            java.io.InputStream infile = ");
-    prs_buffer.Put(option -> prs_type);
-    prs_buffer.Put(".class.getClassLoader().getResourceAsStream(\"");
-    prs_buffer.Put(option -> dat_file);
+                   "            java.io.File file = new java.io.File(\"");
+    prs_buffer.PutStringLiteral(option -> dat_file);
     prs_buffer.Put("\");\n"
+                   "            java.io.FileInputStream infile = new java.io.FileInputStream(file);\n"
                    "            final byte buffer[] = new byte[");
     prs_buffer.Put(buffer_size);
     prs_buffer.Put("];\n"
