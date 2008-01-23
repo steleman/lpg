@@ -114,6 +114,54 @@ public:
         return;
     }
 
+    //
+    // Put null-terminated string literal in the buffer
+    //
+    inline void PutStringLiteral(const char *str)
+    {
+        for (const char *p = str; *p; p++)
+        {
+            switch(*p)
+            {
+                case '\b':
+                    PutChar('\\');
+                    PutChar('b');
+                    break;
+                case '\t':
+                    PutChar('\\');
+                    PutChar('t');
+                    break;
+                case '\n':
+                    PutChar('\\');
+                    PutChar('n');
+                    break;
+                case '\f':
+                    PutChar('\\');
+                    PutChar('f');
+                    break;
+                case '\r':
+                    PutChar('\\');
+                    PutChar('r');
+                    break;
+                case '\\':
+                    PutChar('\\');
+                    PutChar('\\');
+                    break;
+                case '\"':
+                    PutChar('\\');
+                    PutChar('\"');
+                    break;
+                case '\'':
+                    PutChar('\\');
+                    PutChar('\'');
+                    break;
+                default:
+                    PutChar(*p);
+                    break;
+            }
+        }
+        return;
+    }
 
     //
     // This Put takes as arguments an integer NUM. NUM is an integer containing at
@@ -268,6 +316,56 @@ public:
     {
         assert(output_ptr > &output_buffer[0]); // make sure there is something to unput...
         output_ptr--;
+    }
+
+
+    //
+    // Put null-terminated string literal in the buffer
+    //
+    inline void PutStringLiteral(const char *str)
+    {
+        for (const char *p = str; *p; p++)
+        {
+            switch(*p)
+            {
+                case '\b':
+                    PutChar('\\');
+                    PutChar('b');
+                    break;
+                case '\t':
+                    PutChar('\\');
+                    PutChar('t');
+                    break;
+                case '\n':
+                    PutChar('\\');
+                    PutChar('n');
+                    break;
+                case '\f':
+                    PutChar('\\');
+                    PutChar('f');
+                    break;
+                case '\r':
+                    PutChar('\\');
+                    PutChar('r');
+                    break;
+                case '\\':
+                    PutChar('\\');
+                    PutChar('\\');
+                    break;
+                case '\"':
+                    PutChar('\\');
+                    PutChar('\"');
+                    break;
+                case '\'':
+                    PutChar('\\');
+                    PutChar('\'');
+                    break;
+                default:
+                    PutChar(*p);
+                    break;
+            }
+        }
+        return;
     }
 
 
