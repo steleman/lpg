@@ -4,3 +4,5 @@ vc70.pdb
 *.ilk
 *.new
 *.l
+*.old*
+*.new*
