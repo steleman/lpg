@@ -50,7 +50,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                 int k;
                 for (k = 0; macro_name[k] != NULL; k++)
                 {
-                    if (end_cursor - cursor == strlen(macro_name[k]))
+                    if ((unsigned) (end_cursor - cursor) == strlen(macro_name[k]))
                     {
                         const char *q = cursor + 1;
                         for (int i = 1; q < end_cursor; i++, q++)
@@ -80,7 +80,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                                   line_no,
                                   rule_number);
             }
-            else
+            else if (FindUndeclaredMacro(beginjava, strlen(beginjava)) == NULL)
             {
                 Tuple <const char *> msg;
                 msg.Next() = "The macro \"";
@@ -88,6 +88,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                 msg.Next() = "\" is undefined. ";
 
                 EmitMacroWarning(lex_stream -> FileName(action.block_token), head - 1, head - 1, msg);
+                InsertUndeclaredMacro(beginjava); // to avoid repeating error message about this macro
             }
         }
 
@@ -105,7 +106,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                                   lex_stream -> EndLine(action.block_token),
                                   rule_number);
             }
-            else
+            else if (FindUndeclaredMacro(endjava, strlen(endjava)) == NULL)
             {
                 Tuple <const char *> msg;
                 msg.Next() = "The macro \"";
@@ -113,6 +114,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                 msg.Next() = "\" is undefined. ";
 
                 EmitMacroWarning(lex_stream -> FileName(action.block_token), tail + 1, tail + 1, msg);
+                InsertUndeclaredMacro(endjava); // to avoid repeating error message about this macro
             }
         }
     }
@@ -1099,8 +1101,9 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
     // TODO: Should IAstVisitor be used for default visitors also? If (when) yes then we should remove it from the test below
     //
     if (option -> visitor == Option::NONE || option -> visitor == Option::DEFAULT) // ??? Don't need this for DEFAULT case after upgrade
-        ast_buffer.Put("    public void accept(IAstVisitor v) {}\n");
-
+    {
+        ast_buffer.Put(indentation); ast_buffer.Put("    public void accept(IAstVisitor v) {}\n");
+    }
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
     return;
