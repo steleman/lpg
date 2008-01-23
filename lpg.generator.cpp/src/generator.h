@@ -128,14 +128,14 @@ public:
 
     Generator(Control *control_, Pda *pda_) : new_state_element(pda_ -> max_la_state + 1),
                                               shift_on_error_symbol(pda_ -> max_la_state + 1, false),
+                                              next(12, 256),
+                                              previous(12, 256),
                                               control(control_),
                                               pda(pda_),
                                               option(control_ -> option),
                                               lex_stream(control_ -> lex_stream),
                                               grammar(control_ -> grammar),
-                                              base(pda_ -> base),
-                                              next(12, 256),
-                                              previous(12, 256)
+                                              base(pda_ -> base)
     {
         next.Resize(32768);
         previous.Resize(32768);
