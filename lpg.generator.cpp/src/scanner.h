@@ -141,13 +141,15 @@ private:
     class ProblemToken
     {
     public:
-        int msg_code,
-            token_index;
+        int msg_code;
+        const char *name;
+        Token *token;
 
-        void Initialize(int msg_code_, int token_index_)
+        void Initialize(int msg_code_, const char *name_, Token *token_)
         {
             msg_code = msg_code_;
-            token_index = token_index_;
+            name = name_;
+            token = token_;
         }
     };
 
@@ -163,6 +165,34 @@ private:
          *cursor;
     Token *current_token;
     int current_token_index;
+
+    Stack<InputFileSymbol *> file_stack;
+    Stack<char *> cursor_stack;
+    void PushEnvironment()
+    {
+        file_stack.Push(input_file);
+        cursor_stack.Push(cursor);
+    }
+    void PopEnvironment()
+    {
+        assert(! file_stack.IsEmpty());
+        input_file = file_stack.Pop();
+              line_location = input_file -> LineLocationReference();
+              input_buffer = input_file -> Buffer();
+        cursor = cursor_stack.Pop();
+    }
+    void ResetEnvironment(char *cursor)
+    {
+        Tuple<unsigned> *line_location = input_file -> LineLocationReference();
+        char *input_buffer = input_file -> Buffer();
+        unsigned location = cursor - input_buffer;
+        int length;
+        for (length = line_location -> Length() - 1; length > 0; length--)
+            if ((*line_location)[length] <= location)
+                break;
+        line_location -> Reset(length + 1);
+    }
+
 
     enum { SCAN_KEYWORD_SIZE = 24 + 1 };
 
@@ -180,7 +210,7 @@ private:
     static int ScanKeyword24(char *p1);
 
     void ReportErrors();
-    void ScanOptions(InputFileSymbol *);
+    char *ScanOptions();
     void SkipOptions();
     void ImportTerminals(const char *);
     void ProcessFilters(const char *);
@@ -207,14 +237,19 @@ private:
 
     void ImportFiles(int, int);
     char *ProcessInclude(const char *);
-    int IncludeFile(const char *);
-
-    void ResetProblemTokens() { error_tokens.Reset(); warning_tokens.Reset(); }
-    void AddErrorToken(int error_kind, LexStream::TokenIndex index) { error_tokens.Next().Initialize(error_kind, index); }
-    void AddWarningToken(int warning_kind, LexStream::TokenIndex index) { warning_tokens.Next().Initialize(warning_kind, index); }
+    int IncludeFile();
 
     Tuple<ProblemToken> error_tokens,
                         warning_tokens;
+    void ResetProblemTokens() { error_tokens.Reset(); warning_tokens.Reset(); }
+    void AddErrorToken(int error_kind, LexStream::TokenIndex index) {
+         error_tokens.Next().Initialize(error_kind, lex_stream -> NameString(index), lex_stream -> GetTokenReference(index));
+    }
+    void AddErrorToken(int error_kind, const char *name, Token *token) { error_tokens.Next().Initialize(error_kind, name, token); }
+    void AddWarningToken(int warning_kind, LexStream::TokenIndex index) {
+         warning_tokens.Next().Initialize(warning_kind, lex_stream -> NameString(index), lex_stream -> GetTokenReference(index));
+    }
+    void AddWarningToken(int warning_kind, const char *name, Token *token) { warning_tokens.Next().Initialize(warning_kind, name, token); }
 };
 
 #endif
