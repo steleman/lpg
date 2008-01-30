@@ -73,6 +73,7 @@ void Scanner::ReportErrors()
         msg.Reset();
         Token *token = warning_tokens[i].token;
         const char *name = warning_tokens[i].name;
+        assert(name);
         switch(warning_tokens[i].msg_code)
         {
             case LEGACY_KEYWORD:
@@ -1143,8 +1144,8 @@ void Scanner::ClassifyEscapedSymbol()
     else if (option -> escape != '%') // if legacy option is on treat as keyword only
     {
         assert(option -> legacy);
-        AddWarningToken(LEGACY_KEYWORD, current_token_index);
         current_token -> SetKind(kind); // it's a keyword
+        AddWarningToken(LEGACY_KEYWORD, current_token_index);
         if (kind == TK_INCLUDE_KEY)
             ptr = ProcessInclude(ptr);
     }
@@ -1170,8 +1171,8 @@ void Scanner::ClassifyKeyword()
     current_token -> SetEndLocation((ptr - 1) - input_buffer);
     if (current_token -> Kind() == TK_SYMBOL)
     {
-         AddWarningToken(SYMBOL_WITH_KEYWORD_MARKER, current_token_index);
          current_token -> SetSymbol(variable_table -> FindOrInsertName(cursor, len));
+         AddWarningToken(SYMBOL_WITH_KEYWORD_MARKER, current_token_index);
     }
     else if (current_token -> Kind() == TK_INCLUDE_KEY)
          ptr = ProcessInclude(ptr);
