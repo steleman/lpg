@@ -32,6 +32,12 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
                        NullTerminalSymbolsException,
                        UnimplementedTerminalsException
     {
+    	// SMS 12 Feb 2008
+    	// lexStream might be null, maybe only erroneously, but it has happened
+    	if (lexStream == null)
+    		throw new NullPointerException(
+    			"lpg.runtime.PrsStream.remapTerminalSymbols(..):  lexStream is null");
+    	
         String[] ordered_lexer_symbols = lexStream.orderedExportedSymbols();
         if (ordered_lexer_symbols == null)
             throw new NullExportedSymbolsException();
