@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: LPG Fragment for Win32
 Bundle-SymbolicName: lpg.generator.win32_x86
-Bundle-Version: 2.0.10
-Fragment-Host: lpg.runtime;bundle-version="2.0.10"
+Bundle-Version: 2.0.11
+Fragment-Host: lpg.runtime;bundle-version="2.0.11"
 Bundle-Localization: plugin
 Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))
