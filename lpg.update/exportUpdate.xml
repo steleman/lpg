@@ -16,7 +16,7 @@
 		<scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${update.server.username}@${update.server}:${update.server.dir}"></scp>
 	</target>
 
-	<target name="build.update.zip">
+	<target name="build.update.zip" depends="build.plugins,build.feature">
 		<delete dir="${update.temp.folder}"/>
 		<mkdir dir="${update.temp.folder}"/>
 		<antcall target="copy.feature">
@@ -26,6 +26,34 @@
 		</antcall>
 		<zip destfile="${zip.file}" basedir="${update.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
 		<delete dir="${update.temp.folder}"/>
+	</target>
+
+	<target name="build.feature">
+		<property name="dir" value="../lpg.runtime.feature"/>
+		<ant antfile="${dir}/exportFeature.xml" target="build.feature.jar" dir="${dir}"/>
+	</target>
+
+	<target name="build.plugins">
+		<property name="dir" value="../lpg.runtime.java"/>
+		<ant antfile="${dir}/exportPlugin.xml" target="build.plugin.jar" dir="${dir}"/>
+
+		<antcall target="build.fragment">
+			<param name="baseos" value="win32"/>
+			<param name="arch" value="x86"/>
+		</antcall>
+		<antcall target="build.fragment">
+			<param name="baseos" value="macosx"/>
+			<param name="arch" value="x86"/>
+		</antcall>
+		<antcall target="build.fragment">
+			<param name="baseos" value="linux"/>
+			<param name="arch" value="x86"/>
+		</antcall>
+	</target>
+
+	<target name="build.fragment">
+		<property name="dir" value="../lpg.generator.${baseos}_${arch}"/>
+		<ant antfile="${dir}/exportFragment.xml" target="build.fragment.jar" dir="${dir}"/>
 	</target>
 
 	<target name="copy.feature">

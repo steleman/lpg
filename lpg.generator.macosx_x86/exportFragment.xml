@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lpg.generator.macosx_x86" default="build.fragment.jar" basedir=".">
+	<echo message="After running this and the other platform exportFragment scripts,"/>
+	<echo message="run lpg.update/exportUpdate"/>
+
+	<target name="init">
+		<loadfile property="feature.id" srcfile="META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-SymbolicName:"/>
+				<replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<!-- <echo message="Feature ID = ${feature.id}"/> -->
+
+		<loadfile property="feature.version" srcfile="META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-Version:"/>
+				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<!-- <echo message="Feature version = ${feature.version}"/> -->
+
+		<property name="feature.jar.name" value="${feature.id}_${feature.version}.jar"/>
+		<property name="build.result.folder" value="${basedir}/../lpg.update/plugins"/>
+	</target>
+
+	<target name="build.fragment.jar" depends="init">
+		<echo message="basedir = ${basedir}"/>
+		<jar destfile="${build.result.folder}/${feature.jar.name}" basedir="${basedir}"
+			 manifest="META-INF/MANIFEST.MF"
+			includes="lpgexe/lpg-macosx_x86"/>
+	</target>
+</project>

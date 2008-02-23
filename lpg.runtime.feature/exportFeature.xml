@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lpg.runtime.feature" default="build.feature.jar" basedir=".">
+	<target name="init">
+	    <xmlproperty file="feature.xml" prefix="lpg"/>
+
+	    <echo message="Building for ${lpg.feature{id}} version ${lpg.feature(version)}"/>
+
+	    <property name="feature.id" value="${lpg.feature(id)}"/>
+	    <property name="feature.version" value="${lpg.feature(version)}"/>
+
+		<property name="feature.jar.name" value="${feature.id}_${feature.version}.jar"/>
+		<property name="build.result.folder" value="${basedir}/../lpg.update/features"/>
+	</target>
+
+	<target name="build.feature.jar" depends="init">
+		<echo message="basedir = ${basedir}"/>
+		<jar destfile="${build.result.folder}/${feature.jar.name}" basedir="${basedir}"
+			includes="feature.xml"/>
+	</target>
+</project>

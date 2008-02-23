@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lpg.runtime.java" default="build.plugin.jar" basedir=".">
+	<target name="init">
+		<loadfile property="plugin.id" srcfile="META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-SymbolicName:"/>
+				<replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<!-- <echo message="Plugin ID = ${plugin.id}"/> -->
+
+		<loadfile property="plugin.version" srcfile="META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-Version:"/>
+				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<!-- <echo message="Plugin version = ${plugin.version}"/> -->
+
+		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/>
+		<property name="build.result.folder" value="${basedir}/../lpg.update/plugins"/>
+	</target>
+
+	<target name="build.plugin.jar" depends="init">
+		<echo message="basedir = ${basedir}"/>
+		<jar destfile="lpgruntime.jar" basedir="${basedir}"
+			 includes="bin/**/*.class"/>
+		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
+			 manifest="META-INF/MANIFEST.MF"
+			includes="include/*,lpgruntime.jar,templates/*"/>
+	</target>
+</project>
