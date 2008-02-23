@@ -34,8 +34,8 @@
 	</target>
 
 	<target name="build.plugins">
-		<property name="dir" value="../lpg.runtime.java"/>
-		<ant antfile="${dir}/exportPlugin.xml" target="build.plugin.jar" dir="${dir}"/>
+		<property name="pluginDir" value="../lpg.runtime.java"/>
+		<ant antfile="${pluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${pluginDir}"/>
 
 		<antcall target="build.fragment">
 			<param name="baseos" value="win32"/>
