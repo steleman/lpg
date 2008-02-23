@@ -30,6 +30,6 @@
 		<echo message="basedir = ${basedir}"/>
 		<jar destfile="${build.result.folder}/${feature.jar.name}" basedir="${basedir}"
 			 manifest="META-INF/MANIFEST.MF"
-			includes="lpgexe/lpg-win32_x86"/>
+			includes="lpgexe/lpg-win32_x86.exe"/>
 	</target>
 </project>
