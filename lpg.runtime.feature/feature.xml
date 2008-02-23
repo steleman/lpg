@@ -2,7 +2,7 @@
 <feature
       id="lpg.runtime"
       label="LPG runtime"
-      version="2.0.10"
+      version="2.0.11"
       provider-name="pcharles@us.ibm.com">
 
    <description url="http://www.sourceforge.net/projects/lpg">
@@ -21,7 +21,7 @@
          id="lpg.runtime"
          download-size="0"
          install-size="0"
-         version="2.0.10"/>
+         version="2.0.11"/>
 
    <plugin
          id="lpg.generator.linux_x86"
@@ -29,7 +29,7 @@
          arch="x86"
          download-size="1100"
          install-size="1100"
-         version="2.0.10"
+         version="2.0.11"
          fragment="true"
          unpack="false"/>
 
@@ -39,7 +39,7 @@
          arch="x86"
          download-size="1142"
          install-size="1142"
-         version="2.0.10"
+         version="2.0.11"
          fragment="true"
          unpack="false"/>
 
@@ -49,7 +49,7 @@
          arch="x86"
          download-size="1280"
          install-size="1280"
-         version="2.0.10"
+         version="2.0.11"
          fragment="true"
          unpack="false"/>
 
