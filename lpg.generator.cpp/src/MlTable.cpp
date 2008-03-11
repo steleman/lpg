@@ -203,17 +203,7 @@ void MlTable::init_parser_files(void)
 }
 
 
-void MlTable::exit_parser_files(void)
-{
-    fclose(sysimp);
-    fclose(sysdcl);
-    fclose(syssym);
-    fclose(sysprs);
-    if (grammar -> exported_symbols.Length() > 0)
-        fclose(sysexp);
-
-    return;
-}
+void MlTable::exit_parser_files(void) { }
 
 
 void MlTable::PrintNames(void)
@@ -223,8 +213,8 @@ void MlTable::PrintNames(void)
     {
         dcl_buffer.Pad();
         dcl_buffer.Put('\"');
-        char *name = name_info[i];
-        int length = NameLength(i);
+        const char *name = name_info[i];
+        int length = Length(name_start, i);
         int k = 0;
         for (int j = 0; j < length; j++)
         {

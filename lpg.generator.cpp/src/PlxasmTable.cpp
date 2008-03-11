@@ -109,13 +109,13 @@ void PlxasmTable::PrintNames(void)
         // Print the character string representation of the name as a comment
         //
         dcl_buffer.Put("*\n");
-        for (int j = 0; j < NameLength(i); j += 25)
+        for (int j = 0; j < Length(name_start, i); j += 25)
         {
             dcl_buffer.Put('*');
             dcl_buffer.Pad(8);
             dcl_buffer.Put('\"');
 
-            int length = Util::Min(j + 25, NameLength(i));
+            int length = Util::Min(j + 25, Length(name_start, i));
             for (int k = j; k < length; k++)
             {
                 if (tok[k] == '\n') // within a name, the escape character is represented by '\n'
@@ -134,19 +134,19 @@ void PlxasmTable::PrintNames(void)
         dcl_buffer.Put("DC");
         dcl_buffer.Pad(4);
         dcl_buffer.Put("HL2\'");
-        dcl_buffer.Put(NameLength(i));
+        dcl_buffer.Put(Length(name_start, i));
         dcl_buffer.Put("\'\n");
         {
-            for (int j = 0; j < NameLength(i); j += 25)
+            for (int j = 0; j < Length(name_start, i); j += 25)
             {
                 dcl_buffer.Pad(9);
                 dcl_buffer.Put("DC");
                 dcl_buffer.Pad(4);
                 dcl_buffer.Put("XL");
-                dcl_buffer.Put(NameLength(i));
+                dcl_buffer.Put(Length(name_start, i));
                 dcl_buffer.Put('\'');
 
-                int length = Util::Min(j + 25, NameLength(i));
+                int length = Util::Min(j + 25, Length(name_start, i));
                 for (int k = j; k < length; k++)
                 {
                     if (tok[k] == '\n') // within a name, the escape character is represented by '\n'
@@ -157,12 +157,12 @@ void PlxasmTable::PrintNames(void)
                 dcl_buffer.Put("\'\n");
             }
         }
-        if (max_name_length > NameLength(i))
+        if (max_name_length > Length(name_start, i))
         {
             dcl_buffer.Pad(9);
             dcl_buffer.Put("DC");
             dcl_buffer.Pad(4);
-            int filler_size = max_name_length - NameLength(i);
+            int filler_size = max_name_length - Length(name_start, i);
             if (filler_size > 1)
                 dcl_buffer.Put(filler_size);
             dcl_buffer.Put("X\'20\'\n");

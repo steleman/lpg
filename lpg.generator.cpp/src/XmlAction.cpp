@@ -16,6 +16,19 @@ void XmlAction::ProcessRuleActionBlock(ActionBlockElement &action)
     //
 }
 
+//
+//
+//
+void XmlAction::ExpandExportMacro(TextBuffer *buffer, SimpleMacroSymbol *simple_macro)
+{
+    buffer -> Put(option -> exp_type);
+    buffer -> Put(".");
+    buffer -> Put(option -> exp_prefix);
+    buffer -> Put(simple_macro -> Name() + 2); // skip initial escape and '_' characters
+    buffer -> Put(option -> exp_suffix);
+}
+
+
 void XmlAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &) {}
 ActionFileSymbol *XmlAction::GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}
 ActionFileSymbol *XmlAction::GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}

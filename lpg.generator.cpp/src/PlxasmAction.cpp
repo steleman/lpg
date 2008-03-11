@@ -16,6 +16,19 @@ void PlxasmAction::ProcessRuleActionBlock(ActionBlockElement &action)
     //
 }
 
+//
+//
+//
+void PlxasmAction::ExpandExportMacro(TextBuffer *buffer, SimpleMacroSymbol *simple_macro)
+{
+    buffer -> Put(option -> exp_type);
+    buffer -> Put(".");
+    buffer -> Put(option -> exp_prefix);
+    buffer -> Put(simple_macro -> Name() + 2); // skip initial escape and '_' characters
+    buffer -> Put(option -> exp_suffix);
+}
+
+
 void PlxasmAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &) {}
 ActionFileSymbol *PlxasmAction::GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}
 ActionFileSymbol *PlxasmAction::GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}

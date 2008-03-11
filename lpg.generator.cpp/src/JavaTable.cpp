@@ -125,6 +125,8 @@ void JavaTable::Print(IntArrayInfo &array_info)
             PrintTrailer();
         }
 
+        delete [] subname;
+
         prs_buffer.Put("\n    public final static ");
         prs_buffer.Put(type);
         prs_buffer.Put(' ');
@@ -223,7 +225,7 @@ void JavaTable::PrintNames()
         prs_buffer.Pad();
         prs_buffer.Put('\"');
         int k = 0,
-            len = NameLength(i);
+            len = Length(name_start, i);
         for (int j = 0; j < len; j++)
         {
             if (tok[j] == '\"' || tok[j] == '\\')
@@ -256,8 +258,43 @@ void JavaTable::PrintNames()
 }
 
 
+void JavaTable::WriteInteger(int num)
+{
+    unsigned char c1 = (num >> 24),
+                  c2 = (num >> 16) & 0xFF,
+                  c3 = (num >> 8) & 0xFF,
+                  c4 = (num & 0xFF);
+    data_buffer.Put(c1);
+    data_buffer.Put(c2);
+    data_buffer.Put(c3);
+    data_buffer.Put(c4);
+}
+
 void JavaTable::WriteData(TypeId type_id, Array<int> &array)
 {
+    WriteInteger(array.Size()); // write the size of the array
+    switch(type_id)  // write the largest value that the array can contain
+    {
+        case B:
+        case I8:
+             WriteInteger((1 << 7) - 1);
+             break;
+        case U8:
+             WriteInteger((1 << 8) - 1);
+             break;
+        case I16:
+             WriteInteger((1 << 15) - 1);
+             break;
+        case U16:
+             WriteInteger((1 << 16) - 1);
+             break;
+        case I32:
+             WriteInteger((1 << 31) - 1);
+             break;
+        default:
+             assert(false);
+    }
+
     if (type_id == B || type_id == I8)
     {
         for (int i = 0; i < array.Size(); i++)
@@ -281,48 +318,165 @@ void JavaTable::WriteData(TypeId type_id, Array<int> &array)
     {
         assert(type_id == I32);
         for (int i = 0; i < array.Size(); i++)
-        {
-            int num = array[i];
-            unsigned char c1 = (num >> 24),
-                          c2 = (num >> 16) & 0xFF,
-                          c3 = (num >> 8) & 0xFF,
-                          c4 = (num & 0xFF);
-            data_buffer.Put(c1);
-            data_buffer.Put(c2);
-            data_buffer.Put(c3);
-            data_buffer.Put(c4);
-        }
+            WriteInteger(array[i]);
     }
 
     return;
 }
+
+//
+//
+//
+void JavaTable::Declare(int name_id, int type_id)
+{
+    prs_buffer.Put("    private static ");
+    prs_buffer.Put(type_name[type_id]);
+    prs_buffer.Put(' ');
+    prs_buffer.Put(array_name[name_id]);
+    prs_buffer.Put("[];\n");
+    prs_buffer.Put("    public final ");
+    prs_buffer.Put(type_id == Table::B ? "boolean " : "int ");
+    prs_buffer.Put(array_name[name_id]);
+    prs_buffer.Put("(int index) { return ");
+    prs_buffer.Put(array_name[name_id]);
+    prs_buffer.Put("[index]");
+    if (type_id == Table::B)
+        prs_buffer.Put(" != 0");
+    prs_buffer.Put("; }\n");
+}
+
+
+//
+//
+//
+void JavaTable::Serialize(const char *variable, const char *method, int value)
+{
+    //
+    // serialize
+    //
+    WriteInteger(value);
+
+    //
+    // deserialize
+    //
+    des_buffer.Put("            "); 
+    des_buffer.Put(variable);
+    des_buffer.Put(" = readInt(buffer);\n");
+
+    //
+    // declare
+    //
+    prs_buffer.Put("    private static int ");
+    prs_buffer.Put(variable);
+    prs_buffer.Put(";\n");
+    prs_buffer.Put("    public final int ");
+    prs_buffer.Put(method);
+    prs_buffer.Put("() { return ");
+    prs_buffer.Put(variable);
+    prs_buffer.Put("; }\n\n");
+}
+
+
+//
+//
+//
+void JavaTable::Serialize(const char *variable, const char *method, bool value)
+{
+    //
+    // serialize
+    //
+    WriteInteger(value ? 1 : 0);
+
+    //
+    // deserialize
+    //
+    des_buffer.Put("            "); 
+    des_buffer.Put(variable);
+    des_buffer.Put(" = readInt(buffer) > 0;\n");
+
+    //
+    // declare
+    //
+    prs_buffer.Put("    private static boolean ");
+    prs_buffer.Put(variable);
+    prs_buffer.Put(";\n");
+    prs_buffer.Put("    public final boolean ");
+    prs_buffer.Put(method);
+    prs_buffer.Put("() { return ");
+    prs_buffer.Put(variable);
+    prs_buffer.Put("; }\n\n");
+}
+
+
+//
+//
+//
+void JavaTable::ConditionalDeserialize(const char *indentation, int name_id, int type_id)
+{
+    Declare(name_id, type_id);
+
+    //
+    // deserialize
+    //
+    des_buffer.Put("                ");
+    des_buffer.Put(indentation);
+    des_buffer.Put(array_name[name_id]);
+    des_buffer.Put(" = read");
+    if (type_id == I32)
+         des_buffer.Put("Int");
+    else if (type_id == U16)
+         des_buffer.Put("Char");
+    else if (type_id == I16)
+         des_buffer.Put("Short");
+    else des_buffer.Put("Byte");
+    des_buffer.Put("Array(buffer);\n");
+
+    return;
+}
+
+
+//
+//
+//
+void JavaTable::ConditionalSerialize(const char *indentation, IntArrayInfo &array_info)
+{
+    //
+    // serialize
+    //
+    WriteData(array_info.type_id, array_info.array);
+
+    ConditionalDeserialize(indentation, array_info.name_id, array_info.type_id);
+
+    return;
+}
+
 
 //
 //
 //
 void JavaTable::Serialize(IntArrayInfo &array_info)
 {
-    prs_buffer.Put("    public final static ");
-    prs_buffer.Put(type_name[array_info.type_id]);
-    prs_buffer.Put(' ');
-    prs_buffer.Put(array_name[array_info.name_id]);
-    prs_buffer.Put("[] = new ");
-    prs_buffer.Put(type_name[array_info.type_id]);
-    prs_buffer.Put('[');
-    prs_buffer.Put(array_info.array.Size());
-    prs_buffer.Put("];\n");
+    Declare(array_info.name_id, array_info.type_id);
 
-    prs_buffer.Put("    public final ");
-    prs_buffer.Put(array_info.type_id == Table::B ? "boolean " : "int ");
-    prs_buffer.Put(array_name[array_info.name_id]);
-    prs_buffer.Put("(int index) { return ");
-    prs_buffer.Put(array_name[array_info.name_id]);
-    prs_buffer.Put("[index]");
-    if (array_info.type_id == Table::B)
-        prs_buffer.Put(" != 0");
-    prs_buffer.Put("; }\n");
-
+    //
+    // serialize
+    //
     WriteData(array_info.type_id, array_info.array);
+
+    //
+    // deserialize
+    //
+    des_buffer.Put("            ");
+    des_buffer.Put(array_name[array_info.name_id]);
+    des_buffer.Put(" = read");
+    if (array_info.type_id == I32)
+         des_buffer.Put("Int");
+    else if (array_info.type_id == U16)
+         des_buffer.Put("Char");
+    else if (array_info.type_id == I16)
+         des_buffer.Put("Short");
+    else des_buffer.Put("Byte");
+    des_buffer.Put("Array(buffer);\n");
 
     return;
 }
@@ -331,24 +485,41 @@ void JavaTable::Serialize(IntArrayInfo &array_info)
 //
 //
 //
-void JavaTable::SerializeNames()
+void JavaTable::Serialize(const char *name, int max_length, IntArrayInfo &start, Array<const char *> &info)
 {
-    prs_buffer.Put("    public final static String name[] = new String[");
-    prs_buffer.Put(name_info.Size());
-    prs_buffer.Put("];\n"
-                   "    public final String name(int index) { return name[index]; }\n\n");
+    //
+    // declare
+    //
+    prs_buffer.Put("    private static String ");
+    prs_buffer.Put(name);
+    prs_buffer.Put("[];\n");
+    prs_buffer.Put("    public final String ");
+    prs_buffer.Put(name);
+    prs_buffer.Put("(int index) { return ");
+    prs_buffer.Put(name);
+    prs_buffer.Put("[index]; }\n\n");
 
-    Array<int> name_length(name_info.Size());
-    for (int i = 0; i < name_length.Size(); i++)
-        name_length[i] = NameLength(i);
+    //
+    // serialize
+    //
+    Array<int> length(info.Size());
+    for (int i = 0; i < length.Size(); i++)
+        length[i] = Length(start, i);
 
-    WriteData(Type(0, max_name_length), name_length);
+    WriteData(Type(0, max_length), length);
 
-    for (int k = 0; k < name_info.Size(); k++)
+    for (int k = 0; k < info.Size(); k++)
     {
-        for (char *p = name_info[k]; *p; p++)
+        for (const char *p = info[k]; *p; p++)
             data_buffer.Put(*p);
     }
+
+    //
+    // deserialize
+    //
+    des_buffer.Put("            ");
+    des_buffer.Put(name);
+    des_buffer.Put(" = readStringArray(buffer);\n"); 
 
     return;
 }
@@ -359,7 +530,10 @@ void JavaTable::SerializeNames()
 //
 void JavaTable::non_terminal_action(void)
 {
-    prs_buffer.Put("    public final int ntAction(int state, int sym) {\n"
+    prs_buffer.Put("    /**\n"
+                   "     * assert(goto_default);\n"
+                   "     */\n"
+                   "    public final int ntAction(int state, int sym) {\n"
                    "        return (baseCheck[state + sym] == sym)\n"
                    "                             ? baseAction[state + sym]\n"
                    "                             : defaultGoto[sym];\n"
@@ -373,7 +547,10 @@ void JavaTable::non_terminal_action(void)
 //
 void JavaTable::non_terminal_no_goto_default_action(void)
 {
-    prs_buffer.Put("    public final int ntAction(int state, int sym) {\n"
+    prs_buffer.Put("    /**\n"
+                   "     * assert(! goto_default);\n"
+                   "     */\n"
+                   "    public final int ntAction(int state, int sym) {\n"
                    "        return baseAction[state + sym];\n"
                    "    }\n\n");
 
@@ -386,7 +563,10 @@ void JavaTable::non_terminal_no_goto_default_action(void)
 //
 void JavaTable::terminal_action(void)
 {
-    prs_buffer.Put("    public final int tAction(int state, int sym) {\n"
+    prs_buffer.Put("    /**\n"
+                   "     * assert(! shift_default);\n"
+                   "     */\n"
+                   "    public final int tAction(int state, int sym) {\n"
                    "        int i = baseAction[state],\n"
                    "            k = i + sym;\n"
                    "        return termAction[termCheck[k] == sym ? k : i];\n"
@@ -405,7 +585,10 @@ void JavaTable::terminal_action(void)
 //
 void JavaTable::terminal_shift_default_action(void)
 {
-    prs_buffer.Put("    public final int tAction(int state, int sym) {\n"
+    prs_buffer.Put("    /**\n"
+                   "     * assert(shift_default);\n"
+                   "     */\n"
+                   "    public final int tAction(int state, int sym) {\n"
                    "        if (sym == 0)\n"
                    "            return ERROR_ACTION;\n"
                    "        int i = baseAction[state],\n"
@@ -472,113 +655,7 @@ void JavaTable::init_parser_files(void)
 //
 //
 //
-void JavaTable::exit_parser_files(void)
-{
-    fclose(sysprs);
-    fclose(syssym);
-
-    if (grammar -> exported_symbols.Length() > 0)
-        fclose(sysexp);
-
-    if (option -> serialize)
-        fclose(sysdat);
-
-    return;
-}
-
-
-//
-//
-//
-void JavaTable::print_deserialization_functions(int buffer_size)
-{
-    prs_buffer.Put("\n"
-                   "    private static int offset = 0;\n"
-                   "\n"
-                   "    static private void read(byte buffer[], int array[]) throws java.io.IOException {\n"
-                   "        for (int i = 0; i < array.length; i++)\n"
-                   "            array[i] = (int) ((buffer[offset++] << 24) +\n"
-                   "                              ((buffer[offset++] & 0xFF) << 16) +\n"
-                   "                              ((buffer[offset++] & 0xFF) << 8) +\n"
-                   "                               (buffer[offset++] & 0xFF));\n"
-                   "    }\n"
-                   "\n"
-                   "    static private void read(byte buffer[], short array[]) throws java.io.IOException {\n"
-                   "        for (int i = 0; i < array.length; i++)\n"
-                   "            array[i] = (short) ((buffer[offset++] << 8) + (buffer[offset++] & 0xFF));\n"
-                   "    }\n"
-                   "\n"
-                   "    static private void read(byte buffer[], char array[]) throws java.io.IOException {\n"
-                   "        for (int i = 0; i < array.length; i++)\n"
-                   "            array[i] = (char) (((buffer[offset++] & 0xFF) << 8) + (buffer[offset++] & 0xFF));\n"
-                   "    }\n"
-                   "\n"
-                   "    static private void read(byte buffer[], byte array[]) throws java.io.IOException {\n"
-                   "        System.arraycopy(buffer, offset, array, 0, array.length);\n"
-                   "        offset += array.length;\n"
-                   "    }\n"
-                   "\n"
-                   "    static private void read(byte buffer[], String array[]) throws java.io.IOException {\n"
-                   "        ");
-    const char *string_length_type = type_name[Type(0, max_name_length)];
-    prs_buffer.Put(string_length_type);
-    prs_buffer.Put(" string_length[] = new ");
-    prs_buffer.Put(string_length_type);
-    prs_buffer.Put("[array.length];\n"
-                   "        read(buffer, string_length);\n"
-                   "        for (int i = 0; i < array.length; i++) {\n"
-                   "            array[i] = new String(buffer, offset, string_length[i]);\n"
-                   "            offset += string_length[i];\n"
-                   "        }\n"
-                   "    }\n"
-                   "\n"
-                   "    static {\n"
-                   "        try {\n"
-                   "            java.io.File file = new java.io.File(\"");
-    prs_buffer.PutStringLiteral(option -> dat_file);
-    prs_buffer.Put("\");\n"
-                   "            java.io.FileInputStream infile = new java.io.FileInputStream(file);\n"
-                   "            final byte buffer[] = new byte[");
-    prs_buffer.Put(buffer_size);
-    prs_buffer.Put("];\n"
-                   "\n"
-                   "            //\n"
-                   "            // Normally, we should be able to read the content of infile with\n"
-                   "            // the single statement: infile.read(buffer);\n"
-                   "            // However, there appears to be a problem with this statement\n"
-                   "            // when it is used in an eclipse plugin - in that case, only 8192\n"
-                   "            // bytes are read, regardless of the length of buffer. Therefore, we\n"
-                   "            // have to replace the single statement above with the loop below...\n"
-                   "            //\n"
-                   "            int current_index = 0;\n"
-                   "            do {\n"
-                   "                int num_read = infile.read(buffer, current_index, buffer.length - current_index);\n"
-                   "                current_index += num_read;\n"
-                   "            } while (current_index < buffer.length);\n"
-                   "\n");
-
-    for (int i = 0; i < data.Length(); i++)
-    {
-        prs_buffer.Put("            read(buffer, ");
-        prs_buffer.Put(array_name[data[i].name_id]);
-        prs_buffer.Put(");\n");
-    }
-
-    if (option -> error_maps)
-        prs_buffer.Put("            read(buffer, name);\n");
-
-    prs_buffer.Put("        }\n"
-                   "        catch(java.io.IOException e) {\n"
-                   "            System.out.println(\"*** Illegal or corrupted LPG data file\");\n"
-                   "            System.exit(12);\n"
-                   "        }\n"
-                   "        catch(Exception e) {\n"
-                   "            System.out.println(\"*** Unable to Initialize LPG tables\");\n"
-                   "            System.exit(12);\n"
-                   "        }\n"
-                   "    }\n"
-                   "\n");
-}
+void JavaTable::exit_parser_files(void) {}
 
 
 //
@@ -586,7 +663,7 @@ void JavaTable::print_deserialization_functions(int buffer_size)
 //
 void JavaTable::print_symbols(void)
 {
-    Array<char *> symbol_name(grammar -> num_terminals + 1);
+    Array<const char *> symbol_name(grammar -> num_terminals + 1);
     int symbol;
     char sym_line[Control::SYMBOL_SIZE +       /* max length of a token symbol  */
                   2 * MAX_PARM_SIZE + /* max length of prefix + suffix */
@@ -607,7 +684,7 @@ void JavaTable::print_symbols(void)
     //
     // We write the terminal symbols map.
     //
-    symbol_name[0] = NULL;
+    symbol_name[0] = "";
     for (symbol = grammar -> FirstTerminal(); symbol <= grammar -> LastTerminal(); symbol++)
     {
         char *tok = grammar -> RetrieveString(symbol);
@@ -646,14 +723,17 @@ void JavaTable::print_symbols(void)
 
     fprintf(syssym, "%s", sym_line);
 
-    fprintf(syssym, "\n    public final static String orderedTerminalSymbols[] = {\n"
-                    "                 \"\",\n");
-    for (int i = 1; i < grammar -> num_terminals; i++)
+    fprintf(syssym, "\n    public final static String orderedTerminalSymbols[] = {\n");
+    //                    "                 \"\",\n");
+    for (int i = 0; i < grammar -> num_terminals; i++)
         fprintf(syssym, "                 \"%s\",\n", symbol_name[i]);
     fprintf(syssym, "                 \"%s\"\n             };\n",
             symbol_name[grammar -> num_terminals]);
     fprintf(syssym, "\n    public final static int numTokenKinds = orderedTerminalSymbols.length;");
     fprintf(syssym, "\n    public final static boolean isValidForParser = true;\n}\n");
+
+    if (option -> serialize)
+        Table::initialize(symbol_name, Table::SYMBOL_START, Table::symbol_start, Table::symbol_info, Table::max_symbol_length);
 
     return;
 }
@@ -664,7 +744,7 @@ void JavaTable::print_symbols(void)
 //
 void JavaTable::print_exports(void)
 {
-    Array<char *> symbol_name(grammar -> exported_symbols.Length() + 1);
+    Array<const char *> symbol_name(grammar -> exported_symbols.Length() + 1);
     char exp_line[Control::SYMBOL_SIZE + 64];  /* max length of a token symbol  */
                                                /* +64 for error messages lines  */
                                                /* or other fillers(blank, =,...)*/
@@ -684,7 +764,9 @@ void JavaTable::print_exports(void)
     // We write the exported terminal symbols and map
     // them according to the order in which they were specified.
     //
-    symbol_name[0] = NULL;
+    char *temp = new char[1];
+    *temp = '\0';
+    symbol_name[0] = temp;
     for (int i = 1; i <= grammar -> exported_symbols.Length(); i++)
     {
         VariableSymbol *variable_symbol = grammar -> exported_symbols[i - 1];
@@ -725,10 +807,10 @@ void JavaTable::print_exports(void)
     }
 
     fprintf(sysexp, "%s", exp_line);
-    fprintf(sysexp, "\n    public final static String orderedTerminalSymbols[] = {\n"
-                    "                 \"\",\n");
+    fprintf(sysexp, "\n    public final static String orderedTerminalSymbols[] = {\n");
+    //                    "                 \"\",\n");
     {
-        for (int i = 1; i < grammar -> exported_symbols.Length(); i++)
+        for (int i = 0; i < grammar -> exported_symbols.Length(); i++)
         {
             fprintf(sysexp, "                 \"%s\",\n", symbol_name[i]);
             delete [] symbol_name[i];
@@ -744,120 +826,95 @@ void JavaTable::print_exports(void)
     return;
 }
 
+//
+//
+//
+void JavaTable::print_definition(const char *variable, const char *method, int value)
+{
+    if (option -> serialize)
+        Serialize(variable, method, value);
+    else
+    {
+        prs_buffer.Put("    public final static int ");
+        prs_buffer.Put(variable);
+        prs_buffer.Put(" = ");
+        prs_buffer.Put(value);
+        prs_buffer.Put(";\n");
+        prs_buffer.Put("    public final int ");
+        prs_buffer.Put(method);
+        prs_buffer.Put("() { return ");
+        prs_buffer.Put(variable);
+        prs_buffer.Put("; }\n\n");
+    }
+}
+
+
+//
+//
+//
+void JavaTable::print_definition(const char *variable, const char *method, bool value)
+{
+    if (option -> serialize)
+        Serialize(variable, method, value);
+    else
+    {
+        prs_buffer.Put("    public final static boolean ");
+        prs_buffer.Put(variable);
+        prs_buffer.Put(" = ");
+        prs_buffer.Put(value ? "true" : "false");
+        prs_buffer.Put(";\n");
+        prs_buffer.Put("    public final boolean ");
+        prs_buffer.Put(method);
+        prs_buffer.Put("() { return ");
+        prs_buffer.Put(variable);
+        prs_buffer.Put("; }\n\n");
+    }
+}
+
 
 //
 //
 //
 void JavaTable::print_definitions(void)
 {
-    if (option -> error_maps)
+    if (option -> serialize)
     {
-        prs_buffer.Put("    public final static int\n");
-        prs_buffer.Put("           ERROR_SYMBOL      = ");
-        prs_buffer.Put(grammar -> error_image);
-        prs_buffer.Put(",\n");
-
-        prs_buffer.Put("           SCOPE_UBOUND      = ");
-        prs_buffer.Put(pda -> scope_prefix.Size() - 1);
-        prs_buffer.Put(",\n");
-
-        prs_buffer.Put("           SCOPE_SIZE        = ");
-        prs_buffer.Put(pda -> scope_prefix.Size());
-        prs_buffer.Put(",\n");
-
-        prs_buffer.Put("           MAX_NAME_LENGTH   = ");
-        prs_buffer.Put(max_name_length);
-        prs_buffer.Put(";\n\n");
-        prs_buffer.Put("    public final int getErrorSymbol() { return ERROR_SYMBOL; }\n"
-                       "    public final int getScopeUbound() { return SCOPE_UBOUND; }\n"
-                       "    public final int getScopeSize() { return SCOPE_SIZE; }\n"
-                       "    public final int getMaxNameLength() { return MAX_NAME_LENGTH; }\n\n");
+        Serialize("goto_default", "getGotoDefault", (bool) option -> goto_default);
+        Serialize("shift_default", "getShiftDefault", (bool) option -> shift_default);
+        Serialize("error_maps", "getErrorMaps", (bool) option -> error_maps);
+        Serialize("scopes", "getScopes", (bool) pda -> scope_prefix.Size());
     }
+
+    print_definition("ERROR_SYMBOL", "getErrorSymbol", option -> error_maps ? grammar -> error_image : 0);
+    print_definition("SCOPE_UBOUND", "getScopeUbound", option -> error_maps ? pda -> scope_prefix.Size() - 1 : 0);
+    print_definition("SCOPE_SIZE", "getScopeSize", option -> error_maps ? pda -> scope_prefix.Size() : 0);
+    print_definition("MAX_NAME_LENGTH", "getMaxNameLength", option -> error_maps ? max_name_length : 0);
+    print_definition("NUM_STATES", "getNumStates", pda -> num_states);
+    print_definition("NT_OFFSET", "getNtOffset", grammar -> num_terminals);
+    print_definition("LA_STATE_OFFSET", "getLaStateOffset", option -> read_reduce ? error_act + grammar -> num_rules : error_act);
+    print_definition("MAX_LA", "getMaxLa", pda -> highest_level);
+    print_definition("NUM_RULES", "getNumRules", grammar -> num_rules);
+    print_definition("NUM_NONTERMINALS", "getNumNonterminals", grammar -> num_nonterminals);
+    print_definition("NUM_SYMBOLS", "getNumSymbols", grammar -> num_symbols);
+    print_definition("SEGMENT_SIZE", "getSegmentSize", MAX_ARRAY_SIZE);
+    print_definition("START_STATE", "getStartState", start_state);
+    print_definition("IDENTIFIER_SYMBOL", "getIdentifier_SYMBOL", grammar -> identifier_image);
+    print_definition("EOFT_SYMBOL", "getEoftSymbol", grammar -> eof_image);
+    print_definition("EOLT_SYMBOL", "getEoltSymbol", grammar -> eol_image);
+    print_definition("ACCEPT_ACTION", "getAcceptAction", accept_act);
+    print_definition("ERROR_ACTION", "getErrorAction", error_act);
+    print_definition("BACKTRACK", "getBacktrack", (bool) option -> backtrack);
+
+    prs_buffer.Put("    public final int getStartSymbol() { return lhs(0); }\n"
+                   "    public final boolean isValidForParser() { return ");
+    if (option -> serialize)
+        prs_buffer.Put("true");
     else
     {
-        prs_buffer.Put("    public final int getErrorSymbol() { return 0; }\n"
-                       "    public final int getScopeUbound() { return 0; }\n"
-                       "    public final int getScopeSize() { return 0; }\n"
-                       "    public final int getMaxNameLength() { return 0; }\n\n");
+        prs_buffer.Put(option -> sym_type);
+        prs_buffer.Put(".isValidForParser");
     }
-
-    prs_buffer.Put("    public final static int\n");
-    prs_buffer.Put("           NUM_STATES        = ");
-    prs_buffer.Put(pda -> num_states);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           NT_OFFSET         = ");
-    prs_buffer.Put(grammar -> num_terminals);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           LA_STATE_OFFSET   = ");
-    prs_buffer.Put(option -> read_reduce ? error_act + grammar -> num_rules : error_act);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           MAX_LA            = ");
-    prs_buffer.Put(pda -> highest_level);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           NUM_RULES         = ");
-    prs_buffer.Put(grammar -> num_rules);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           NUM_NONTERMINALS  = ");
-    prs_buffer.Put(grammar -> num_nonterminals);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           NUM_SYMBOLS       = ");
-    prs_buffer.Put(grammar -> num_symbols);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           SEGMENT_SIZE      = ");
-    prs_buffer.Put(MAX_ARRAY_SIZE);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           START_STATE       = ");
-    prs_buffer.Put(start_state);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           IDENTIFIER_SYMBOL = ");
-    prs_buffer.Put(grammar -> identifier_image);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           EOFT_SYMBOL       = ");
-    prs_buffer.Put(grammar -> eof_image);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           EOLT_SYMBOL       = ");
-    prs_buffer.Put(grammar -> eol_image);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           ACCEPT_ACTION     = ");
-    prs_buffer.Put(accept_act);
-    prs_buffer.Put(",\n");
-
-    prs_buffer.Put("           ERROR_ACTION      = ");
-    prs_buffer.Put(error_act);
-    prs_buffer.Put(";\n\n");
-
-    prs_buffer.Put("    public final static boolean BACKTRACK = ");
-    prs_buffer.Put(option -> backtrack ? "true" : "false");
-    prs_buffer.Put(";\n\n");
-    prs_buffer.Put("    public final int getNumStates() { return NUM_STATES; }\n"
-                   "    public final int getNtOffset() { return NT_OFFSET; }\n"
-                   "    public final int getLaStateOffset() { return LA_STATE_OFFSET; }\n"
-                   "    public final int getMaxLa() { return MAX_LA; }\n"
-                   "    public final int getNumRules() { return NUM_RULES; }\n"
-                   "    public final int getNumNonterminals() { return NUM_NONTERMINALS; }\n"
-                   "    public final int getNumSymbols() { return NUM_SYMBOLS; }\n"
-                   "    public final int getSegmentSize() { return SEGMENT_SIZE; }\n"
-                   "    public final int getStartState() { return START_STATE; }\n"
-                   "    public final int getStartSymbol() { return lhs[0]; }\n"
-                   "    public final int getIdentifierSymbol() { return IDENTIFIER_SYMBOL; }\n"
-                   "    public final int getEoftSymbol() { return EOFT_SYMBOL; }\n"
-                   "    public final int getEoltSymbol() { return EOLT_SYMBOL; }\n"
-                   "    public final int getAcceptAction() { return ACCEPT_ACTION; }\n"
-                   "    public final int getErrorAction() { return ERROR_ACTION; }\n"
-                   "    public final boolean isValidForParser() { return isValidForParser; }\n"
-                   "    public final boolean getBacktrack() { return BACKTRACK; }\n\n");
+    prs_buffer.Put("; }\n\n");
 
     return;
 }
@@ -868,7 +925,7 @@ void JavaTable::print_definitions(void)
 //
 void JavaTable::print_externs(void)
 {
-    if (option -> error_maps || option -> debug)
+    if (option -> serialize || option -> error_maps || option -> debug)
     {
         prs_buffer.Put("    public final int originalState(int state) {\n");
         prs_buffer.Put("        return -baseCheck[state];\n");
@@ -879,7 +936,7 @@ void JavaTable::print_externs(void)
         prs_buffer.Put("    public final int originalState(int state) { return 0; }\n");
     }
 
-    if (option -> error_maps)
+    if (option -> serialize || option -> error_maps)
     {
         prs_buffer.Put("    public final int asi(int state) {\n"
                        "        return asb[originalState(state)];\n"
@@ -915,91 +972,273 @@ void JavaTable::print_externs(void)
 //
 //
 //
+void JavaTable::initialize_deserialize_buffer(void)
+{
+    des_buffer.Put("    private static int offset = 0;\n"
+                   "\n"
+                   "    static private int readInt(byte buffer[]) {\n"
+                   "        return (int) ((buffer[offset++] << 24) +\n"
+                   "                      ((buffer[offset++] & 0xFF) << 16) +\n"
+                   "                      ((buffer[offset++] & 0xFF) << 8) +\n"
+                   "                       (buffer[offset++] & 0xFF));\n"
+                   "    }\n"
+                   "\n"
+                   "    static private short readShort(byte buffer[]) {\n"
+                   "        return (short) (((buffer[offset++] & 0xFF) << 8) +\n"
+                   "                (buffer[offset++] & 0xFF));\n"
+                   "    }\n"
+                   "\n"
+                   "    static private char readChar(byte buffer[]) {\n"
+                   "        return (char) (((buffer[offset++] & 0xFF) << 8) +\n"
+                   "                        (buffer[offset++] & 0xFF));\n"
+                   "    }\n"
+                   "\n"
+                   "    static private int[] readIntArray(byte buffer[]) throws java.io.IOException {\n"
+                   "        int length = readInt(buffer);\n"
+                   "        int type = readInt(buffer); assert(type <= 2147483647);\n"
+                   "        int array[] = new int[length];\n"
+                   "        for (int i = 0; i < length; i++)\n"
+                   "            array[i] = readInt(buffer);\n"
+                   "        return array;\n"
+                   "    }\n"
+                   "\n"
+                   "    static private short[] readShortArray(byte buffer[]) throws java.io.IOException {\n"
+                   "        int length = readInt(buffer);\n"
+                   "        int type = readInt(buffer); assert(type <= 32767);\n"
+                   "        short array[] = new short[length];\n"
+                   "        for (int i = 0; i < length; i++)\n"
+                   "            array[i] = readShort(buffer);\n"
+                   "        return array;\n"
+                   "    }\n"
+                   "\n"
+                   "    static private char[] readCharArray(byte buffer[]) throws java.io.IOException {\n"
+                   "        int length = readInt(buffer);\n"
+                   "        int type = readInt(buffer); assert(type <= 65535);\n"
+                   "        char array[] = new char[length];\n"
+                   "        for (int i = 0; i < length; i++)\n"
+                   "            array[i] = readChar(buffer);\n"
+                   "        return array;\n"
+                   "    }\n"
+                   "\n"
+                   "    static private byte[] readByteArray(byte buffer[]) throws java.io.IOException {\n"
+                   "        int length = readInt(buffer);\n"
+                   "        int type = readInt(buffer); assert(type <= 127);\n"
+                   "        byte array[] = new byte[length];\n"
+                   "        System.arraycopy(buffer, offset, array, 0, length);\n"
+                   "        offset += length;\n"
+                   "        return array;\n"
+                   "    }\n"
+                   "\n"
+                   "    static private int[] readArithmeticArray(byte buffer[]) throws java.io.IOException {\n"
+                   "        int length = readInt(buffer),\n"
+                   "            type = readInt(buffer),\n"
+                   "            array[] = new int[length];\n"
+                   "        if (type <= 127)\n"
+                   "             for (int i = 0; i < length; i++)\n"
+                   "                 array[i] = buffer[offset++];\n"
+                   "        else if (type <= 32767)\n"
+                   "             for (int i = 0; i < length; i++)\n"
+                   "                 array[i] = readShort(buffer);\n"
+                   "        else if (type <= 65535)\n"
+                   "             for (int i = 0; i < length; i++)\n"
+                   "                 array[i] = readChar(buffer);\n"
+                   "        else for (int i = 0; i < length; i++)\n"
+                   "                 array[i] = readInt(buffer);\n"
+                   "        return array;\n"
+                   "    }\n\n"
+                   "    static private String[] readStringArray(byte buffer[]) throws java.io.IOException {\n"
+                   "        int string_length[] = readArithmeticArray(buffer);\n"
+                   "        String array[] = new String[string_length.length];\n"
+                   "        for (int i = 0; i < array.length; i++) {\n"
+                   "            array[i] = new String(buffer, offset, string_length[i]);\n"
+                   "            offset += string_length[i];\n"
+                   "        }\n"
+                   "        return array;\n"
+                   "    }\n\n"
+                   "    static {\n"
+                   "        initialize(\"");
+    des_buffer.PutStringLiteral(option -> dat_file);
+    des_buffer.Put("\");\n"
+                   "    }\n\n"
+                   "    public static void initialize(String filename) {\n"
+                   "        initialize(new java.io.File(filename));\n"
+                   "    }\n\n"
+                   "    public static void initialize(java.io.File file) {\n"
+                   "        try {\n"
+                   "            java.io.FileInputStream infile = new java.io.FileInputStream(file);\n"
+                   "            final byte buffer[] = new byte[(int) file.length()];\n"
+                   "\n"
+                   "            //\n"
+                   "            // Normally, we should be able to read the content of infile with\n"
+                   "            // the single statement: infile.read(buffer);\n"
+                   "            // However, there appears to be a problem with this statement\n"
+                   "            // when it is used in an eclipse plugin - in that case, only 8192\n"
+                   "            // bytes are read, regardless of the length of buffer. Therefore, we\n"
+                   "            // have to replace the single statement above with the loop below...\n"
+                   "            //\n"
+                   "            int current_index = 0;\n"
+                   "            do {\n"
+                   "                int num_read = infile.read(buffer, current_index, buffer.length - current_index);\n"
+                   "                current_index += num_read;\n"
+                   "            } while (current_index < buffer.length);\n"
+                   "\n");
+    return;
+}
+
+
+//
+//
+//
 void JavaTable::print_serialized_tables(void)
 {
-    int buffer_size = 0;
+    Array<IntArrayInfo *> array_info(num_name_ids);
+    array_info.MemReset(); // set all elements to NULL
     for (int i = 0; i < data.Length(); i++)
-    {
-        IntArrayInfo &array_info = data[i];
-        Serialize(array_info);
-        buffer_size += array_info.num_bytes;
-        switch(array_info.name_id)
-        {
-            case BASE_CHECK:
-                 prs_buffer.Put("    public final static ");
-                 prs_buffer.Put(type_name[array_info.type_id]);
-                 prs_buffer.Put(" rhs[] = ");
-                 prs_buffer.Put(array_name[array_info.name_id]);
-                 prs_buffer.Put(";\n"
-                                "    public final int rhs(int index) { return rhs[index]; };\n");
+        array_info[data[i].name_id] = &data[i];
 
-                 break;
-            case BASE_ACTION:
-                 prs_buffer.Put("    public final static ");
-                 prs_buffer.Put(type_name[array_info.type_id]);
-                 prs_buffer.Put(" lhs[] = ");
-                 prs_buffer.Put(array_name[array_info.name_id]);
-                 prs_buffer.Put(";\n"
-                                "    public final int lhs(int index) { return lhs[index]; };\n");
-                 break;
-            default:
-                 break;
-        }
+    Serialize(*array_info[NULLABLES]);
+    Serialize(*array_info[PROSTHESES_INDEX]);
+    Serialize(*array_info[KEYWORDS]);
+    Serialize(*array_info[BASE_CHECK]);
+        prs_buffer.Put("    public final int rhs(int index) { return ");
+        prs_buffer.Put(array_name[BASE_CHECK]);
+        prs_buffer.Put("[index]; };\n");
+    Serialize(*array_info[BASE_ACTION]);
+        prs_buffer.Put("    public final int lhs(int index) { return ");
+        prs_buffer.Put(array_name[BASE_ACTION]);
+        prs_buffer.Put("[index]; };\n");
+    Serialize(*array_info[TERM_CHECK]);
+    Serialize(*array_info[TERM_ACTION]);
+
+    des_buffer.Put("            if (goto_default)\n");
+    if (option -> goto_default)
+        ConditionalSerialize("", *array_info[DEFAULT_GOTO]);
+    else
+    {
+        assert(array_info[DEFAULT_GOTO] == NULL);
+        ConditionalDeserialize("", DEFAULT_GOTO, I32);
     }
 
+    des_buffer.Put("            if (shift_default) {\n");
+    if (option -> shift_default)
+    {
+        ConditionalSerialize("", *array_info[DEFAULT_REDUCE]);
+        ConditionalSerialize("", *array_info[SHIFT_STATE]);
+        ConditionalSerialize("", *array_info[SHIFT_CHECK]);
+        ConditionalSerialize("", *array_info[DEFAULT_SHIFT]);
+    }
+    else
+    {
+        assert(array_info[DEFAULT_REDUCE] == NULL);
+        assert(array_info[SHIFT_STATE] == NULL);
+        assert(array_info[SHIFT_CHECK] == NULL);
+        assert(array_info[DEFAULT_SHIFT] == NULL);
+
+        ConditionalDeserialize("", DEFAULT_REDUCE, I32);
+        ConditionalDeserialize("", SHIFT_STATE, I32);
+        ConditionalDeserialize("", SHIFT_CHECK, I32);
+        ConditionalDeserialize("", DEFAULT_SHIFT, I32);
+    }
+    des_buffer.Put("            }\n");
+
+    des_buffer.Put("            if (error_maps) {\n");
     if (option -> error_maps)
     {
+        ConditionalSerialize("", *array_info[ACTION_SYMBOLS_BASE]);
+        ConditionalSerialize("", *array_info[ACTION_SYMBOLS_RANGE]);
+        ConditionalSerialize("", *array_info[NACTION_SYMBOLS_BASE]);
+        ConditionalSerialize("", *array_info[NACTION_SYMBOLS_RANGE]);
+        ConditionalSerialize("", *array_info[TERMINAL_INDEX]);
+        ConditionalSerialize("", *array_info[NONTERMINAL_INDEX]);
+
+        des_buffer.Put("                if (scopes) {\n");
+        if (pda -> scope_prefix.Size() > 0)
+        {
+            ConditionalSerialize("    ", *array_info[SCOPE_PREFIX]);
+            ConditionalSerialize("    ", *array_info[SCOPE_SUFFIX]);
+            ConditionalSerialize("    ", *array_info[SCOPE_LHS_SYMBOL]);
+            ConditionalSerialize("    ", *array_info[SCOPE_LOOK_AHEAD]);
+            ConditionalSerialize("    ", *array_info[SCOPE_STATE_SET]);
+            ConditionalSerialize("    ", *array_info[SCOPE_RIGHT_SIDE]);
+            ConditionalSerialize("    ", *array_info[SCOPE_STATE]);
+            ConditionalSerialize("    ", *array_info[IN_SYMB]);
+        }
         //
         // If error_maps are requested but not the scope maps, we generate
         // shells for the scope maps to allow an error recovery system that
         // might depend on such maps to compile.
         //
-        if (pda -> scope_prefix.Size() == 0)
+        else
         {
-            prs_buffer.Put("    public final static int scopePrefix[] = null;\n"
-                           "    public final int scopePrefix(int index) { return 0;}\n\n"
-                           "    public final static int scopeSuffix[] = null;\n"
-                           "    public final int scopeSuffix(int index) { return 0;}\n\n"
-                           "    public final static int scopeLhs[] = null;\n"
-                           "    public final int scopeLhs(int index) { return 0;}\n\n"
-                           "    public final static int scopeLa[] = null;\n"
-                           "    public final int scopeLa(int index) { return 0;}\n\n"
-                           "    public final static int scopeStateSet[] = null;\n"
-                           "    public final int scopeStateSet(int index) { return 0;}\n\n"
-                           "    public final static int scopeRhs[] = null;\n"
-                           "    public final int scopeRhs(int index) { return 0;}\n\n"
-                           "    public final static int scopeState[] = null;\n"
-                           "    public final int scopeState(int index) { return 0;}\n\n"
-                           "    public final static int inSymb[] = null;\n"
-                           "    public final int inSymb(int index) { return 0;}\n\n");
-        }
+            assert(array_info[SCOPE_PREFIX] == NULL);
+            assert(array_info[SCOPE_SUFFIX] == NULL);
+            assert(array_info[SCOPE_LHS_SYMBOL] == NULL);
+            assert(array_info[SCOPE_LOOK_AHEAD] == NULL);
+            assert(array_info[SCOPE_STATE_SET] == NULL);
+            assert(array_info[SCOPE_RIGHT_SIDE] == NULL);
+            assert(array_info[SCOPE_STATE] == NULL);
+            assert(array_info[IN_SYMB] == NULL);
 
-        SerializeNames();
-        int type_id = Type(0, max_name_length);
-        buffer_size += ((type_id == B || type_id == I8 ? 1 : type_id == I32 ? 4 : 2) * name_info.Size());
-        buffer_size += (name_start.array[name_start.array.Size() - 1] - 1);
+            ConditionalDeserialize("    ", SCOPE_PREFIX, I32);
+            ConditionalDeserialize("    ", SCOPE_SUFFIX, I32);
+            ConditionalDeserialize("    ", SCOPE_LHS_SYMBOL, I32);
+            ConditionalDeserialize("    ", SCOPE_LOOK_AHEAD, I32);
+            ConditionalDeserialize("    ", SCOPE_STATE_SET, I32);
+            ConditionalDeserialize("    ", SCOPE_RIGHT_SIDE, I32);
+            ConditionalDeserialize("    ", SCOPE_STATE, I32);
+            ConditionalDeserialize("    ", IN_SYMB, I32);
+        }
+        des_buffer.Put("                }\n");
     }
     else
     {
-        prs_buffer.Put("    public final int asb(int index) { return 0; }\n"
-                       "    public final int asr(int index) { return 0; }\n"
-                       "    public final int nasb(int index) { return 0; }\n"
-                       "    public final int nasr(int index) { return 0; }\n"
-                       "    public final int terminalIndex(int index) { return 0; }\n"
-                       "    public final int nonterminalIndex(int index) { return 0; }\n"
-                       "    public final int scopePrefix(int index) { return 0;}\n"
-                       "    public final int scopeSuffix(int index) { return 0;}\n"
-                       "    public final int scopeLhs(int index) { return 0;}\n"
-                       "    public final int scopeLa(int index) { return 0;}\n"
-                       "    public final int scopeStateSet(int index) { return 0;}\n"
-                       "    public final int scopeRhs(int index) { return 0;}\n"
-                       "    public final int scopeState(int index) { return 0;}\n"
-                       "    public final int inSymb(int index) { return 0;}\n"
-                       "    public final String name(int index) { return null; }\n");
+        assert(array_info[ACTION_SYMBOLS_BASE] == NULL);
+        assert(array_info[ACTION_SYMBOLS_RANGE] == NULL);
+        assert(array_info[NACTION_SYMBOLS_BASE] == NULL);
+        assert(array_info[NACTION_SYMBOLS_RANGE] == NULL);
+        assert(array_info[TERMINAL_INDEX] == NULL);
+        assert(array_info[NONTERMINAL_INDEX] == NULL);
+        assert(array_info[SCOPE_PREFIX] == NULL);
+        assert(array_info[SCOPE_SUFFIX] == NULL);
+        assert(array_info[SCOPE_LHS_SYMBOL] == NULL);
+        assert(array_info[SCOPE_LOOK_AHEAD] == NULL);
+        assert(array_info[SCOPE_STATE_SET] == NULL);
+        assert(array_info[SCOPE_RIGHT_SIDE] == NULL);
+        assert(array_info[SCOPE_STATE] == NULL);
+        assert(array_info[IN_SYMB] == NULL);
+
+        ConditionalDeserialize("", ACTION_SYMBOLS_BASE, I32);
+        ConditionalDeserialize("", ACTION_SYMBOLS_RANGE, I32);
+        ConditionalDeserialize("", NACTION_SYMBOLS_BASE, I32);
+        ConditionalDeserialize("", NACTION_SYMBOLS_RANGE, I32);
+        ConditionalDeserialize("", TERMINAL_INDEX, I32);
+        ConditionalDeserialize("", NONTERMINAL_INDEX, I32);
+        ConditionalDeserialize("", SCOPE_PREFIX, I32);
+        ConditionalDeserialize("", SCOPE_SUFFIX, I32);
+        ConditionalDeserialize("", SCOPE_LHS_SYMBOL, I32);
+        ConditionalDeserialize("", SCOPE_LOOK_AHEAD, I32);
+        ConditionalDeserialize("", SCOPE_STATE_SET, I32);
+        ConditionalDeserialize("", SCOPE_RIGHT_SIDE, I32);
+        ConditionalDeserialize("", SCOPE_STATE, I32);
+        ConditionalDeserialize("", IN_SYMB, I32);
     }
+    des_buffer.Put("            }\n");
 
-    print_deserialization_functions(buffer_size);
+    Serialize("name", max_name_length, name_start, name_info);
+    Serialize("orderedTerminalSymbols", max_symbol_length, symbol_start, symbol_info);
 
+    des_buffer.Put("        }\n"
+                   "        catch(java.io.IOException e) {\n"
+                   "            System.out.println(\"*** Illegal or corrupted LPG data file\");\n"
+                   "            System.exit(12);\n"
+                   "        }\n"
+                   "        catch(Exception e) {\n"
+                   "            System.out.println(\"*** Unable to Initialize LPG tables\");\n"
+                   "            System.exit(12);\n"
+                   "        }\n"
+                   "    }\n\n");
+
+    prs_buffer.Put(des_buffer);
     data_buffer.Flush();
 
     return;
@@ -1070,8 +1309,6 @@ void JavaTable::print_source_tables(void)
     }
     else
     {
-
-
         prs_buffer.Put("    public final int asb(int index) { return 0; }\n"
                        "    public final int asr(int index) { return 0; }\n"
                        "    public final int nasb(int index) { return 0; }\n"
@@ -1100,6 +1337,14 @@ void JavaTable::PrintTables(void)
 {
     init_parser_files();
 
+    print_symbols();
+
+    if (grammar -> exported_symbols.Length() > 0)
+        print_exports();
+
+    //
+    // Now process the parse file
+    //
     if (strlen(option -> package) > 0)
     {
         prs_buffer.Put("package ");
@@ -1123,19 +1368,18 @@ void JavaTable::PrintTables(void)
     prs_buffer.Put(" {\n");
 
     if (option -> serialize)
+        initialize_deserialize_buffer();
+
+    print_definitions();
+
+    if (option -> serialize)
          print_serialized_tables();
     else print_source_tables();
 
-    print_definitions();
     print_externs();
 
     prs_buffer.Put("}\n");
     prs_buffer.Flush();
-
-    print_symbols();
-
-    if (grammar -> exported_symbols.Length() > 0)
-        print_exports();
 
     exit_parser_files();
 

@@ -17,6 +17,28 @@ const char Control::HEADER_INFO[]  = "IBM LALR Parser Generator",
            Control::VERSION[] = "1.00 (" __DATE__ ")";
 
 //
+//
+//
+void Control::ProcessGrammar(void)
+{
+    try
+    {
+        grammar -> Process();
+    }
+    catch(int code)
+    {
+        CleanUp();
+        throw code;
+    }
+    catch (const char *str)
+    {
+        CleanUp();
+        throw 12;
+    }
+}
+
+
+//
 // By the time this function is invoked, the source input has already
 // been fully processed. More specifically, the scanner is invoked in the
 // main program, jikespg.cpp. The parser and the grammar are constructed
@@ -24,21 +46,58 @@ const char Control::HEADER_INFO[]  = "IBM LALR Parser Generator",
 //
 void Control::ConstructParser(void)
 {
-    //
-    // If the user only wanted to edit his grammar, we quit the program.
-    //
-    if (option -> edit)
+    Generator *generator = NULL;
+    Table *table = NULL;
+
+    try
     {
-        if (option -> first || option -> follow || option -> xref)
-            base -> Process();
+        //
+        // If the user only wanted to edit his grammar, we quit the program.
+        //
+        if (option -> edit)
+        {
+            if (option -> first || option -> follow || option -> xref)
+                base -> Process();
+
+            if (! option -> quiet)
+            {
+                option -> report.Put("\nNumber of Terminals: ");
+                option -> report.Put(grammar -> num_terminals - 1); //-1 for %empty
+                option -> report.PutChar('\n');
+                option -> report.Put("Number of Nonterminals: ");
+                option -> report.Put(grammar -> num_nonterminals - 1); // -1 for %ACC
+                option -> report.PutChar('\n');
+                option -> report.Put("Number of Productions: ");
+                option -> report.Put(grammar -> num_rules + 1);
+                option -> report.PutChar('\n');
+
+                if (option -> single_productions)
+                {
+                    option -> report.Put("Number of Single Productions: ");
+                    option -> report.Put(grammar -> num_single_productions);
+                    option -> report.PutChar('\n');
+                }
+
+                option -> report.Put("Number of Items: ");
+                option -> report.Put(grammar -> num_items);
+                option -> report.PutChar('\n');
+
+                option -> FlushReport();
+            }
+
+            return;
+        }
+
+        base -> Process(); // Build basic maps
+        pda -> Process();  // Build State Automaton
 
         if (! option -> quiet)
         {
             option -> report.Put("\nNumber of Terminals: ");
-            option -> report.Put(grammar -> num_terminals - 1); //-1 for %empty
+            option -> report.Put(grammar -> num_terminals - 1);
             option -> report.PutChar('\n');
             option -> report.Put("Number of Nonterminals: ");
-            option -> report.Put(grammar -> num_nonterminals - 1); // -1 for %ACC
+            option -> report.Put(grammar -> num_nonterminals - 1);
             option -> report.PutChar('\n');
             option -> report.Put("Number of Productions: ");
             option -> report.Put(grammar -> num_rules + 1);
@@ -54,124 +113,92 @@ void Control::ConstructParser(void)
             option -> report.Put("Number of Items: ");
             option -> report.Put(grammar -> num_items);
             option -> report.PutChar('\n');
+            if (option -> scopes)
+            {
+                option -> report.Put("Number of Scopes: ");
+                option -> report.Put(pda -> scope_prefix.Size());
+                option -> report.PutChar('\n');
+            }
+
+            option -> report.Put("Number of States: ");
+            option -> report.Put(pda -> num_states);
+            option -> report.PutChar('\n');
+
+            if (pda -> max_la_state > pda -> num_states)
+            {
+                option -> report.Put("Number of look-ahead states: ");
+                option -> report.Put(pda -> max_la_state - pda -> num_states);
+                option -> report.PutChar('\n');
+            }
+
+            option -> report.Put("Number of Shift actions: ");
+            option -> report.Put(pda -> num_shifts);
+            option -> report.PutChar('\n');
+
+            option -> report.Put("Number of Goto actions: ");
+            option -> report.Put(pda -> num_gotos);
+            option -> report.PutChar('\n');
+
+            if (option -> read_reduce)
+            {
+                option -> report.Put("Number of Shift/Reduce actions: ");
+                option -> report.Put(pda -> num_shift_reduces);
+                option -> report.PutChar('\n');
+                option -> report.Put("Number of Goto/Reduce actions: ");
+                option -> report.Put(pda -> num_goto_reduces);
+                option -> report.PutChar('\n');
+            }
+
+            option -> report.Put("Number of Reduce actions: ");
+            option -> report.Put(pda -> num_reductions);
+            option -> report.PutChar('\n');
+
+            if (! pda -> not_lrk)
+            {
+                option -> report.Put("Number of Shift-Reduce conflicts: ");
+                option -> report.Put(pda -> num_shift_reduce_conflicts);
+                option -> report.PutChar('\n');
+                option -> report.Put("Number of Reduce-Reduce conflicts: ");
+                option -> report.Put(pda -> num_reduce_reduce_conflicts);
+                option -> report.PutChar('\n');
+            }
+
+            if (grammar -> keywords.Length() > 0)
+            {
+                option -> report.Put("Number of Keyword/Identifier Shift conflicts: ");
+                option -> report.Put(pda -> num_shift_shift_conflicts);
+                option -> report.PutChar('\n');
+                option -> report.Put("Number of Keyword/Identifier Shift-Reduce conflicts: ");
+                option -> report.Put(pda -> num_soft_shift_reduce_conflicts);
+                option -> report.PutChar('\n');
+                option -> report.Put("Number of Keyword/Identifier Reduce-Reduce conflicts: ");
+                option -> report.Put(pda -> num_soft_reduce_reduce_conflicts);
+                option -> report.PutChar('\n');
+            }
 
             option -> FlushReport();
         }
 
-        return;
-    }
+        //
+        // If the removal of single productions is requested, do
+        // so now.
+        // If STATES option is on, we print the states.
+        //
+        if (option -> states)
+            pda -> PrintStates();
 
-    base -> Process(); // Build basic maps
-    pda -> Process();  // Build State Automaton
-
-    if (! option -> quiet)
-    {
-        option -> report.Put("\nNumber of Terminals: ");
-        option -> report.Put(grammar -> num_terminals - 1);
-        option -> report.PutChar('\n');
-        option -> report.Put("Number of Nonterminals: ");
-        option -> report.Put(grammar -> num_nonterminals - 1);
-        option -> report.PutChar('\n');
-        option -> report.Put("Number of Productions: ");
-        option -> report.Put(grammar -> num_rules + 1);
-        option -> report.PutChar('\n');
-
-        if (option -> single_productions)
+        //
+        // If the tables are requested, we process them.
+        //
+        if (option -> table)
         {
-            option -> report.Put("Number of Single Productions: ");
-            option -> report.Put(grammar -> num_single_productions);
-            option -> report.PutChar('\n');
-        }
-
-        option -> report.Put("Number of Items: ");
-        option -> report.Put(grammar -> num_items);
-        option -> report.PutChar('\n');
-        if (option -> scopes)
-        {
-            option -> report.Put("Number of Scopes: ");
-            option -> report.Put(pda -> scope_prefix.Size());
-            option -> report.PutChar('\n');
-        }
-
-        option -> report.Put("Number of States: ");
-        option -> report.Put(pda -> num_states);
-        option -> report.PutChar('\n');
-
-        if (pda -> max_la_state > pda -> num_states)
-        {
-            option -> report.Put("Number of look-ahead states: ");
-            option -> report.Put(pda -> max_la_state - pda -> num_states);
-            option -> report.PutChar('\n');
-        }
-
-        option -> report.Put("Number of Shift actions: ");
-        option -> report.Put(pda -> num_shifts);
-        option -> report.PutChar('\n');
-
-        option -> report.Put("Number of Goto actions: ");
-        option -> report.Put(pda -> num_gotos);
-        option -> report.PutChar('\n');
-
-        if (option -> read_reduce)
-        {
-            option -> report.Put("Number of Shift/Reduce actions: ");
-            option -> report.Put(pda -> num_shift_reduces);
-            option -> report.PutChar('\n');
-            option -> report.Put("Number of Goto/Reduce actions: ");
-            option -> report.Put(pda -> num_goto_reduces);
-            option -> report.PutChar('\n');
-        }
-
-        option -> report.Put("Number of Reduce actions: ");
-        option -> report.Put(pda -> num_reductions);
-        option -> report.PutChar('\n');
-
-        if (! pda -> not_lrk)
-        {
-            option -> report.Put("Number of Shift-Reduce conflicts: ");
-            option -> report.Put(pda -> num_shift_reduce_conflicts);
-            option -> report.PutChar('\n');
-            option -> report.Put("Number of Reduce-Reduce conflicts: ");
-            option -> report.Put(pda -> num_reduce_reduce_conflicts);
-            option -> report.PutChar('\n');
-        }
-
-        if (grammar -> keywords.Length() > 0)
-        {
-            option -> report.Put("Number of Keyword/Identifier Shift conflicts: ");
-            option -> report.Put(pda -> num_shift_shift_conflicts);
-            option -> report.PutChar('\n');
-            option -> report.Put("Number of Keyword/Identifier Shift-Reduce conflicts: ");
-            option -> report.Put(pda -> num_soft_shift_reduce_conflicts);
-            option -> report.PutChar('\n');
-            option -> report.Put("Number of Keyword/Identifier Reduce-Reduce conflicts: ");
-            option -> report.Put(pda -> num_soft_reduce_reduce_conflicts);
-            option -> report.PutChar('\n');
-        }
-
-        option -> FlushReport();
-    }
-
-    //
-    // If the removal of single productions is requested, do
-    // so now.
-    // If STATES option is on, we print the states.
-    //
-    if (option -> states)
-        pda -> PrintStates();
-
-    //
-    // If the tables are requested, we process them.
-    //
-    if (option -> table)
-    {
-        if (option -> goto_default && option -> nt_check)
-            option -> EmitError(0, "The options GOTO_DEFAULT and NT_CHECK are incompatible. Tables not generated");
-        else
-        {
-            Generator *generator = new Generator(this, pda);
-            generator -> Process();
-            Table *table = (option -> programming_language == Option::C
+            if (option -> goto_default && option -> nt_check)
+                option -> EmitError(0, "The options GOTO_DEFAULT and NT_CHECK are incompatible. Tables not generated");
+            else
+            {
+                generator = new Generator(this, pda);
+                generator -> Process();
+                table = (option -> programming_language == Option::C
                                 ? new CTable(this, pda)
                                 : (option -> programming_language == Option::CPP
                                        ? new CppTable(this, pda)
@@ -184,20 +211,37 @@ void Control::ConstructParser(void)
                                                             : (option -> programming_language == Option::ML
                                                                    ? new MlTable(this, pda)
                                                                    : (Table *) new XmlTable(this, pda)))))));
-            generator -> Generate(table);
-            delete generator;
+                generator -> Generate(table);
+                delete generator; generator = NULL;
 
-            table -> PrintTables();
-            if (option -> states)
-                table -> PrintStateMaps();
+                table -> PrintTables();
+                if (option -> states)
+                    table -> PrintStateMaps();
 
-            table -> PrintReport();
+                table -> PrintReport();
 
-            delete table;
+                delete table; table = NULL;
+            }
         }
-    }
 
-    option -> FlushReport();
+        option -> FlushReport();
+    }
+    catch(int code)
+    {
+        delete generator;
+        delete table;
+
+        CleanUp();
+        throw code;
+    }
+    catch (const char *str)
+    {
+        delete generator;
+        delete table;
+
+        CleanUp();
+        throw 12;
+    }
 
     return;
 }
@@ -286,7 +330,9 @@ void Control::Exit(int code)
     //
     option -> FlushReport();
 
-    exit(code);
+    CleanUp();
+
+    throw code;
 
     return;
 }

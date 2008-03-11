@@ -85,10 +85,7 @@ void Option::Emit(Token *token, const char *header, Tuple<const char *> &msg)
 
 void Option::InvalidValueError(const char *start, const char *value, int length)
 {
-    char *str = new char[length + 1];
-    strncpy(str, start, length);
-    str[length] = '\0';
-    temp_string.Next() = str;
+    char *str = NewString(start, length);
 
     Tuple<const char *> msg;
     msg.Next() = "\"";
@@ -102,10 +99,7 @@ void Option::InvalidValueError(const char *start, const char *value, int length)
 
 void Option::InvalidTripletValueError(const char *start, int length, const char *type, const char *format)
 {
-    char *str = new char[length + 1];
-    strncpy(str, start, length);
-    str[length] = '\0';
-    temp_string.Next() = str;
+    char *str = NewString(start, length);
 
     Tuple<const char *> msg;
     msg.Next() = "Illegal ";
@@ -120,7 +114,8 @@ void Option::InvalidTripletValueError(const char *start, int length, const char 
 
 
 //
-//
+// Allocate a new copy of the string parameter str_ and return it.
+// The deallocation will take place later.
 //
 const char *Option::AllocateString(const char *str_)
 {
@@ -130,6 +125,10 @@ const char *Option::AllocateString(const char *str_)
     return str;
 }
 
+//
+// Allocate a new string option and return it.
+// The deallocation will take place later.
+//
 const char *Option::AllocateString(const char *str_, char c)
 {
     int length = strlen(str_) + 4;
@@ -144,6 +143,10 @@ const char *Option::AllocateString(const char *str_, char c)
     return str;
 }
 
+//
+// Allocate a new string option and return it.
+// The deallocation will take place later.
+//
 const char *Option::AllocateString(const char *str_, const char *str2)
 {
     char *str = new char[strlen(str_) + strlen(str2) + 4];
@@ -462,10 +465,7 @@ const char *Option::ClassifyE(const char *start, bool flag)
              return ReportAmbiguousOption(start, "EXPORT-TERMINALS, EXTENDS_PARSETABLE");
         else if (q == NULL && flag)
         {
-            char *temp = new char[1];
-            *temp = NULL_CHAR;
-            extends_parsetable = temp;
-            temp_string.Next() = extends_parsetable;
+            extends_parsetable = NewString("");
             return p;
         }
         else if (flag) // Cannot assign a value to "noextends_parsetable"
@@ -1053,10 +1053,7 @@ const char *Option::ClassifyP(const char *start, bool flag)
     //          return ReportAmbiguousOption(start, "PACKAGE, PARSETABLE-INTERFACES");
     //     else if (q == NULL && flag)
     //     {
-    //         char *temp = new char[1];
-    //         *temp = NULL_CHAR;
-    //         parsetable_interfaces = temp;
-    //         temp_string.Next() = parsetable_interfaces;
+    //         parsetable_interfaces = NewString("");
     //         return p;
     //     }
     //     else if (flag) // Cannot assign a value to "noparsetable_interfaces"
@@ -1095,10 +1092,7 @@ const char *Option::ClassifyP(const char *start, bool flag)
                  return ReportAmbiguousOption(start, "PARENT_SAVED, PARSETABLE-INTERFACES");
             if (q == NULL && flag)
             {
-                char *temp = new char[1];
-                *temp = NULL_CHAR;
-                parsetable_interfaces = temp;
-                temp_string.Next() = parsetable_interfaces;
+                parsetable_interfaces = NewString("");
                 return p;
             }
             else if (flag) // Cannot assign a value to "noparsetable_interfaces"
@@ -1681,10 +1675,7 @@ const char *Option::ClassifyBadOption(const char *start, bool flag)
     start = (flag ? start : start - 2); // restore the "no" prefix if needed
 
     int length = tail - start;
-    char *str = new char[length + 1];
-    strncpy(str, start, length);
-    str[length] = '\0';
-    temp_string.Next() = str;
+    char *str = NewString(start, length);
 
     Tuple<const char *> msg;
     msg.Next() = "\"";
@@ -1704,10 +1695,7 @@ const char *Option::ReportAmbiguousOption(const char *start, const char *choice_
     const char *tail = AdvancePastOption(start);
 
     int length = tail - start;
-    char *str = new char[length + 1];
-    strncpy(str, start, length);
-    str[length] = '\0';
-    temp_string.Next() = str;
+    char *str = NewString(start, length);
 
     Tuple<const char *> msg;
     msg.Next() = "The option \"";
@@ -1728,10 +1716,7 @@ const char *Option::ReportMissingValue(const char *start, const char *option)
     const char *tail = AdvancePastOption(start);
 
     int length = tail - start;
-    char *str = new char[length + 1];
-    strncpy(str, start, length);
-    str[length] = '\0';
-    temp_string.Next() = str;
+    char *str = NewString(start, length);
 
     Tuple<const char *> msg;
     msg.Next() = "A value is required for this option: \"";
@@ -1750,10 +1735,7 @@ const char *Option::ReportValueNotRequired(const char *start, const char *option
     const char *tail = AdvancePastOption(start);
 
     int length = tail - start;
-    char *str = new char[length + 1];
-    strncpy(str, start, length);
-    str[length] = '\0';
-    temp_string.Next() = str;
+    char *str = NewString(start, length);
 
     Tuple<const char *> msg;
     msg.Next() = "An illegal value was specified for this option: \"";
@@ -1808,13 +1790,7 @@ const char *Option::GetValue(const char *p, const char *&value)
 
     while (! IsDelimiter(*tail))
         tail++;
-    int length = tail - p;
-
-    char *temp = new char[length + 1];
-    strncpy(temp, p, length);
-    temp[length] = NULL_CHAR;
-    value = temp;
-    temp_string.Next() = temp;
+    value =  NewString(p, tail - p);
 
     return tail;
 }
@@ -1848,10 +1824,7 @@ const char *Option::GetStringValue(const char *start, const char *&value)
         else // an unterminated string
         {
             length = tail - start;
-            char *str = new char[length + 1];
-            strncpy(str, start, length);
-            str[length] = '\0';
-            temp_string.Next() = str;
+            char *str = NewString(start, length);
 
             Tuple<const char *> msg;
             msg.Next() = "The string ";
@@ -1867,11 +1840,7 @@ const char *Option::GetStringValue(const char *start, const char *&value)
         length = tail - start;
     }
 
-    char *temp = new char[length + 1];
-    strncpy(temp, start, length);
-    temp[length] = NULL_CHAR;
-    value = temp;
-    temp_string.Next() = temp;
+    value = NewString(start, length);
 
     return tail;
 }
@@ -2188,10 +2157,7 @@ void Option::CheckAutomaticAst()
     {
         ast_package = package;
 
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        ast_directory = temp;
-        temp_string.Next() = ast_directory;
+        ast_directory = NewString("");
 
         int num_dots = 0,
             ast_package_length = strlen(ast_package);
@@ -2203,9 +2169,8 @@ void Option::CheckAutomaticAst()
         const char *prefix = "../";
         int prefix_length = strlen(prefix) * (num_dots + 1),
             directory_length = prefix_length + ast_package_length + 1;
-        temp = new char[directory_length + 1];
+        char *temp = NewString(directory_length + 1);
         ast_directory_prefix = temp;
-        temp_string.Next() = ast_directory_prefix;
         if (strlen(ast_package) == 0)
             strcpy(temp, prefix + 1);
         else
@@ -2227,9 +2192,8 @@ void Option::CheckAutomaticAst()
         // Now construct the ast_directory_prefix
         //
         int directory_length = strlen(ast_directory);
-        char *temp = new char[directory_length + 2];
+        char *temp = NewString(directory_length + 2);
         ast_directory_prefix = temp;
-        temp_string.Next() = ast_directory_prefix;
         strcpy(temp, ast_directory);
         if (temp[directory_length - 1] != '/' &&
             temp[directory_length - 1] != '\\')
@@ -2320,9 +2284,7 @@ void Option::CheckAutomaticAst()
         {
             if (*package == NULL_CHAR)
             {
-                temp_ast_package = new char[1];
-                *temp_ast_package = NULL_CHAR;
-
+                temp_ast_package = NewString("");
                 EmitError(ast_directory_location,
                           "The ast package cannot be a subpackage of the unnamed package."
                           " Please specify a package name using the package option");
@@ -2332,7 +2294,7 @@ void Option::CheckAutomaticAst()
                 int package_length = strlen(package),
                     ast_package_length = strlen(start_ast_package) - 1,
                     length = package_length + 1 + ast_package_length;
-                temp_ast_package = new char[length + 1];
+                temp_ast_package = NewString(length + 1);
                 strcpy(temp_ast_package, package);
                 strcat(temp_ast_package, ".");
                 strncat(temp_ast_package, start_ast_package, ast_package_length);
@@ -2341,10 +2303,7 @@ void Option::CheckAutomaticAst()
         }
         else
         {
-            int length = strlen(start_ast_package) - 1;
-            temp_ast_package = new char[length + 1];
-            strncpy(temp_ast_package, start_ast_package, length);
-            temp_ast_package[length] = '\0';
+            temp_ast_package = NewString(start_ast_package, strlen(start_ast_package) - 1);
         }
 
         //
@@ -2352,12 +2311,11 @@ void Option::CheckAutomaticAst()
         //
         for (char *s = temp_ast_package; *s != '\0'; s++)
         {
-            if (s[i] == '/')
-                s[i] = '.';
+            if (*s == '/')
+                *s = '.';
         }
 
         ast_package = temp_ast_package;
-        temp_string.Next() = ast_package;
     }
 
     return;
@@ -2477,7 +2435,10 @@ void Option::ProcessCommandOptions()
 void Option::ProcessPath(Tuple<const char *> &list, const char *path, const char *start_directory)
 {
     int allocation_length = strlen(path) + (start_directory == NULL ? 0 : strlen(start_directory));
-    char *str = new char[allocation_length + 3]; // 2 semicolons 1 for terminating \0
+    if (allocation_length == 0)
+        return;
+
+    char *str = NewString(allocation_length + 3); // 2 semicolons 1 for terminating \0
     if (start_directory != NULL)
     {
         strcpy(str, start_directory);
@@ -2485,7 +2446,6 @@ void Option::ProcessPath(Tuple<const char *> &list, const char *path, const char
     }
     else *str = '\0';
     strcat(str, path);
-    temp_string.Next() = str;
 
     int length;
     for (length = strlen(str) - 1; IsSpace(str[length]); length--)
@@ -2518,11 +2478,7 @@ const char *Option::GetPrefix(const char *filename)
                *colon = strrchr(filename, ':'), // Windows files may use format: d:filename
                *separator = (colon > slash ? colon : slash);
     int length = (separator == NULL ? 0 : separator - filename + 1);
-    char *result = new char[length + 1];
-    memcpy(result, filename, length);
-    result[length] = '\0';
-    temp_string.Next() = result;
-    return result;
+    return NewString(filename, length);
 }
 
 
@@ -2532,8 +2488,7 @@ const char *Option::GetFile(const char *directory, const char *file_suffix, cons
 
     int dir_length = strlen(directory),
         filename_length = dir_length + strlen(file_prefix) + strlen(file_suffix) + strlen(file_type);
-    char *temp = new char[filename_length + 2];
-    temp_string.Next() = temp;
+    char *temp = NewString(filename_length + 2);
     strcpy(temp, directory);
     if (dir_length > 0 && temp[dir_length - 1] != '/' && temp[dir_length - 1] != '\\')
         strcat(temp, "/");
@@ -2565,11 +2520,7 @@ const char *Option::GetType(const char *filespec)
     const char *start = GetFilename(filespec),
                *dot = strrchr(filespec, '.');
     int length = (dot == NULL ? strlen(start) : dot - start);
-    char *result = new char[length + 1];
-    memcpy(result, start, length);
-    result[length] = '\0';
-    temp_string.Next() = result;
-    return result;
+    return NewString(start, length);
 }
 
 
@@ -2657,6 +2608,7 @@ void Option::CheckDirectory(Token *directory_location, const char *directory)
     }
 
     delete [] temp;
+
     return;
 }
 
@@ -2678,45 +2630,25 @@ void Option::CompleteOptionProcessing()
     //
     //
     if (package == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        package = temp;
-        temp_string.Next() = package;
-    }
+        package = NewString("");
 
     //
     //
     //
     if (prefix == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        prefix = temp;
-        temp_string.Next() = prefix;
-    }
+        prefix = NewString("");
 
     //
     //
     //
     if (suffix == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        suffix = temp;
-        temp_string.Next() = suffix;
-    }
+        suffix = NewString("");
 
     //
     //
     //
     if (template_name == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        template_name = temp;
-        temp_string.Next() = template_name;
-    }
+        template_name = NewString("");
 
     assert(file_prefix);
 
@@ -2726,12 +2658,7 @@ void Option::CompleteOptionProcessing()
     // exp_file, imp_file and the action files.
     //
     if (out_directory == NULL)
-    {
-        char *temp = new char[strlen(home_directory) + 1];
-        strcpy(temp, home_directory);
-        out_directory = temp;
-        temp_string.Next() = out_directory;
-    }
+         out_directory = NewString(home_directory, strlen(home_directory));
     else CheckDirectory(out_directory_location, out_directory);
 
     //
@@ -2777,12 +2704,7 @@ void Option::CompleteOptionProcessing()
     //
     //
     if (ast_directory == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        ast_directory = temp;
-        temp_string.Next() = ast_directory;
-    }
+        ast_directory = NewString("");
     else; // The ast directory will be checked if automatic_ast generation is requested. See CheckAutomaticAst.
 
     //
@@ -2801,34 +2723,19 @@ void Option::CompleteOptionProcessing()
     //
     //
     if (ast_package == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        ast_package = temp;
-        temp_string.Next() = ast_package;
-    }
+        ast_package = NewString("");
 
     //
     //
     //
     if (ast_type == NULL)
-    {
-        char *temp = new char[4];
-        strcpy(temp, "Ast");
-        ast_type = temp;
-        temp_string.Next() = ast_type;
-    }
+        ast_type = NewString("Ast");
 
     //
     //
     //
     if (visitor_type == NULL)
-    {
-        char *temp = new char[8];
-        strcpy(temp, "Visitor");
-        visitor_type = temp;
-        temp_string.Next() = visitor_type;
-    }
+        visitor_type = NewString("Visitor");
 
     //
     //
@@ -2873,12 +2780,7 @@ void Option::CompleteOptionProcessing()
     // dat_file which uses it.
     //
     if (dat_directory == NULL)
-    {
-        char *temp = new char[strlen(home_directory) + 1];
-        strcpy(temp, home_directory);
-        dat_directory = temp;
-        temp_string.Next() = dat_directory;
-    }
+         dat_directory = NewString(home_directory, strlen(home_directory));
     else CheckDirectory(dat_directory_location, dat_directory);
 
     if (dat_file == NULL)
@@ -2950,28 +2852,13 @@ void Option::CompleteOptionProcessing()
     exp_type = GetType(exp_file);
 
     if (exp_prefix == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        exp_prefix = temp;
-        temp_string.Next() = exp_prefix;
-    }
+        exp_prefix = NewString("");
 
     if (exp_suffix == NULL)
-    {
-        char *temp = new char[1];
-        *temp = NULL_CHAR;
-        exp_suffix = temp;
-        temp_string.Next() = exp_suffix;
-    }
+        exp_suffix = NewString("");
 
     if (factory == NULL)
-    {
-        char *temp = new char[5];
-        strcpy(temp, "new ");
-        factory = temp;
-        temp_string.Next() = factory;
-    }
+        factory = NewString("new ");
 
     //
     //

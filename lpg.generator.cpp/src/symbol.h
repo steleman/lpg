@@ -323,7 +323,8 @@ public:
         if ((! file) && strlen(name) > 0)
         {
              cout << "Unable to open file \"" << name_ << "\"\n";
-             exit(12);
+             cout.flush();
+             throw 12;
         }
     }
 

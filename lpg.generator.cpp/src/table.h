@@ -52,6 +52,7 @@ protected:
         SCOPE_STATE,
         IN_SYMB,
         NAME_START,
+        SYMBOL_START,
 
         num_name_ids
     };
@@ -80,9 +81,30 @@ protected:
                original_state;
 
     IntArrayInfo name_start;
-    Array<char *> name_info;
+    Array<const char *> name_info;
 
-    inline int NameLength(int i) { return name_start.array[i + 1] - name_start.array[i]; }
+    IntArrayInfo symbol_start;
+    Array<const char *> symbol_info;
+
+    void initialize(Array<const char *> &input, NameId id, IntArrayInfo &start, Array<const char *> & info, int &max_length)
+    {
+        start.array.Resize(input.Size() + 1);
+        info.Resize(input.Size());
+        start.array[0] = 1;
+        max_length = 0;
+        for (int k = 0; k < info.Size(); k++)
+        {
+            info[k] = input[k];
+            int length = strlen(info[k]);
+            start.array[k + 1] = start.array[k] + length;
+            if (max_length < length)
+                max_length = length;
+        }
+        start.name_id = id;
+        start.type_id = Type(0, start.array[start.array.Size() - 1]);
+    }
+
+    inline int Length(IntArrayInfo &start, int i) { return start.array[i + 1] - start.array[i]; }
 
     virtual TypeId Type(int min, int max)
     {
@@ -131,6 +153,7 @@ protected:
         accept_act,
         error_act,
         max_name_length,
+        max_symbol_length,
         last_symbol,
 
         conflict_count,
@@ -168,20 +191,23 @@ public:
                                           shift_reduce_count(0)
     {}
 
-    virtual ~Table()
-    {}
+    virtual ~Table() { CloseFiles(); }
+
+    void CloseFiles()
+    {
+        if (systab != NULL) fclose(systab);
+        if (sysdat != NULL) fclose(sysdat);
+        if (syssym != NULL) fclose(syssym);
+        if (sysimp != NULL) fclose(sysimp);
+        if (sysdcl != NULL) fclose(sysdcl);
+        if (sysdef != NULL) fclose(sysdef);
+        if (sysexp != NULL) fclose(sysexp);
+        if (sysprs != NULL) fclose(sysprs);
+    }
 
     void Exit(int code)
     {
-        if (systab != NULL) fclose(systab);
-  	if (sysdat != NULL) fclose(sysdat);
-  	if (syssym != NULL) fclose(syssym);
-  	if (sysimp != NULL) fclose(sysimp);
-  	if (sysdcl != NULL) fclose(sysdcl);
-  	if (sysdef != NULL) fclose(sysdef);
-  	if (sysexp != NULL) fclose(sysexp);
-  	if (sysprs != NULL) fclose(sysprs);
-       
+        CloseFiles();       
         control -> Exit(code);
     }
 

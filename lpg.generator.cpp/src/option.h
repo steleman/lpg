@@ -378,11 +378,10 @@ public:
                        *lpg_include = getenv("LPG_INCLUDE");
 
             this -> home_directory = GetPrefix(main_input_file);
-            char *temp = new char[strlen(home_directory) +
-                                  (lpg_template == NULL ? 0 : strlen(lpg_template)) +
-                                  4];
+            char *temp = NewString(strlen(home_directory) +
+                                   (lpg_template == NULL ? 0 : strlen(lpg_template)) +
+                                   4);
             template_directory = temp;
-            temp_string.Next() = template_directory;
             strcpy(temp, home_directory);
             if (lpg_template != NULL)
             {
@@ -391,11 +390,10 @@ public:
             }
             ProcessPath(template_search_directory, template_directory);
 
-            temp = new char[strlen(home_directory) +
-                            (lpg_include == NULL ? 0 : strlen(lpg_include)) +
-                            4];
+            temp = NewString(strlen(home_directory) +
+                             (lpg_include == NULL ? 0 : strlen(lpg_include)) +
+                             4);
             include_directory = temp;
-            temp_string.Next() = include_directory;
             strcpy(temp, home_directory);
             if (lpg_include != NULL)
             {
@@ -405,20 +403,16 @@ public:
             ProcessPath(include_search_directory, temp);
 
             int length = strlen(main_input_file);
-            char *temp_file_prefix = new char[length + 3];
+            char *temp_file_prefix = NewString(length + 3);
             file_prefix = temp_file_prefix;
-            temp_string.Next() = file_prefix;
 
-            grm_file = new char[length + 3];
-            temp_string.Next() = grm_file;
+            grm_file = NewString(length + 3);
 
-            char *temp_lis_file = new char[length + 3];
+            char *temp_lis_file = NewString(length + 3);
             lis_file = temp_lis_file;
-            temp_string.Next() = lis_file;
 
-            char *temp_tab_file = new char[length + 3];
+            char *temp_tab_file = NewString(length + 3);
             tab_file = temp_tab_file;
-            temp_string.Next() = tab_file;
 
             //
             // Turn all backslashes into forward slashes in filename.
@@ -466,7 +460,7 @@ public:
             if (syslis  == (FILE *) NULL)
             {
                 fprintf(stderr, "***ERROR: Listing file \"%s\" cannot be openned.\n", lis_file);
-                exit(12);
+                throw 12;
             }
         }
 
@@ -479,7 +473,7 @@ public:
         // Release all temporary strings now to save space.
         //
         for (int i = 0; i < temp_string.Length(); i++)
-            delete [] ((char *) temp_string[i]);
+            delete [] temp_string[i];
 
         FlushReport();
         fclose(syslis); // close listing file
@@ -544,7 +538,23 @@ private:
     ActionFileSymbol *default_action_file;
     const char *default_action_prefix;
 
-    Tuple<const char *> temp_string;
+    Tuple<char *> temp_string;
+    char *NewString(int n) { return temp_string.Next() = new char[n]; }
+    char *NewString(const char *in)
+    {
+        char *out = new char[strlen(in) + 1];
+        temp_string.Next() = out;
+        strcpy(out, in);
+        return out;
+    }
+    char *NewString(const char *in, int length)
+    {
+        char *out = new char[length + 1];
+        temp_string.Next() = out;
+        strncpy(out, in, length);
+        out[length] = NULL_CHAR;
+        return out;
+    }
 
     const char *AllocateString(const char *);
     const char *AllocateString(const char *, char);

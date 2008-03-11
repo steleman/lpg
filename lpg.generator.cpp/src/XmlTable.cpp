@@ -332,7 +332,7 @@ void XmlTable::PrintTables(void)
         //
         for (int i = 1; i <= grammar -> num_names; i++)
         {
-            int length = NameLength(i);
+            int length = Length(name_start, i);
             tab_buffer.Put(length, 4);
 
             const char *name = name_info[i];
@@ -379,8 +379,6 @@ void XmlTable::PrintTables(void)
     }
 
     tab_buffer.Flush();
-
-    fclose(systab);
 
     return;
 }

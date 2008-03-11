@@ -11,7 +11,7 @@
 class Arguments
 {
 public:
-    Arguments(Option *option, const char *filename, const char *exp_file, const char *exp_prefix, const char *exp_suffix) : argc(7)
+    Arguments(Option *option, const char *filename, const char *exp_file, const char *exp_prefix, const char *exp_suffix)
     {
         const char *quiet_header = "-quiet",
                    *noquiet_header = "-noquiet",
@@ -19,14 +19,14 @@ public:
                    *include_header = "-include=",
                    *package_header = "-package=",
                    *ast_directory_header = "-ast_directory=";
-        char *quiet_arg = new char[strlen(noquiet_header) + 1],
-             *export_arg = new char[strlen(export_header) +
-                                    strlen(exp_file) +
-                                    strlen(exp_prefix) +
-                                    strlen(exp_suffix) + 11],
-             *include_arg = new char[strlen(include_header) + strlen(option -> include_directory) + 1],
-             *package_arg = new char[strlen(package_header) + strlen(option -> package) + 1],
-             *ast_directory_arg = new char[strlen(ast_directory_header) + strlen(option -> ast_directory) + 1];
+        char *quiet_arg = NewString(strlen(noquiet_header) + 1),
+             *export_arg = NewString(strlen(export_header) +
+                                     strlen(exp_file) +
+                                     strlen(exp_prefix) +
+                                     strlen(exp_suffix) + 11),
+             *include_arg = NewString(strlen(include_header) + strlen(option -> include_directory) + 1),
+             *package_arg = NewString(strlen(package_header) + strlen(option -> package) + 1),
+             *ast_directory_arg = NewString(strlen(ast_directory_header) + strlen(option -> ast_directory) + 1);
 
         strcpy(quiet_arg, option -> quiet ? quiet_header : noquiet_header);
 
@@ -47,22 +47,26 @@ public:
         strcpy(ast_directory_arg, ast_directory_header);
         strcat(ast_directory_arg, option -> ast_directory);
 
+        //
+        // Initialize argc and argv.
+        //
+        argc = temp_string.Length() + 2;
         argv = new const char *[argc];
         argv[0] = NULL;
-        argv[1] = quiet_arg;
-        argv[2] = export_arg;
-        argv[3] = include_arg;
-        argv[4] = package_arg;
-        argv[5] = ast_directory_arg;
-        argv[6] = filename;
+        for (int i = 0; i < temp_string.Length(); i++)
+            argv[i + 1] = temp_string[i];
+        argv[argc - 1] = filename;
     }
 
     ~Arguments()
     {
-        for (int i = 1; i < argc - 2; i++)
-            delete [] ((char *) argv[i]);
+        for (int i = 0; i < temp_string.Length(); i++)
+            delete [] temp_string[i];
         delete [] argv;
     }
+
+    Tuple<char *> temp_string;
+    char *NewString(int n) { return temp_string.Next() = new char[n]; }
 
     int argc;
     const char **argv;
@@ -111,7 +115,11 @@ public:
                                               input_file(NULL)
     {}
 
-    ~Scanner() {}
+    ~Scanner()
+    {
+        for (int i = 0; i < temp_string.Length(); i++)
+            delete [] temp_string[i];
+    }
 
     void Scan();
     void Scan(int);
@@ -137,6 +145,9 @@ private:
         UNTERMINATED_BLOCK,
         INCLUDE_OPTIONS
     };
+
+    Tuple<char *> temp_string;
+    char *NewString(int n) { return temp_string.Next() = new char[n]; }
 
     class ProblemToken
     {

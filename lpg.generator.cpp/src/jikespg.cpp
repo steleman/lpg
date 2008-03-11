@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <new>
+
 using namespace std;
 
 //
@@ -23,16 +24,24 @@ int main(int argc, char *argv[])
         return 4;
     }
 
+    //
+    // We declare these objects first and initialize them to NULL in case
+    // an exceptional condition occurs and they have to be deleted.
+    // See try/catch below.
+    //
+    Control *control = NULL;
+    MacroLookupTable *macro_table = NULL;
+    Scanner *scanner = NULL;
 
     try
     {
         Option option(argc, (const char **) argv);
         LexStream lex_stream(&option);
         VariableLookupTable variable_table;
-        MacroLookupTable *macro_table = new MacroLookupTable();
-        Scanner *scanner = new Scanner(&option, &lex_stream, &variable_table, macro_table);
+
+        macro_table = new MacroLookupTable();
+        scanner = new Scanner(&option, &lex_stream, &variable_table, macro_table);
         scanner -> Scan();
-        delete scanner;
 
         if (! option.quiet)
         {
@@ -47,22 +56,56 @@ int main(int argc, char *argv[])
 #endif
         if (lex_stream.NumTokens() == 0 || scanner -> NumErrorTokens() > 0)
         {
-            delete macro_table;
+            //
+            // Note that scanner and macro_table are set to NULL after they are
+            // deleted to avoid a dangling pointer situation that may occur in
+            // case an exceptional condition occurs and they have to be deleted
+            // again. See try/catch below.
+            //
+            delete scanner; scanner = NULL; // Note use of scanner in test above... DO NOT move this command!
+            delete macro_table; macro_table = NULL;
         }
         else
         {
-            Control control(&option, &lex_stream, &variable_table, macro_table);
-            control.grammar -> Process();
+            delete scanner; scanner = NULL; // Note use of scanner above... DO NOT move this command!
 
-            delete macro_table;
+            control = new Control(&option, &lex_stream, &variable_table, macro_table);
+            control -> ProcessGrammar();
 
-            control.ConstructParser();
+            delete macro_table; macro_table = NULL;
+
+            control -> ConstructParser();
+            delete control;
         }
     }
     catch (bad_alloc b)
     {
-        cerr << "***System Failure: Out of memory" << endl;
+        cerr << "***OS System Failure: Out of memory" << endl;
         cerr.flush();
+
+        delete scanner;
+        delete macro_table;
+        delete control;
+
+        exit(12);
+    }
+    catch (int code)
+    {
+        delete scanner;
+        delete macro_table;
+        delete control;
+
+        exit(code);
+    }
+    catch (const char *str)
+    {
+        delete scanner;
+        delete macro_table;
+        delete control;
+
+        cerr <<"*** " << str << endl;
+        cerr.flush();
+
         exit(12);
     }
 

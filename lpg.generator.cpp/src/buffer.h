@@ -25,6 +25,13 @@ public:
                    output_tail(NULL)
     {}
 
+    ~TextBuffer()
+    {
+        for (int i = 0; i < buffers.Length(); i++)
+            delete [] buffers[i];
+        buffers.Reset();
+    }
+
     //
     // Write whatever information that is in the buffers out to file.
     //
@@ -71,7 +78,7 @@ public:
     inline void Flush(FILE *file)
     {
         Print(file);
-        for (int i = 0; i < buffers.Length() - 1; i++)
+        for (int i = 0; i < buffers.Length(); i++)
             delete [] buffers[i];
         buffers.Reset();
         output_ptr = NULL;
@@ -243,6 +250,15 @@ public:
     {
         BufferCheck(BUFFER_SIZE - 1);
         fflush(file);
+    }
+
+    //
+    // Dump the content of the text buffer into this file.
+    //
+    inline void Put(TextBuffer &input_text)
+    {
+        Flush(); // first write all outstanding buffered info.
+        input_text.Print(file);
     }
 
     //

@@ -16,6 +16,19 @@ void CAction::ProcessRuleActionBlock(ActionBlockElement &action)
     //
 }
 
+//
+//
+//
+void CAction::ExpandExportMacro(TextBuffer *buffer, SimpleMacroSymbol *simple_macro)
+{
+    buffer -> Put(option -> exp_type);
+    buffer -> Put(".");
+    buffer -> Put(option -> exp_prefix);
+    buffer -> Put(simple_macro -> Name() + 2); // skip initial escape and '_' characters
+    buffer -> Put(option -> exp_suffix);
+}
+
+
 void CAction::GenerateDefaultTitle(Tuple<ActionBlockElement> &) {}
 ActionFileSymbol *CAction::GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}
 ActionFileSymbol *CAction::GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) { return NULL;}

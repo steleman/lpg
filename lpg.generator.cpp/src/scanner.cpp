@@ -159,7 +159,7 @@ void Scanner::ReportErrors()
             option -> EmitError(token, msg);
         }
 
-        exit(12);
+        throw 12;
     }
 
     return;
@@ -265,7 +265,7 @@ void Scanner::Scan()
         if (option -> return_code != 0) // if any bad option was found, stop
         {
             option -> report.Flush(stdout);
-            exit(option -> return_code);
+            throw option -> return_code;
         }
         option -> PrintOptionsInEffect();
 
@@ -441,11 +441,10 @@ char *Scanner::ScanOptions()
             char *ptr = cursor + 1;
             while ((! IsSpace(*ptr)) && (*ptr != option -> escape))
                 ptr++;
-            char *filename = new char[ptr - cursor + 1];
+            char *filename = NewString(ptr - cursor + 1);
             strncpy(filename, cursor, ptr - cursor);
             filename[ptr - cursor] = '\0';
             InputFileSymbol *include_file = lex_stream -> FindOrInsertFile(option -> include_search_directory, filename);
-            delete [] filename;
             if (include_file == NULL || include_file -> IsLocked())
             {
                 ResetEnvironment(start_cursor);
@@ -544,7 +543,7 @@ void Scanner::ImportTerminals(const char *filename)
     scanner.Scan();
 
     if (lex_stream.NumTokens() == 0 || scanner.NumErrorTokens() > 0)
-        exit(12);
+        throw 12;
     else
     {
         //
@@ -587,7 +586,7 @@ void Scanner::ImportTerminals(const char *filename)
         // Process the imported grammar.
         //
         Control control(&option, &lex_stream, &variable_table, &macro_table);
-        control.grammar -> Process();
+        control.ProcessGrammar();
         control.ConstructParser();
 
         //
@@ -651,7 +650,7 @@ void Scanner::ProcessFilters(const char *filename)
     scanner.Scan();
 
     if (lex_stream.NumTokens() == 0 || scanner.NumErrorTokens() > 0)
-        exit(12);
+        throw 12;
     else
     {
         this -> lex_stream -> AddFilterMacro(filename, (option.DefaultActionFile()
@@ -690,7 +689,7 @@ void Scanner::ProcessFilters(const char *filename)
         // Process the imported grammar.
         //
         Control control(&option, &lex_stream, &variable_table, &macro_table);
-        control.grammar -> Process();
+        control.ProcessGrammar();
         control.ConstructParser();
     
         //
@@ -1289,8 +1288,8 @@ void Scanner::ClassifySingleQuotedSymbol()
     }
     else
     {
-        char *name = new char[length + 1];
-        char *p1 = name,
+        char *name = NewString(length + 1),
+             *p1 = name,
              *p2 = cursor + 1;
 
         current_token -> ResetInfoAndSetLocation(input_file, p2 - input_buffer);
@@ -1304,8 +1303,6 @@ void Scanner::ClassifySingleQuotedSymbol()
         current_token -> SetKind(TK_SYMBOL);
         current_token -> SetSymbol(variable_table -> FindOrInsertName(name, p1 - name));
         current_token -> SetEndLocation((ptr - 1) - input_buffer);
-
-        delete [] name;
     }
 
     if (*ptr == delimiter)
@@ -1350,8 +1347,8 @@ void Scanner::ClassifyDoubleQuotedSymbol()
     }
     else
     {
-        char *name = new char[length + 1];
-        char *p1 = name,
+        char *name = NewString(length + 1),
+             *p1 = name,
              *p2 = cursor + 1;
 
         current_token -> ResetInfoAndSetLocation(input_file, p2 - input_buffer);
@@ -1490,8 +1487,6 @@ void Scanner::ClassifyDoubleQuotedSymbol()
         current_token -> SetKind(TK_SYMBOL);
         current_token -> SetSymbol(variable_table -> FindOrInsertName(name, p1 - name));
         current_token -> SetEndLocation((ptr - 1) - input_buffer);
-
-        delete [] name;
     }
 
     if (*ptr == delimiter)
@@ -1579,7 +1574,7 @@ char *Scanner::ProcessInclude(const char *start)
         ptr = cursor;
         if (current_token -> Kind() == TK_SYMBOL)
         {
-            char *filename = new char[lex_stream -> NameStringLength(current_token_index) + 1];
+            char *filename = NewString(lex_stream -> NameStringLength(current_token_index) + 1);
             strcpy(filename, lex_stream -> NameString(current_token_index));
 
             Token save_include_key = *(lex_stream -> GetTokenReference(include_key_index)),
@@ -1617,8 +1612,6 @@ char *Scanner::ProcessInclude(const char *start)
                 ptr = cursor;
             }
             else PopEnvironment();
-
-            delete [] filename;
         }
     }
 

@@ -27,6 +27,7 @@ private:
         return I32;
     }
 
+    TextBuffer des_buffer; // deserialize buffer
     UnbufferedTextFile prs_buffer;
     UnbufferedBinaryFile data_buffer;
 
@@ -36,9 +37,15 @@ private:
     void PrintIntsSubrange(int, int, Array<int> &);
     void Print(IntArrayInfo &);
     void PrintNames(void);
+    void WriteInteger(int);
     void WriteData(TypeId, Array<int> &array);
+    void Declare(int, int);
+    void Serialize(const char *, const char *, bool);
+    void Serialize(const char *, const char *, int);
+    void ConditionalDeserialize(const char *, int, int);
+    void ConditionalSerialize(const char *, IntArrayInfo &);
     void Serialize(IntArrayInfo &);
-    void SerializeNames();
+    void Serialize(const char *, int, IntArrayInfo &, Array<const char *> &);
     void non_terminal_action(void);
     void non_terminal_no_goto_default_action(void);
     void terminal_action(void);
@@ -46,9 +53,11 @@ private:
     void init_file(FILE **, const char *);
     void init_parser_files(void);
     void exit_parser_files(void);
-    void print_deserialization_functions(int);
+    void initialize_deserialize_buffer(void);
     void print_symbols(void);
     void print_exports(void);
+    void print_definition(const char *, const char *, int);
+    void print_definition(const char *, const char *, bool);
     void print_definitions(void);
     void print_externs(void);
     void print_source_tables(void);

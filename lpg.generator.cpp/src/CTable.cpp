@@ -175,13 +175,6 @@ void CTable::exit_parser_files(void)
     fprintf(sysprs, "\n#endif /* %s_INCLUDED */\n", option -> prs_type);
     if (grammar -> exported_symbols.Length() > 0)
         fprintf(sysexp, "\n#endif /* %s_INCLUDED */\n", option -> exp_type);
-
-    fclose(sysdcl);
-    fclose(syssym);
-    fclose(sysprs);
-    if (grammar -> exported_symbols.Length() > 0)
-        fclose(sysexp);
-
     return;
 }
 
@@ -200,7 +193,7 @@ void CTable::PrintNames(void)
     {
         int k = 0;
         const char *name = name_info[i];
-        int length = NameLength(i);
+        int length = Length(name_start, i);
         for (int j = 0; j < length; j++)
         {
             dcl_buffer.Put('\'');

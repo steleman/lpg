@@ -195,18 +195,7 @@ void PlxTable::init_parser_files(void)
 //
 //
 //
-void PlxTable::exit_parser_files(void)
-{
-    fclose(sysdcl);
-    fclose(sysdef);
-    fclose(syssym);
-    fclose(sysprs);
-    fclose(sysimp);
-    if (grammar -> exported_symbols.Length() > 0)
-        fclose(sysexp);
-
-    return;
-}
+void PlxTable::exit_parser_files(void) { }
 
 
 //
@@ -267,7 +256,7 @@ void PlxTable::PrintNames(void)
         strcpy(tok, name_info[i]);
         dcl_buffer.Pad();
         dcl_buffer.Put('\"');
-        int len = NameLength(i);
+        int len = Length(name_start, i);
         for (int j = 0; j < len; j++)
         {
             if (tok[j] == '\"')

@@ -2619,21 +2619,10 @@ cout << grammar -> RetrieveString(prostheses_index.array[i] + grammar -> num_ter
         //
         //
         //
-        parse_table -> name_start.array.Resize(grammar -> num_names + 2);
-        parse_table -> name_info.Resize(grammar -> num_names + 1);
-        parse_table -> name_start.array[0] = 1;
-        parse_table -> max_name_length = 0;
-        for (int k = 0; k < parse_table -> name_info.Size(); k++)
-        {
-            parse_table -> name_info[k] = grammar -> RetrieveName(k);
-            int name_length = strlen(parse_table -> name_info[k]);
-            parse_table -> name_start.array[k + 1] = parse_table -> name_start.array[k] + name_length;
-            if (parse_table -> max_name_length < name_length)
-                parse_table -> max_name_length = name_length;
-        }
-        parse_table -> name_start.name_id = Table::NAME_START;
-        parse_table -> name_start.type_id =
-                    parse_table -> Type(0, parse_table -> name_start.array[parse_table -> name_start.array.Size() - 1]);
+        Array<const char *> name(grammar -> num_names + 1);
+        for (int k = 0; k < name.Size(); k++)
+            name[k] = grammar -> RetrieveName(k);
+        parse_table -> initialize(name, Table::NAME_START, parse_table -> name_start, parse_table -> name_info, parse_table -> max_name_length);
     }
 
     //

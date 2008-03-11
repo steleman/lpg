@@ -15,6 +15,8 @@ public:
 
     virtual void ProcessRuleActionBlock(ActionBlockElement &);
 
+    virtual void ExpandExportMacro(TextBuffer *, SimpleMacroSymbol *);
+
     virtual const char *GetDefaultTerminalType() { return "IToken"; }
     virtual const char *GetDefaultNonterminalType() { return "Object"; }
     virtual void GenerateDefaultTitle(Tuple<ActionBlockElement> &);

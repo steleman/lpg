@@ -2049,9 +2049,8 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
             {
                 simple_macro -> MarkUsed();
 
-                buffer -> Put(option -> exp_prefix);
-                buffer -> Put(simple_macro -> Name() + 2); // skip initial escape and '_' characters
-                buffer -> Put(option -> exp_suffix);
+                ExpandExportMacro(buffer, simple_macro);
+
                 cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
             }
             else if ((simple_macro = FindUndeclaredMacro(cursor, end_cursor - cursor)) != NULL) // just skip undeclared macro

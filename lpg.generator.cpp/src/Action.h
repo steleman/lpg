@@ -247,6 +247,8 @@ public:
     virtual const char *GetDefaultNonterminalType() = 0;
     virtual void GenerateDefaultTitle(Tuple<ActionBlockElement> &) = 0;
 protected:
+    virtual void ExpandExportMacro(TextBuffer *, SimpleMacroSymbol *) = 0;
+
     virtual ActionFileSymbol *GenerateTitle(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) = 0;
     virtual ActionFileSymbol *GenerateTitleAndGlobals(ActionFileLookupTable &, Tuple<ActionBlockElement> &, const char *, bool) = 0;
 

@@ -35,12 +35,14 @@ public:
     //
     // Close listing file and destroy the objects allocated in the constructor.
     //
-    ~Control()
+    ~Control() { CleanUp(); }
+
+    void CleanUp()
     {
-        delete node_pool;
-        delete grammar;
-        delete base;
-        delete pda;
+        delete node_pool; node_pool = NULL;
+        delete grammar; grammar = NULL;
+        delete base; base = NULL;
+        delete pda; pda = NULL;
     }
 
     enum
@@ -61,13 +63,15 @@ public:
     void InvalidateFile(const char *, const char *);
     void Exit(int);
 
+    void ProcessGrammar(void);
+
+    void ConstructParser(void);
+
     Option *option;
     LexStream *lex_stream;
     NodePool *node_pool;
-    Grammar *grammar;
     Base *base;
     Pda *pda;
-
-    void ConstructParser(void);
+    Grammar *grammar;
 };
 #endif /* CONTROL_INCLUDED */

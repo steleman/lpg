@@ -1881,6 +1881,7 @@ void Grammar::DisplayInput(void)
             strncpy(name, &(lex_stream -> InputBuffer(parser.aliases[i].rhs_index)[start]), length);
             name[length] = '\0';
             DisplaySymbol(name);
+            delete [] name;
 
             putc('\n', option -> syslis);
         }
