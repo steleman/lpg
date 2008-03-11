@@ -31,7 +31,7 @@
     --
     -- Macro that may be respecified in an instance of this template
     --
-    $eof_char /.Char_EOF./
+    $eof_char /.$sym_type$.$prefix$EOF$suffix$./
 
     --
     -- Macros useful for specifying actions
@@ -61,7 +61,7 @@
 
 %Headers
     /.
-    public class $action_type extends $prs_type implements $exp_type
+    public class $action_type extends $prs_type // implements $exp_type
     {
         private char[] inputChars;
         private final int keywordKind[] = new int[$num_rules + 1];

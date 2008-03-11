@@ -209,7 +209,7 @@
 
             try
             {
-                prsStream.remapTerminalSymbols(orderedTerminalSymbols(), $prs_type.EOFT_SYMBOL);
+                prsStream.remapTerminalSymbols(orderedTerminalSymbols(), prsTable.getEoftSymbol());
             }
             catch(NullExportedSymbolsException e) {
             }
@@ -232,7 +232,7 @@
             {
                 throw new Error(new UndefinedEofSymbolException
                                     ("The Lexer does not implement the Eof symbol " +
-                                     $sym_type.orderedTerminalSymbols[$prs_type.EOFT_SYMBOL]));
+                                     $sym_type.orderedTerminalSymbols[prsTable.getEoftSymbol()]));
             }
         }
         
@@ -261,7 +261,7 @@
 
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
         public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }            
-        public int getEOFTokenKind() { return $prs_type.EOFT_SYMBOL; }
+        public int getEOFTokenKind() { return prsTable.getEoftSymbol(); }
         public PrsStream getParseStream() { return prsStream; }
 
         public $ast_class parser()

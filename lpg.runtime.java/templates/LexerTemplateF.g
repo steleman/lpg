@@ -125,7 +125,7 @@
 
 %Headers
     /.
-    public class $action_type implements $exp_type, $sym_type, RuleAction$additional_interfaces
+    public class $action_type implements RuleAction$additional_interfaces
     {
         private $super_stream_class lexStream;
         
