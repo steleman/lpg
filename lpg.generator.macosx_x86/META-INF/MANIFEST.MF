@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MacOS X x86 Fragment
 Bundle-SymbolicName: lpg.generator.macosx_x86
-Bundle-Version: 2.0.11
+Bundle-Version: 2.0.12
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Fragment-Host: lpg.runtime;bundle-version="2.0.11"
+Fragment-Host: lpg.runtime;bundle-version="2.0.12"
 Bundle-Localization: plugin
 Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.arch=x86))
