@@ -352,6 +352,7 @@ public:
     bool IsUnitProduction(int rule_no) { return rules[rule_no].IsArrowProduction() && RhsSize(rule_no) == 1; }
 
     Token *RetrieveTokenLocation(int i) { return symbol_index[i].symbol -> Location(); }
+    LexStream *GetLexStream() { return lex_stream; }
     char *RetrieveString(int i) { return symbol_index[i].symbol -> Name(); }
     char *RetrieveName(int i)   { return name[i]; }
 
