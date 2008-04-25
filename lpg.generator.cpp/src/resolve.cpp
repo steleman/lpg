@@ -584,11 +584,32 @@ void Resolve::process_conflicts(int state_no)
         char temp[Control::SYMBOL_SIZE + 1];
         grammar -> RestoreSymbol(temp, grammar -> RetrieveString(symbol));
 
-        option -> report.Put("*** Shift/reduce conflict on \"");
-        option -> report.Put(temp);
-        option -> report.Put("\" with rule ");
-        option -> report.Put(rule_no);
-        option -> report.PutChar('\n');
+//      option -> report.Put("*** Shift/reduce conflict on \"");
+//      option -> report.Put(temp);
+//      option -> report.Put("\" with rule ");
+//      option -> report.Put(rule_no);
+//      option -> report.PutChar('\n');
+
+	// RMF 4/25/2008 - Print location information for the rule involved
+        Grammar::RuleElement thisRule = grammar -> rules[rule_no];
+        int ruleTokenStart = thisRule.first_token_index;
+        int ruleTokenEnd   = thisRule.last_token_index;
+	LexStream *ls = grammar -> GetLexStream();
+	Token *startToken = ls -> GetTokenReference(ruleTokenStart);
+        Token *endToken   = ls -> GetTokenReference(ruleTokenEnd);
+
+	Tuple<const char *> msg;
+	IntToString state_no_str(state_no);
+	IntToString rule_no_str(rule_no);
+
+	msg.Next() = "Shift/reduce conflict in state ";
+	msg.Next() = state_no_str.String();
+	msg.Next() = " on \"";
+	msg.Next() = temp;
+	msg.Next() = "\" with rule ";
+	msg.Next() = rule_no_str.String();
+
+	option -> EmitInformative(startToken, endToken, msg);
 
         option -> FlushReport();
 
@@ -615,13 +636,48 @@ void Resolve::process_conflicts(int state_no)
         char temp[Control::SYMBOL_SIZE + 1];
         grammar -> RestoreSymbol(temp, grammar -> RetrieveString(symbol));
 
-        option -> report.Put("*** Reduce/reduce conflict on \"");
-        option -> report.Put(temp);
-        option -> report.Put("\" between rule ");
-        option -> report.Put(n);
-        option -> report.Put(" and ");
-        option -> report.Put(rule_no);
-        option -> report.PutChar('\n');
+//      option -> report.Put("*** Reduce/reduce conflict on \"");
+//      option -> report.Put(temp);
+//      option -> report.Put("\" between rule ");
+//      option -> report.Put(n);
+//      option -> report.Put(" and ");
+//      option -> report.Put(rule_no);
+//      option -> report.PutChar('\n');
+
+	// RMF 4/25/2008 - Print location information for the rules involved
+	Grammar::RuleElement thisRule  = grammar -> rules[n];
+        Grammar::RuleElement otherRule = grammar -> rules[rule_no];
+        int ruleTokenStart  = thisRule.first_token_index;
+        int ruleTokenEnd    = thisRule.last_token_index;
+        int otherTokenStart = otherRule.first_token_index;
+        int otherTokenEnd   = otherRule.last_token_index;
+	LexStream *ls = grammar -> GetLexStream();
+	Token *startToken      = ls -> GetTokenReference(ruleTokenStart);
+        Token *endToken        = ls -> GetTokenReference(ruleTokenEnd);
+        Token *otherStartToken = ls -> GetTokenReference(otherTokenStart);
+        Token *otherEndToken   = ls -> GetTokenReference(otherTokenEnd);
+
+	Tuple<const char *> msg;
+	IntToString state_no_str(state_no);
+	IntToString n_str(n);
+	IntToString rule_no_str(rule_no);
+	IntToString other_start_line_str(otherStartToken -> Line());
+	IntToString other_start_col_str(otherStartToken -> Column());
+
+	msg.Next() = "Reduce/reduce conflict in state ";
+	msg.Next() = state_no_str.String();
+	msg.Next() = " on \"";
+	msg.Next() = temp;
+	msg.Next() = "\" between rule ";
+	msg.Next() = n_str.String();
+	msg.Next() = " and rule ";
+	msg.Next() = rule_no_str.String();
+	msg.Next() = " starting at line ";
+	msg.Next() = other_start_line_str.String();
+	msg.Next() = ", column ";
+	msg.Next() = other_start_col_str.String();
+
+	option -> EmitInformative(startToken, endToken, msg);
 
         option -> FlushReport();
 
@@ -677,7 +733,7 @@ void Resolve::process_conflicts(int state_no)
                 option -> report.PutChar('\n');
             }
         }
-    
+
         for (int i = 0; i < soft_rr_conflicts.Length(); i++)
         {
             RrConflictElement *p = &soft_rr_conflicts[i];
@@ -686,7 +742,7 @@ void Resolve::process_conflicts(int state_no)
                 rule_no = base -> item_table[p -> item2].rule_number;
             char temp[Control::SYMBOL_SIZE + 1];
             grammar -> RestoreSymbol(temp, grammar -> RetrieveString(symbol));
-    
+
             option -> report.Put("*** Keyword/Identifier Reduce/reduce conflict on \"");
             option -> report.Put(temp);
             option -> report.Put("\" between rule ");
@@ -1653,7 +1709,7 @@ void Resolve::ResolveConflictsAndAddSoftActions(int state_no,
             Dfa::ConflictCell &cell = cells.Next();
             cell.action = (act < 0 ? act : act + grammar -> num_rules);
             cell.priority = ComputeShiftPriority(state_no, act, keyword);
-        
+
             //
             //
             //
@@ -1669,7 +1725,7 @@ void Resolve::ResolveConflictsAndAddSoftActions(int state_no,
                         Dfa::ConflictCell &identifier_cell = cells.Next();
                         identifier_cell.action = act;
                         identifier_cell.priority = offset + k; // keep these actions in the same order
-    
+
                         int item_no = base -> adequate_item[act] -> value;
                         if (option -> conflicts)
                         {
@@ -1714,7 +1770,7 @@ void Resolve::ResolveConflictsAndAddSoftActions(int state_no,
                         sr_conflicts[index].item = action[keyword][k];
                         sr_conflicts[index].symbol = keyword;
                     }
-        
+
                     pda -> num_shift_reduce_conflicts++;
                 }
             }
@@ -1758,7 +1814,7 @@ void Resolve::ResolveConflictsAndAddSoftActions(int state_no,
                     if (identifier_action > grammar -> num_rules)
                     {
                         int conflict_index = identifier_action - grammar -> num_rules;
-    
+
                         Dfa::Conflict &conf = conflict.Next();
                         conf.SetSymbol(keyword);
                         conf.SetConflictIndex(conflict_index);
@@ -1769,7 +1825,7 @@ void Resolve::ResolveConflictsAndAddSoftActions(int state_no,
                         symbol_list[tail_symbol] = keyword;
                         symbol_list[keyword] = Util::NIL;
                         tail_symbol = keyword;
-    
+
                         assert(identifier_action > 0 && identifier_action <= grammar -> num_rules);
                         rule_count[identifier_action]++;
                     }
@@ -1850,7 +1906,7 @@ int Resolve::ResolveIdentifierConflicts(int state_no,
                 Dfa::ConflictCell &cell = cells.Next();
                 cell.action = (act < 0 ? act : act + grammar -> num_rules);
                 cell.priority = ComputeShiftPriority(state_no, act, symbol);
-        
+
                 Dfa::Conflict &conf = conflict.Next();
                 conf.SetSymbol(symbol);
                 conf.SetConflictIndex(pda -> MapConflict(cells));
@@ -1859,14 +1915,14 @@ int Resolve::ResolveIdentifierConflicts(int state_no,
                 // Identify the action on this symbol as a conflict action.
                 // This code is only useful when processing an identifier
                 // symbol for a grammar with soft keywords. Note that since
-                // in such a case the maximum number of lookahead must be 
+                // in such a case the maximum number of lookahead must be
                 // 1, we can simply offset the conflict index by NUM_STATES
                 // to distinguish it from other valid terminal actions such
-                // a shift, shift-reduce or reduce action. 
+                // a shift, shift-reduce or reduce action.
                 //
                 symbol_action = conf.ConflictIndex() + pda -> num_states;
             }
-        
+
             for (int k = 0; k < action[symbol].Length(); k++)
             {
                 if (option -> conflicts)
@@ -1876,10 +1932,10 @@ int Resolve::ResolveIdentifierConflicts(int state_no,
                     sr_conflicts[index].item = action[symbol][k];
                     sr_conflicts[index].symbol = symbol;
                 }
-        
+
                 pda -> num_shift_reduce_conflicts++;
             }
-        
+
             //
             // Remove reduce actions defined on symbol so as to give
             // precedence to the shift.
@@ -1904,7 +1960,7 @@ int Resolve::ResolveIdentifierConflicts(int state_no,
                 for (int k = 0; k < action[symbol].Length(); k++)
                 {
                     int item_no = action[symbol][k];
-    
+
                     Dfa::ConflictCell &cell = cells.Next();
                     cell.action = base -> item_table[item_no].rule_number;
                     cell.priority = ComputeReducePriority(state_no, item_no, symbol);
@@ -1918,10 +1974,10 @@ int Resolve::ResolveIdentifierConflicts(int state_no,
                 // Identify the action on this symbol as a conflict action.
                 // This code is only useful when processing an identifier
                 // symbol for a grammar with soft keywords. Note that since
-                // in such a case the maximum number of lookahead must be 
+                // in such a case the maximum number of lookahead must be
                 // 1, we can simply offset the conflict index by NUM_STATES
                 // to distinguish it from other valid terminal actions such
-                // a shift, shift-reduce or reduce action. 
+                // a shift, shift-reduce or reduce action.
                 //
                 symbol_action = conf.ConflictIndex() + grammar -> num_rules;
             }
@@ -1979,7 +2035,7 @@ void Resolve::ResolveShiftReduceConflicts(int state_no,
             q -> size = 1;
             q -> previous = NULL;
             q -> next = NULL;
-        
+
             //
             // Note that a shift action to a state "S" is encoded with the
             // value (S+NUM_RULES) to help distinguish it from reduce actions.
@@ -1990,14 +2046,14 @@ void Resolve::ResolveShiftReduceConflicts(int state_no,
             if (act > 0)
                  add_configs(sources, act + grammar -> num_rules, q);
             else add_configs(sources, act, q);
-        
+
             for (int k = 0; k < action[symbol].Length(); k++)
             {
                 Resolve::StackElement *new_configs;
                 int item_no = action[symbol][k],
                     act = base -> item_table[item_no].rule_number,
                     lhs_symbol = grammar -> rules[act].lhs;
-        
+
                 clear_visited();
                 pda -> Access(state_list, state_no, item_no);
                 for (int j = 0; j < state_list.Length(); j++)
@@ -2056,12 +2112,12 @@ void Resolve::ResolveShiftReduceConflicts(int state_no,
                 Dfa::ConflictCell &cell = cells.Next();
                 cell.action = (act < 0 ? act : act + grammar -> num_rules);
                 cell.priority = ComputeShiftPriority(state_no, act, symbol);
-        
+
                 Dfa::Conflict &conf = conflict.Next();
                 conf.SetSymbol(symbol);
                 conf.SetConflictIndex(pda -> MapConflict(cells));
             }
-        
+
             for (int k = 0; k < action[symbol].Length(); k++)
             {
                 if (option -> conflicts)
@@ -2071,10 +2127,10 @@ void Resolve::ResolveShiftReduceConflicts(int state_no,
                     sr_conflicts[index].item = action[symbol][k];
                     sr_conflicts[index].symbol = symbol;
                 }
-        
+
                 pda -> num_shift_reduce_conflicts++;
             }
-        
+
             //
             // Remove reduce actions defined on symbol so as to give
             // precedence to the shift.
@@ -2159,7 +2215,7 @@ void Resolve::ResolveReduceReduceConflicts(int state_no,
                 for (int k = 0; k < action[symbol].Length(); k++)
                 {
                     int item_no = action[symbol][k];
-    
+
                     Dfa::ConflictCell &cell = cells.Next();
                     cell.action = base -> item_table[item_no].rule_number;
                     cell.priority = ComputeReducePriority(state_no, item_no, symbol);
