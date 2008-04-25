@@ -26,29 +26,35 @@ Token *Option::GetTokenLocation(const char *p, int length)
     return error_token;
 }
 
-void Option::EmitHeader(Token *token, const char *header)
+void Option::EmitHeader(Token *startToken, Token *endToken, const char *header)
 {
-    token = (token != NULL ? token : lex_stream -> GetTokenReference(0));
+    startToken = (startToken != NULL ? startToken : lex_stream -> GetTokenReference(0));
+    endToken = (endToken != NULL ? endToken : lex_stream -> GetTokenReference(0));
 
-    report.Put(token -> FileName());
+    report.Put(startToken -> FileName());
     report.Put(":");
-    report.Put(token -> Line());
+    report.Put(startToken -> Line());
     report.Put(":");
-    report.Put(token -> Column());
+    report.Put(startToken -> Column());
     report.Put(":");
-    report.Put(token -> EndLine());
+    report.Put(endToken -> EndLine());
     report.Put(":");
-    report.Put(token -> EndColumn());
+    report.Put(endToken -> EndColumn());
     report.Put(":");
-    report.Put(token -> StartLocation());
+    report.Put(startToken -> StartLocation());
     report.PutChar(':');
-    report.Put(token -> EndLocation());
+    report.Put(endToken -> EndLocation());
     report.Put(": ");
 
     if (*header != '\0')
         report.Put(header);
 
     return;
+}
+
+void Option::EmitHeader(Token *token, const char *header)
+{
+    EmitHeader(token, token, header);
 }
 
 void Option::EmitError(int index, const char *msg)                { Emit(lex_stream -> GetTokenReference(index), "Error: ", msg); }
@@ -60,7 +66,15 @@ void Option::EmitInformative(int index, Tuple<const char *> &msg) { Emit(lex_str
 
 void Option::Emit(Token *token, const char *header, const char *msg)
 {
-    EmitHeader(token, header);
+    Emit(token, token, header, msg);
+
+    return;
+}
+
+
+void Option::Emit(Token *startToken, Token *endToken, const char *header, const char *msg)
+{
+    EmitHeader(startToken, endToken, header);
     report.Put(msg);
     report.PutChar('\n');
 
@@ -72,7 +86,14 @@ void Option::Emit(Token *token, const char *header, const char *msg)
 
 void Option::Emit(Token *token, const char *header, Tuple<const char *> &msg)
 {
-    EmitHeader(token, header);
+    Emit(token, token, header, msg);
+
+    return;
+}
+
+void Option::Emit(Token *startToken, Token *endToken, const char *header, Tuple<const char *> &msg)
+{
+    EmitHeader(startToken, endToken, header);
     for (int i = 0; i < msg.Length(); i++)
         report.Put(msg[i]);
     report.PutChar('\n');

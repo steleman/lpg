@@ -185,8 +185,11 @@ public:
 
     Token *GetTokenLocation(const char *, int);
     void EmitHeader(Token *, const char *);
+    void EmitHeader(Token *, Token *, const char *);
     void Emit(Token *, const char *, const char *);
     void Emit(Token *, const char *, Tuple<const char *> &);
+    void Emit(Token *, Token *, const char *, const char *);
+    void Emit(Token *, Token *, const char *, Tuple<const char *> &);
     void EmitError(int, const char *);
     void EmitError(int, Tuple<const char *> &);
     void EmitWarning(int, const char *);
@@ -200,6 +203,13 @@ public:
     void EmitWarning(Token *token, Tuple<const char *> &msg)     { Emit(token, "Warning: ", msg); }
     void EmitInformative(Token *token, const char *msg)          { Emit(token, "Informative: ", msg); }
     void EmitInformative(Token *token, Tuple<const char *> &msg) { Emit(token, "Informative: ", msg); }
+
+    void EmitError(Token *startToken, Token *endToken, const char *msg)                { Emit(startToken, endToken, "Error: ", msg); return_code = 12; }
+    void EmitError(Token *startToken, Token *endToken, Tuple<const char *> &msg)       { Emit(startToken, endToken, "Error: ", msg); return_code = 12; }
+    void EmitWarning(Token *startToken, Token *endToken, const char *msg)              { Emit(startToken, endToken, "Warning: ", msg); }
+    void EmitWarning(Token *startToken, Token *endToken, Tuple<const char *> &msg)     { Emit(startToken, endToken, "Warning: ", msg); }
+    void EmitInformative(Token *startToken, Token *endToken, const char *msg)          { Emit(startToken, endToken, "Informative: ", msg); }
+    void EmitInformative(Token *startToken, Token *endToken, Tuple<const char *> &msg) { Emit(startToken, endToken, "Informative: ", msg); }
 
     void InvalidValueError(const char *, const char *, int);
     void InvalidTripletValueError(const char *, int, const char *, const char *);
