@@ -804,37 +804,47 @@ void Pda::MakeReductions(void)
     }
     else
     {
+	LexStream *ls = grammar -> GetLexStream();
+
         if (num_reduce_reduce_conflicts > 0 || num_shift_reduce_conflicts > 0)
         {
-            option -> report.Put("\n***Warning: ");
-            option -> report.Put(option -> grm_file);
+	    Tuple<const char *> msg;
+
+	    msg.Next() = "Grammar is not ";
             if (! option -> slr)
             {
                 if (highest_level != Util::INFINITY)
                 {
-                    option -> report.Put(" is not LALR(");
-                    option -> report.Put(highest_level);
-                    option -> report.Put(").\n\n");
+		    IntToString hl_str(highest_level);
+
+		    msg.Next() = "LALR(";
+		    msg.Next() = hl_str.String();
+		    msg.Next() = ").";
                 }
-                else option -> report.Put(" is not LALR(K).\n\n");
+                else msg.Next() = " LALR(K).";
             }
-            else option -> report.Put(" is not SLR(1).\n\n");
+            else msg.Next() = " SLR(1).";
+	    option -> EmitWarning(ls -> GetTokenReference(grammar -> rules[0].first_token_index), msg);
         }
         else if (! option -> quiet)
         {
-            option -> report.Put("\n");
-            option -> report.Put(option -> grm_file);
+	    Tuple<const char *> msg;
+
+	    msg.Next() = "Grammar is ";
 
             if (highest_level == 0)
-                option -> report.Put(" is LR(0).\n\n");
+                msg.Next() = " LR(0).";
             else if (option -> slr)
-                option -> report.Put(" is SLR(1).\n\n");
+                msg.Next() = " SLR(1).";
             else
             {
-                option -> report.Put(" is LALR(");
-                option -> report.Put(highest_level);
-                option -> report.Put(").\n\n");
+		IntToString hl_str(highest_level);
+
+                msg.Next() = " LALR(";
+		msg.Next() = hl_str.String();
+                msg.Next() = ").";
             }
+	    option -> EmitInformative(ls -> GetTokenReference(grammar -> rules[0].first_token_index), msg);
         }
     }
 
