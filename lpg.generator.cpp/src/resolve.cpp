@@ -609,7 +609,7 @@ void Resolve::process_conflicts(int state_no)
 	msg.Next() = "\" with rule ";
 	msg.Next() = rule_no_str.String();
 
-	option -> EmitInformative(startToken, endToken, msg);
+	option -> EmitWarning(startToken, endToken, msg);
 
         option -> FlushReport();
 
@@ -677,7 +677,7 @@ void Resolve::process_conflicts(int state_no)
 	msg.Next() = ", column ";
 	msg.Next() = other_start_col_str.String();
 
-	option -> EmitInformative(startToken, endToken, msg);
+	option -> EmitWarning(startToken, endToken, msg);
 
         option -> FlushReport();
 
