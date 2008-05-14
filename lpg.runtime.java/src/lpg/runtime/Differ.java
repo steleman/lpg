@@ -224,7 +224,7 @@ public abstract class Differ
         {
             ILine line = buffer[k];
             Integer root = (Integer) map.get(line);
-            if (root == null)
+            if (root != null)
             {
                 int previous = 0;
                 for (int i = root.intValue(); i != k && i != 0; previous = i, i = link[i])
