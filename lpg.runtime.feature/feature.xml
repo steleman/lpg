@@ -2,7 +2,7 @@
 <feature
       id="lpg.runtime"
       label="LPG runtime"
-      version="2.0.12"
+      version="2.0.13"
       provider-name="pcharles@us.ibm.com">
 
    <description url="http://www.sourceforge.net/projects/lpg">
