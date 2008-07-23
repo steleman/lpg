@@ -17,7 +17,7 @@ public class BacktrackingParser extends Stacks
     private TokenStream tokStream;
     private ParseTable prs;
     private RuleAction ra;
-    private IntTuple action = new IntTuple(1 << 20),
+    private IntTuple action = new IntTuple(1 << 10),
                      tokens;
     private int actionStack[];
     private boolean skipTokens = false; // true if error productions are used to skip tokens
