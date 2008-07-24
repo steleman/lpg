@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<version pluginID="lpg.generator.win32_x86"
+         versionID="2.0.13">
+    <file path="/lpg.generator.win32_x86/META-INF/MANIFEST.MF"
+          version="1.5"/>
+    <file path="/lpg.generator.win32_x86/lpgexe/lpg-win32_x86.exe"
+          version="1.5"/>
+    <file path="/lpg.generator.win32_x86/plugin.xml"
+          version="1.1"/>
+    <file path="/lpg.generator.win32_x86/src/.keep"
+          version="1.1"/>
+</version>
