@@ -3,7 +3,7 @@
 	<target name="init">
 	    <xmlproperty file="feature.xml" prefix="lpg"/>
 
-	    <echo message="Building for ${lpg.feature{id}} version ${lpg.feature(version)}"/>
+	    <echo message="Building for ${lpg.feature(id)} version ${lpg.feature(version)}"/>
 
 	    <property name="feature.id" value="${lpg.feature(id)}"/>
 	    <property name="feature.version" value="${lpg.feature(version)}"/>

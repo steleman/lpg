@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="lpg.generator.macosx_x86" default="build.fragment.jar" basedir=".">
-	<echo message="After running this and the other platform exportFragment scripts,"/>
-	<echo message="run lpg.update/exportUpdate"/>
-
 	<target name="init">
 		<loadfile property="feature.id" srcfile="META-INF/MANIFEST.MF">
 			<filterchain>
