@@ -15,6 +15,6 @@
 	<target name="build.feature.jar" depends="init">
 		<echo message="basedir = ${basedir}"/>
 		<jar destfile="${build.result.folder}/${feature.jar.name}" basedir="${basedir}"
-			includes="feature.xml"/>
+			includes="feature.xml,feature.properties,license.html,epl-v10.html"/>
 	</target>
 </project>
