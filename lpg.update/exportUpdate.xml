@@ -45,6 +45,8 @@
 
 	<target name="build.plugins">
 		<property name="pluginDir" value="../lpg.runtime.java"/>
+		<mkdir dir="plugins"/>
+		<mkdir dir="features"/>
 		<ant antfile="${pluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${pluginDir}"/>
 
 		<antcall target="build.fragment">
