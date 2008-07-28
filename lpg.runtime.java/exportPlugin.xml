@@ -23,9 +23,50 @@
 		<property name="build.result.folder" value="${basedir}/../lpg.update/plugins"/>
 	</target>
 
-	<target name="build.plugin.jar" depends="init">
+    <target name="javaInit" description="Initializes compiler settings from bundle meta-data">
+        <loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs">
+            <filterchain>
+                <containsregex pattern="org.eclipse.jdt.core.compiler.source"/>
+                <replaceregex pattern="org.eclipse.jdt.core.compiler.source=(.*)" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <echo message="Java source compatibility = ${javacSource}"/>
+
+        <loadfile property="javacTarget" srcfile=".settings/org.eclipse.jdt.core.prefs">
+            <filterchain>
+                <containsregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform"/>
+                <replaceregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform=(.*)" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <echo message="Java target compatibility = ${javacTarget}"/>
+
+        <property name="compilerArg" value=""/>
+    </target>
+
+	<target name="build.plugin.jar" depends="init,javaInit">
 		<echo message="basedir = ${basedir}"/>
-		<jar destfile="lpgruntime.jar" basedir="${basedir}/bin"
+		<property name="temp.folder" value="temp"/>
+		<mkdir dir="${temp.folder}"/>
+
+        <delete dir="${temp.folder}/bin"/>
+        <mkdir dir="${temp.folder}/bin"/>
+        <!-- compile the source code -->
+        <javac destdir="${temp.folder}/bin" failonerror="${javacFailOnError}"
+               verbose="${javacVerbose}" debug="${javacDebugInfo}"
+               includeAntRuntime="no" bootclasspath="${bootclasspath}"
+               source="${javacSource}" target="${javacTarget}">
+            <compilerarg line="${compilerArg}"/>
+            <classpath>
+                <pathelement path="${plugin.dependencies}"/>
+                <pathelement path="${eclipse.build.path}"/>
+            </classpath>
+            <src path="src/"/>
+        </javac>
+        <!-- Copy necessary resources -->
+
+		<jar destfile="lpgruntime.jar" basedir="${temp.folder}/bin"
 			 includes="**/*.class"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
 			 manifest="META-INF/MANIFEST.MF"
