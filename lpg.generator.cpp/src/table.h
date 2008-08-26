@@ -121,14 +121,19 @@ protected:
 
     TypeId Type(Array<int> &array)
     {
-        int min = array[0],
+        int min = 0,
             max = min;
-        for (int i = 1; i < array.Size(); i++)
+        if (array.Size() > 0)
         {
-            if (array[i] > max)
-                 max = array[i];
-            else if (array[i] < min)
-                 min = array[i];
+            min = array[0],
+            max = min;
+            for (int i = 1; i < array.Size(); i++)
+            {
+                if (array[i] > max)
+                    max = array[i];
+                else if (array[i] < min)
+                     min = array[i];
+            }
         }
 
         return Type(min, max);

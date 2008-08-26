@@ -314,7 +314,15 @@ void Produce::print_name_map(int symbol)
 //
 void Produce::process_scopes(void)
 {
-    BoundedArray<int> state_index(grammar -> num_terminals + 1, grammar -> num_symbols, Util::OMEGA);
+    //
+    // Each element of state_index points to the start of a list in scope_state. Element zero of 
+    // the scope_state array is initialized to 0, indicating a null list. Initially, all elements
+    // of state_index point to this null list. Later, all reachable nonterminals will be reassigned
+    // to their respective list in scope_state. However, if the grammar contains unreachable nonterminals
+    // they will not be reassigned to a new list and will instead continue to point to the default null list.
+    //
+    BoundedArray<int> state_index(grammar -> num_terminals + 1, grammar -> num_symbols, 0);
+
     BoundedArray<Tuple <int> > states_of(grammar -> num_terminals + 1, grammar -> num_symbols);
     Array<int> prefix_index(grammar -> num_items + 1),
                suffix_index(grammar -> num_items + 1);
