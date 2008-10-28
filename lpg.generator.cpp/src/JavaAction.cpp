@@ -455,54 +455,51 @@ void JavaAction::GenerateEqualsMethod(NTC &ntc,
                                       ClassnameElement &element,
                                       BitSet &optimizable_symbol_set)
 {
-    if (! element.is_terminal_class)
+    SymbolLookupTable &symbol_set = element.symbol_set;
+
+    //
+    // Note that if an AST node does not contain any field (symbol_set.Size() == 0),
+    // we do not generate an "equals" function for it.
+    //
+    if ((! element.is_terminal_class) && symbol_set.Size() > 0) 
     {
-        SymbolLookupTable &symbol_set = element.symbol_set;
         Tuple<int> &rhs_type_index = element.rhs_type_index;
 
         ast_buffer.Put("\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    public boolean equals(Object o)\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
         ast_buffer.Put(indentation); ast_buffer.Put("        if (o == this) return true;\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        //\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        // The super call test is not required for now because an Ast node\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        // can only extend the root Ast, AstToken and AstList and none of\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        // these nodes contain additional children.\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        //\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        // if (! super.equals(o)) return false;\n");
-        ast_buffer.Put(indentation); ast_buffer.Put("        //\n");
         ast_buffer.Put(indentation); ast_buffer.Put("        if (! (o instanceof ");
                                      ast_buffer.Put(element.real_name);
                                      ast_buffer.Put(")) return false;\n");
-        if (symbol_set.Size() > 0)
+        ast_buffer.Put(indentation); ast_buffer.Put("        if (! super.equals(o)) return false;\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                     ast_buffer.Put(element.real_name);
+                                     ast_buffer.Put(" other = (");
+                                     ast_buffer.Put(element.real_name);
+                                     ast_buffer.Put(") o;\n");
+
+        for (int i = 0; i < symbol_set.Size(); i++)
         {
             ast_buffer.Put(indentation); ast_buffer.Put("        ");
-                                         ast_buffer.Put(element.real_name);
-                                         ast_buffer.Put(" other = (");
-                                         ast_buffer.Put(element.real_name);
-                                         ast_buffer.Put(") o;\n");
-
-            for (int i = 0; i < symbol_set.Size(); i++)
+            if ((! optimizable_symbol_set[i]) || ntc.CanProduceNullAst(rhs_type_index[i]))
             {
-                ast_buffer.Put(indentation); ast_buffer.Put("        ");
-                if ((! optimizable_symbol_set[i]) || ntc.CanProduceNullAst(rhs_type_index[i]))
-                {
-                                                 ast_buffer.Put("if (_");
-                                                 ast_buffer.Put(symbol_set[i] -> Name());
-                                                 ast_buffer.Put(" == null)\n");
-                    ast_buffer.Put(indentation); ast_buffer.Put("            if (other._");
-                                                 ast_buffer.Put(symbol_set[i] -> Name());
-                                                 ast_buffer.Put(" != null) return false;\n");
-                    ast_buffer.Put(indentation); ast_buffer.Put("            else; // continue\n");
-                    ast_buffer.Put(indentation); ast_buffer.Put("        else ");
-                }
-                ast_buffer.Put("if (! _");
-                ast_buffer.Put(symbol_set[i] -> Name());
-                ast_buffer.Put(".equals(other._");
-                ast_buffer.Put(symbol_set[i] -> Name());
-                ast_buffer.Put(")) return false;\n");
+                                             ast_buffer.Put("if (_");
+                                             ast_buffer.Put(symbol_set[i] -> Name());
+                                             ast_buffer.Put(" == null)\n");
+                ast_buffer.Put(indentation); ast_buffer.Put("            if (other._");
+                                             ast_buffer.Put(symbol_set[i] -> Name());
+                                             ast_buffer.Put(" != null) return false;\n");
+                ast_buffer.Put(indentation); ast_buffer.Put("            else; // continue\n");
+                ast_buffer.Put(indentation); ast_buffer.Put("        else ");
             }
+            ast_buffer.Put("if (! _");
+            ast_buffer.Put(symbol_set[i] -> Name());
+            ast_buffer.Put(".equals(other._");
+            ast_buffer.Put(symbol_set[i] -> Name());
+            ast_buffer.Put(")) return false;\n");
         }
+
         ast_buffer.Put(indentation); ast_buffer.Put("        return true;\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
     }
@@ -520,16 +517,21 @@ void JavaAction::GenerateHashcodeMethod(NTC &ntc,
                                         ClassnameElement &element,
                                         BitSet &optimizable_symbol_set)
 {
-    if (! element.is_terminal_class)
+    SymbolLookupTable &symbol_set = element.symbol_set;
+
+    //
+    // Note that if an AST node does not contain any field (symbol_set.Size() == 0),
+    // we do not generate an "equals" function for it.
+    //
+    if ((! element.is_terminal_class) && symbol_set.Size() > 0) 
     {
-        SymbolLookupTable &symbol_set = element.symbol_set;
         Tuple<int> &rhs_type_index = element.rhs_type_index;
 
         ast_buffer.Put("\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
 
-        ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
+        ast_buffer.Put(indentation); ast_buffer.Put("        int hash = super.hashCode();\n");
         for (int i = 0; i < symbol_set.Size(); i++)
         {
             ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + (_");
@@ -541,6 +543,7 @@ void JavaAction::GenerateHashcodeMethod(NTC &ntc,
             }
             ast_buffer.Put(".hashCode());\n");
         }
+
         ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
     }
@@ -1030,7 +1033,7 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public String toString()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return leftIToken.getPrsStream().toString(leftIToken, rightIToken);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return leftIToken.getLexStream().toString(leftIToken.getStartOffset(), rightIToken.getEndOffset());\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public ");
@@ -1099,13 +1102,33 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
     }
 
     ast_buffer.Put("\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    /**\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("     * Since the Ast type has no children, any two instances of it are equal.\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("     */\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean equals(Object o) { return o instanceof ");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean equals(Object o)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (o == this) return true;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (! (o instanceof ");
                                  ast_buffer.Put(classname);
-                                 ast_buffer.Put("; }\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    public abstract int hashCode();\n");
+                                 ast_buffer.Put(")) return false;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        ");
+                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put(" other = (");
+                                 ast_buffer.Put(classname);
+                                 ast_buffer.Put(") o;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getLeftIToken().getLexStream() == other.getLeftIToken().getLexStream() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("               getLeftIToken().getTokenIndex() == other.getLeftIToken().getTokenIndex() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("               getRightIToken().getLexStream() == other.getRightIToken().getLexStream() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("               getRightIToken().getTokenIndex() == other.getRightIToken().getTokenIndex();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (getLeftIToken().getLexStream() != null) hash = hash * 31 + getLeftIToken().getLexStream().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + getLeftIToken().getTokenIndex();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (getRightIToken().getLexStream() != null) hash = hash * 31 + getRightIToken().getLexStream().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + getRightIToken().getTokenIndex();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     GenerateVisitorHeaders(ast_buffer, indentation, "    public abstract ");
 
@@ -1206,29 +1229,6 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
     }
 
-    //
-    //
-    //
-    ast_buffer.Put(indentation); ast_buffer.Put("    public abstract boolean equals(Object o);\n");
-
-    //
-    // Generate the "hashCode" method
-    //
-    ast_buffer.Put("\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        for (int i = 0; i < size(); i++)\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            ");
-                                 ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put(" element = getElementAt(i);\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            hash = hash * 31 + (element == null ? 0 : element.hashCode());\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
-
-
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
     return;
@@ -1284,12 +1284,16 @@ void JavaAction::GenerateAstTokenType(NTC &ntc, TextBuffer &ast_buffer,
                                  ast_buffer.Put(" other = (");
                                  ast_buffer.Put(classname);
                                  ast_buffer.Put(") o;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return toString().equals(other.toString());\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getIToken().getLexStream() == other.getIToken().getLexStream() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("               getIToken().getTokenIndex() == other.getIToken().getTokenIndex();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return toString().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (getIToken().getLexStream() != null) hash = hash * 31 + getIToken().getLexStream().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + getIToken().getTokenIndex();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     GenerateVisitorMethods(ntc, ast_buffer, indentation, element, optimizable_symbol_set);
@@ -1404,7 +1408,7 @@ void JavaAction::GenerateListMethods(CTC &ctc,
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     //
-    // Generate the "equals" method
+    // Generate the "equals" method for this list
     //
     ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public boolean equals(Object o)\n");
@@ -1413,6 +1417,7 @@ void JavaAction::GenerateListMethods(CTC &ctc,
     ast_buffer.Put(indentation); ast_buffer.Put("        if (! (o instanceof ");
                                  ast_buffer.Put(classname);
                                  ast_buffer.Put(")) return false;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (! super.equals(o)) return false;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        ");
                                  ast_buffer.Put(classname);
                                  ast_buffer.Put(" other = (");
@@ -1445,12 +1450,12 @@ void JavaAction::GenerateListMethods(CTC &ctc,
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     //
-    // Generate the "hashCode" method
+    // Generate the "hashCode" method for a list node
     //
     ast_buffer.Put("\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        int hash = super.hashCode();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        for (int i = 0; i < size(); i++)\n");
     ast_buffer.Put(indentation); ast_buffer.Put("            hash = hash * 31 + (get");
                                  ast_buffer.Put(element_name);
