@@ -9,7 +9,7 @@ public class ConfigurationStack
     private ConfigurationElement table[] = new ConfigurationElement[TABLE_SIZE];
     private ObjectTuple configuration_stack = new ObjectTuple(1 << 12);
     private StateElement state_root;
-    private int configuration_size,
+    private int max_configuration_size,
                 stacks_size,
                 state_element_size;
 
@@ -94,7 +94,7 @@ public class ConfigurationStack
         int hash_address = curtok % TABLE_SIZE;
         configuration.next = table[hash_address];
         table[hash_address] = configuration;
-        configuration_size++; // keep track of number of configurations
+        max_configuration_size++; // keep track of number of configurations
 
         configuration.stack_top = stack_top;
         stacks_size += (stack_top + 1);  // keep track of number of stack elements processed
@@ -144,7 +144,7 @@ public class ConfigurationStack
 
     public int size() { return configuration_stack.size(); }
 
-    public int configurationSize() { return configuration_size; }
+    public int maxConfigurationSize() { return max_configuration_size; }
 
     int numStateElements() { return state_element_size; }
 
