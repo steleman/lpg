@@ -264,30 +264,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public String toString(IToken t1, IToken t2)
     {
-        if (lexStream instanceof LexStream)
-        {
-            char [] buffer = ((LexStream) lexStream).getInputChars();
-            int offset = t1.getStartOffset(),
-            length = t2.getEndOffset() - t1.getStartOffset() + 1;
-            return (t1 == t2 && t1.getEndOffset() >= buffer.length
-                        ? "$EOF"
-                        : length <= 0
-                            ? ""
-                            : new String(buffer, offset, length));
-        }
-        else if (lexStream instanceof Utf8LexStream)
-        {
-            Utf8LexStream stream = (Utf8LexStream) lexStream;
-            int offset = t1.getStartOffset(),
-                length = t2.getEndOffset() - t1.getStartOffset() + 1;
-            return (t1 == t2 && t1.getEndOffset() >= stream.getInputBytes().length
-                        ? "$EOF"
-                        : length <= 0
-                            ? ""
-                            : stream.getString(offset, length));
-        }
-        else throw new UnknownStreamType("Unknown stream type " +
-                                         lexStream.getClass().toString());
+    	return lexStream.toString(t1.getStartOffset(), t2.getEndOffset());
     }
 
     public int getSize() { return tokens.size(); }

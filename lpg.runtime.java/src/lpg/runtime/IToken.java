@@ -34,4 +34,5 @@ public interface IToken
     public abstract String getValue(char[] inputChars);
 
     public abstract String toString();
+    public ILexStream getLexStream();
 }

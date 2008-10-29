@@ -33,4 +33,6 @@ public interface ILexStream extends TokenStream
     void reportLexicalError(int left, int right);
 
     void reportLexicalError(int errorCode, int left_loc, int right_loc, int error_left_loc, int error_right_loc, String errorInfo[]);
+
+    String toString(int startOffset, int endOffset);
 }

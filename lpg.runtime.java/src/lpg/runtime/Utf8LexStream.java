@@ -581,4 +581,14 @@ public class Utf8LexStream implements ILexStream, ParseErrorCodes
                            errorToken,
                            errorInfo == null ? new String[] {} : errorInfo);
     }
+
+    public String toString(int startOffset, int endOffset)
+    {
+        int length = endOffset - startOffset + 1;
+        return (endOffset >= inputBytes.length
+                           ? "$EOF"
+                           : length <= 0
+                                     ? ""
+                                     : getString(startOffset, length));
+    }
 }

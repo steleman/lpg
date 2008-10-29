@@ -390,4 +390,14 @@ public class LexStream implements ILexStream, ParseErrorCodes
                            errorToken,
                            errorInfo == null ? new String[] {} : errorInfo);
     }
+    
+    public String toString(int startOffset, int endOffset)
+    {
+        int length = endOffset - startOffset + 1;
+        return (endOffset >= inputChars.length
+                    ? "$EOF"
+                    : length <= 0
+                        ? ""
+                        : new String(inputChars, startOffset, length));
+    }
 }

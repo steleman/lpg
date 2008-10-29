@@ -69,4 +69,6 @@ public abstract class AbstractToken implements IToken
                            ? "<toString>"
                            : prsStream.toString(this, this));
     }
+
+    public ILexStream getLexStream() { return prsStream == null ? null : prsStream.getLexStream(); }
 }
