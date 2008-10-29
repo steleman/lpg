@@ -3,25 +3,25 @@ package lpg.runtime;
 public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
 {
     private BacktrackingParser parser;
-    private IntTuple action,
-                     tokens;
+    private IntSegmentedTuple action;
+    private IntTuple tokens;
     private int actionStack[];
     private PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
 
     //
     //
     //
-    public RecoveryParser(BacktrackingParser parser, IntTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs)
+    public RecoveryParser(BacktrackingParser parser, IntSegmentedTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs)
     {
         this(parser, null, action, tokens, tokStream, prs);
     }
 
-    public RecoveryParser(BacktrackingParser parser, Monitor monitor, IntTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs)
+    public RecoveryParser(BacktrackingParser parser, Monitor monitor, IntSegmentedTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs)
     {
         this(parser, monitor, action, tokens, tokStream, prs, 0, 0);
     }
     
-    public RecoveryParser(BacktrackingParser parser, IntTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs, int maxErrors, long maxTime)
+    public RecoveryParser(BacktrackingParser parser, IntSegmentedTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs, int maxErrors, long maxTime)
     {
         this(parser, null, action, tokens, tokStream, prs, maxErrors, maxTime);
     }
@@ -31,7 +31,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
     // maxTime is the maximum amount of time allowed for diagnosing
     // but at least one error must be diagnosed 
     //
-    public RecoveryParser(BacktrackingParser parser, Monitor monitor, IntTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs, int maxErrors, long maxTime)
+    public RecoveryParser(BacktrackingParser parser, Monitor monitor, IntSegmentedTuple action, IntTuple tokens, IPrsStream tokStream, ParseTable prs, int maxErrors, long maxTime)
     {
         super(monitor, tokStream, prs, maxErrors, maxTime);
         this.parser = parser;
@@ -426,7 +426,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
     //
     //
     //
-    private boolean completeScope(IntTuple action, int scope_rhs_index)
+    private boolean completeScope(IntSegmentedTuple action, int scope_rhs_index)
     {
         int kind = scopeRhs(scope_rhs_index);
         if (kind == 0)

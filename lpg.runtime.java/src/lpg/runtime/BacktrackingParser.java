@@ -17,8 +17,8 @@ public class BacktrackingParser extends Stacks
     private TokenStream tokStream;
     private ParseTable prs;
     private RuleAction ra;
-    private IntTuple action = new IntTuple(1 << 10),
-                     tokens;
+    private IntSegmentedTuple action = new IntSegmentedTuple(10, 1024); // IntTuple(1 << 20),
+    private IntTuple tokens;
     private int actionStack[];
     private boolean skipTokens = false; // true if error productions are used to skip tokens
     
@@ -436,7 +436,7 @@ public class BacktrackingParser extends Stacks
     // tuple that was passed down to RecoveryParser. It is passed back
     // to this method as documention.
     //
-    int backtrackParse(int stack[], int stack_top, IntTuple action, int initial_token)
+    int backtrackParse(int stack[], int stack_top, IntSegmentedTuple action, int initial_token)
     {
         stateStackTop = stack_top;
         System.arraycopy(stack, 0, stateStack, 0, stateStackTop + 1);
@@ -451,7 +451,7 @@ public class BacktrackingParser extends Stacks
     // the parse was succesful, then the tuple "action" contains the
     // successful sequence of actions that was executed.
     //
-    private int backtrackParse(IntTuple action, int initial_token)
+    private int backtrackParse(IntSegmentedTuple action, int initial_token)
     {
         //
         // Allocate configuration stack.
@@ -549,12 +549,23 @@ public class BacktrackingParser extends Stacks
             act = tAction(act, current_kind);
         }
 
-        //System.out.println("****Number of configurations: " + configuration_stack.configurationSize());
-        //System.out.println("****Number of elements in stack tree: " + configuration_stack.numStateElements());
-        //System.out.println("****Number of elements in stacks: " + configuration_stack.stacksSize());
-        //System.out.println("****Number of actions: " + action.size());
-        //System.out.println("****Max Stack Size = " + maxStackTop);
-        //System.out.flush();
+        // System.out.println("****Max Number of configurations: " + configuration_stack.maxConfigurationSize());
+        // for (ConfigurationElement configuration = configuration_stack.pop();
+        //      configuration != null;
+        //      configuration = configuration_stack.pop())
+//        {
+//System.out.println("    restart at position " + configuration.action_length +
+//		           " on action " + configuration.act +
+//		           " and token " + configuration.curtok +
+//		           " with kind " + tokStream.getKind(configuration.curtok)
+//		          );   	
+//        }
+//
+        // System.out.println("****Number of elements in stack tree: " + configuration_stack.numStateElements());
+        // System.out.println("****Number of elements in stacks: " + configuration_stack.stacksSize());
+        // System.out.println("****Number of actions: " + action.size());
+        // System.out.println("****Max Stack Size = " + maxStackTop);
+        // System.out.flush();
         return (act == ERROR_ACTION ? error_token : 0);
     }
 
