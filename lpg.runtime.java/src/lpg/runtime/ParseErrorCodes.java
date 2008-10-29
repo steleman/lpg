@@ -20,20 +20,20 @@ public interface ParseErrorCodes
                              NO_MESSAGE_CODE = 13;
 
     public static final String errorMsgText[] = {
-        /* LEX_ERROR_CODE */                       "unexpected character ignored",
-        /* ERROR_CODE */                           "parsing terminated at this token",
-        /* BEFORE_CODE */                          "inserted before this token",
-        /* INSERTION_CODE */                       "expected after this token",
-        /* INVALID_CODE */                         "unexpected input discarded",
-        /* SUBSTITUTION_CODE, SECONDARY_CODE */    "expected instead of this input",
-        /* DELETION_CODE */                        "unexpected token(s) ignored",
-        /* MERGE_CODE */                           "formed from merged tokens",
-        /* MISPLACED_CODE */                       "misplaced construct(s)",
-        /* SCOPE_CODE */                           "inserted to complete scope",
-        /* EOF_CODE */                             "reached after this token",
-        /* INVALID_TOKEN_CODE, ERROR_RULE_ERROR */ "is invalid",
-        /* ERROR_RULE_WARNING */                   "is ignored",
-        /* NO_MESSAGE_CODE */                      ""
+        /* LEX_ERROR_CODE */                       Messages.getString("ParseErrorCodes.LEX_ERROR_CODE"), //$NON-NLS-1$
+        /* ERROR_CODE */                           Messages.getString("ParseErrorCodes.ERROR_CODE"), //$NON-NLS-1$
+        /* BEFORE_CODE */                          Messages.getString("ParseErrorCodes.BEFORE_CODE"), //$NON-NLS-1$
+        /* INSERTION_CODE */                       Messages.getString("ParseErrorCodes.INSERTION_CODE"), //$NON-NLS-1$
+        /* INVALID_CODE */                         Messages.getString("ParseErrorCodes.INVALID_CODE"), //$NON-NLS-1$
+        /* SUBSTITUTION_CODE, SECONDARY_CODE */    Messages.getString("ParseErrorCodes.SUBSTITUTION_CODE"), //$NON-NLS-1$
+        /* DELETION_CODE */                        Messages.getString("ParseErrorCodes.DELETION_CODE"), //$NON-NLS-1$
+        /* MERGE_CODE */                           Messages.getString("ParseErrorCodes.MERGE_CODE"), //$NON-NLS-1$
+        /* MISPLACED_CODE */                       Messages.getString("ParseErrorCodes.MISPLACED_CODE"), //$NON-NLS-1$
+        /* SCOPE_CODE */                           Messages.getString("ParseErrorCodes.SCOPE_CODE"), //$NON-NLS-1$
+        /* EOF_CODE */                             Messages.getString("ParseErrorCodes.EOF_CODE"), //$NON-NLS-1$
+        /* INVALID_TOKEN_CODE, ERROR_RULE_ERROR */ Messages.getString("ParseErrorCodes.INVALID_TOKEN_CODE"), //$NON-NLS-1$
+        /* ERROR_RULE_WARNING */                   Messages.getString("ParseErrorCodes.ERROR_RULE_WARNING"), //$NON-NLS-1$
+        /* NO_MESSAGE_CODE */                      Messages.getString("ParseErrorCodes.NO_MESSAGE_CODE") //$NON-NLS-1$
     };
 
 }
