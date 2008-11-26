@@ -18,6 +18,7 @@ class NTC
     BoundedArray<int> index_of;
     Stack<int> stack;
 
+    Array<bool> &user_specified_null_ast;
     BoundedArray< Tuple<int> > &global_map;
     Grammar *grammar;
 
@@ -40,7 +41,7 @@ class NTC
                 array_index = grammar -> parser.rules[source_index].array_element_type_index;
             if (array_index == 0) // not a list rule
             {
-                if (grammar -> RhsSize(rule_no) == 0)
+                if (grammar -> RhsSize(rule_no) == 0 || user_specified_null_ast[rule_no])
                     is_null[nt] = true;
                 else if (grammar -> RhsSize(rule_no) == 1)
                 {
@@ -74,8 +75,10 @@ class NTC
 
 public:
 
-    NTC(BoundedArray< Tuple<int> > &global_map_, Grammar *grammar_) : global_map(global_map_),
-                                                                      grammar(grammar_)
+    NTC(BoundedArray< Tuple<int> > &global_map_, Array<bool> &user_specified_null_ast_, Grammar *grammar_)
+        : global_map(global_map_),
+          user_specified_null_ast(user_specified_null_ast_),
+          grammar(grammar_)
     {
         is_null.Resize(global_map_.Lbound(), global_map_.Ubound());
         index_of.Resize(global_map_.Lbound(), global_map_.Ubound());

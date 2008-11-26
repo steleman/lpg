@@ -974,9 +974,36 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
     BoundedArray< Tuple<int> > &interface_map = ctc.GetInterfaceMap();
 
     //
-    // (NTC: Nonterminals that can generate null ASTs.
+    // (NTC: Nonterminals that can generate null ASTs.)
     //
-    NTC ntc(global_map, grammar);
+    // A (user-specified) NULL ast is generated for a rule that the user explicitly
+    // associates with the null classname. For example:
+    //
+    //    A$ ::= x y z
+    //
+    // Note that in order to qualify the rule in question must have either a single
+    // terminal on its right-hand side or contain more than one symbol on its right-hand
+    // side. When the right-hand side of a rule contain no symbol then the null ast must
+    // be generated for that rule. When the right-hand side of a rule consist of a single
+    // nonterminal then no AST needs be generated for it. Instead, the left-hand side
+    // nonterminal must inherit the ast that was produced for the right-hand side nonterminal.
+    // (Otherwise, we would end up with a dangling pointer.)
+    //
+    Array< bool > user_specified_null_ast(grammar -> num_rules + 1, false);
+    {
+        for (int rule_no = grammar -> FirstRule(); rule_no <= grammar -> LastRule(); rule_no++)
+        {
+            int source_index = grammar -> rules[rule_no].source_index,
+                classname_index = grammar -> parser.rules[source_index].classname_index;
+            if (lex_stream -> NameStringLength(classname_index) == 1) // The classname is the null macro?
+            {
+                user_specified_null_ast[rule_no] = (grammar -> RhsSize(rule_no) > 1 ||
+                                                    (grammar -> RhsSize(rule_no) == 1 &&
+                                                     grammar -> IsTerminal(grammar -> rhs_sym[grammar -> FirstRhsIndex(rule_no)])));
+            }
+        }
+    }
+    NTC ntc(global_map, user_specified_null_ast, grammar);
 
     //
     // First process the root class, the list class, and the Token class.
@@ -1412,8 +1439,9 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
         //
         for (int rule_no = grammar -> start_symbol.Length(); rule_no < rule_allocation_map.Size(); rule_no++)
         {
-            if ((rule_allocation_map[rule_no].name != NULL || grammar -> RhsSize(rule_no) == 0) &&
-                (rule_allocation_map[rule_no].list_kind != RuleAllocationElement::COPY_LIST || rule_allocation_map[rule_no].list_position != 1))
+            if ((user_specified_null_ast[rule_no]) ||
+                ((rule_allocation_map[rule_no].name != NULL || grammar -> RhsSize(rule_no) == 0) &&
+                 (rule_allocation_map[rule_no].list_kind != RuleAllocationElement::COPY_LIST || rule_allocation_map[rule_no].list_position != 1)))
             {
                 count++;
 
@@ -1446,7 +1474,7 @@ void Action::ProcessAstActions(Tuple<ActionBlockElement> &actions,
                 }
                 else
                 {
-                     if (grammar -> RhsSize(rule_no) == 0 && rule_allocation_map[rule_no].name == NULL)
+                     if (user_specified_null_ast[rule_no] || (grammar -> RhsSize(rule_no) == 0 && rule_allocation_map[rule_no].name == NULL))
                           GenerateNullAstAllocation(ast_buffer, rule_no);
                      else GenerateAstAllocation(ctc,
                                                 ast_buffer,
