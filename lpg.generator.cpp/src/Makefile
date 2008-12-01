@@ -15,18 +15,18 @@ XCFLAGS =
 XCXXFLAGS =
 XLDFLAGS =
 
-TARGET = lpg
+TARGET = lpg-$(ARCH)
 
 include MakeRules.$(ARCH)
 
-INSTALLDIR= ./
+INSTALLDIR= ../
 
 LD = $(CXX)
 
 GEN_FILES=jikespg_sym.h jikespg_def.h jikespg_prs.h jikespg_prs.cpp jikespg_act.h jikespg_act.cpp jikespg_init.cpp
 
 bootstrap: jikespg.g
-	bin/lpg jikespg.g
+	../bin/lpg jikespg.g
 	$(RM) jikespg.l
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
