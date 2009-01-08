@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="lpg.generator"
+      label="LPG Generator and Templates"
+      version="2.0.16"
+      provider-name="pcharles@us.ibm.com">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <plugin
+         id="lpg.generator"
+         download-size="0"
+         install-size="0"
+         version="2.0.16"/>
+
+   <plugin
+         id="lpg.generator.linux_x86"
+         download-size="0"
+         install-size="0"
+         version="2.0.16"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="lpg.generator.macosx_x86"
+         download-size="0"
+         install-size="0"
+         version="2.0.16"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="lpg.generator.win32_x86"
+         download-size="0"
+         install-size="0"
+         version="2.0.16"
+         fragment="true"
+         unpack="false"/>
+
+</feature>
