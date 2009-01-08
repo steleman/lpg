@@ -2,7 +2,7 @@
 <feature
       id="lpg.runtime"
       label="%featureName"
-      version="2.0.15"
+      version="2.0.16"
       provider-name="%providerName">
 
    <description url="http://www.sourceforge.net/projects/lpg">
@@ -17,36 +17,6 @@
          id="lpg.runtime"
          download-size="0"
          install-size="0"
-         version="2.0.15"/>
-
-   <plugin
-         id="lpg.generator.linux_x86"
-         os="linux"
-         arch="x86"
-         download-size="1100"
-         install-size="1100"
-         version="2.0.15"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="lpg.generator.win32_x86"
-         os="win32"
-         arch="x86"
-         download-size="1142"
-         install-size="1142"
-         version="2.0.15"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="lpg.generator.macosx_x86"
-         os="macosx"
-         arch="x86"
-         download-size="1280"
-         install-size="1280"
-         version="2.0.15"
-         fragment="true"
-         unpack="false"/>
+         version="2.0.16"/>
 
 </feature>

@@ -24,6 +24,11 @@
 			<param name="feature.dir"     value="lpg.runtime.feature"/>
 			<param name="feature.version" value="${update.version}"/>
 		</antcall>
+        <antcall target="copy.feature">
+            <param name="feature.id"      value="lpg.generator"/>
+            <param name="feature.dir"     value="lpg.generator.feature"/>
+            <param name="feature.version" value="${update.version}"/>
+        </antcall>
 
         <copy file="site.xml" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
         <copy file="index.html" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
@@ -39,14 +44,19 @@
 	</target>
 
 	<target name="build.feature">
-		<property name="dir" value="../lpg.runtime.feature"/>
-		<ant antfile="${dir}/exportFeature.xml" target="build.feature.jar" dir="${dir}"/>
+		<property name="rtdir" value="../lpg.runtime.feature"/>
+		<ant antfile="${rtdir}/exportFeature.xml" target="build.feature.jar" dir="${rtdir}"/>
+        <property name="gendir" value="../lpg.generator.feature"/>
+        <ant antfile="${gendir}/exportFeature.xml" target="build.feature.jar" dir="${gendir}"/>
 	</target>
 
 	<target name="build.plugins">
 		<property name="pluginDir" value="../lpg.runtime.java"/>
 		<mkdir dir="plugins"/>
 		<mkdir dir="features"/>
+
+        <ant antfile="../lpg.generator/exportPlugin.xml" target="build.plugin.jar" dir="../lpg.generator"/>
+
 		<ant antfile="${pluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${pluginDir}"/>
 
 		<antcall target="build.fragment">

@@ -70,6 +70,6 @@
 			 includes="**/*.class"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
 			 manifest="META-INF/MANIFEST.MF"
-			includes="include/*,lpgruntime.jar,templates/*"/>
+			includes="lpgruntime.jar"/>
 	</target>
 </project>
