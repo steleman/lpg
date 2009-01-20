@@ -972,9 +972,9 @@ public class DiagnoseParser implements ParseErrorCodes
         if (tokStream.getKind(error_token) == EOFT_SYMBOL)
         {
             emitError(EOF_CODE,
-                        terminalIndex(EOFT_SYMBOL),
-                        prevtok,
-                        prevtok);
+                      terminalIndex(EOFT_SYMBOL),
+                      prevtok,
+                      prevtok);
             candidate.symbol = 0;
             candidate.location = error_token;
             return candidate;
@@ -1003,9 +1003,9 @@ public class DiagnoseParser implements ParseErrorCodes
             ;
 
         emitError(DELETION_CODE,
-                    terminalIndex(tokStream.getKind(prevtok)),
-                    error_token,
-                    buffer[i]);
+                  terminalIndex(tokStream.getKind(prevtok)),
+                  error_token,
+                  buffer[i]);
 
         candidate.symbol = 0;
         candidate.location = buffer[i];
@@ -1441,31 +1441,31 @@ public class DiagnoseParser implements ParseErrorCodes
             }
             case MERGE_CODE:
                  emitError(repair.code,
-                             terminalIndex(repair.symbol),
-                             current_token,
-                             tokStream.getNext(current_token));
+                           terminalIndex(repair.symbol),
+                           current_token,
+                           tokStream.getNext(current_token));
                  break;
             case SCOPE_CODE:
             {
                  for (int i = 0; i < scopeStackTop; i++)
                  {
                      emitError(repair.code,
-                                 -scopeIndex[i],
-                                 locationStack[scopePosition[i]],
-                                 prevtok,
-                                 nonterminalIndex(scopeLhs(scopeIndex[i])));
+                               -scopeIndex[i],
+                               locationStack[scopePosition[i]],
+                               prevtok,
+                               nonterminalIndex(scopeLhs(scopeIndex[i])));
                  }
 
                  repair.symbol = scopeLhs(scopeIndex[scopeStackTop]) + NT_OFFSET;
                  stateStackTop = scopePosition[scopeStackTop];
                  emitError(repair.code,
-                             -scopeIndex[scopeStackTop],
-                             locationStack[scopePosition[scopeStackTop]],
-                             prevtok,
-                             getNtermIndex(stateStack[stateStackTop],
-                                           repair.symbol,
-                                           repair.bufferPosition)
-                            );
+                           -scopeIndex[scopeStackTop],
+                           locationStack[scopePosition[scopeStackTop]],
+                           prevtok,
+                           getNtermIndex(stateStack[stateStackTop],
+                                         repair.symbol,
+                                         repair.bufferPosition)
+                          );
                  break;
             }
             default: // deletion
@@ -2366,37 +2366,37 @@ public class DiagnoseParser implements ParseErrorCodes
             {
                 if (repair.stackPosition < stateStackTop)
                     emitError(DELETION_CODE,
-                                terminalIndex(ERROR_SYMBOL),
-                                locationStack[repair.stackPosition],
-                                buffer[1]);
+                              terminalIndex(ERROR_SYMBOL),
+                              locationStack[repair.stackPosition],
+                              buffer[1]);
                 for (int i = 0; i < scopeStackTop; i++)
                     emitError(SCOPE_CODE,
-                                -scopeIndex[i],
-                                locationStack[scopePosition[i]],
-                                buffer[1],
-                                nonterminalIndex(scopeLhs(scopeIndex[i])));
+                              -scopeIndex[i],
+                              locationStack[scopePosition[i]],
+                              buffer[1],
+                              nonterminalIndex(scopeLhs(scopeIndex[i])));
 
                 repair.symbol = scopeLhs(scopeIndex[scopeStackTop]) + NT_OFFSET;
                 stateStackTop = scopePosition[scopeStackTop];
                 emitError(SCOPE_CODE,
-                            -scopeIndex[scopeStackTop],
-                            locationStack[scopePosition[scopeStackTop]],
-                            buffer[1],
-                            getNtermIndex(stateStack[stateStackTop],
-                                          repair.symbol,
-                                          repair.bufferPosition)
-                           );
+                          -scopeIndex[scopeStackTop],
+                          locationStack[scopePosition[scopeStackTop]],
+                          buffer[1],
+                          getNtermIndex(stateStack[stateStackTop],
+                                        repair.symbol,
+                                        repair.bufferPosition)
+                         );
                 break;
             }
             default:
                 emitError(repair.code,
-                            (repair.code == SECONDARY_CODE
-                                          ? getNtermIndex(stateStack[repair.stackPosition],
-                                                          repair.symbol,
-                                                          repair.bufferPosition)
-                                          : terminalIndex(ERROR_SYMBOL)),
-                             locationStack[repair.stackPosition],
-                             buffer[repair.bufferPosition - 1]);
+                          (repair.code == SECONDARY_CODE
+                                        ? getNtermIndex(stateStack[repair.stackPosition],
+                                                        repair.symbol,
+                                                        repair.bufferPosition)
+                                        : terminalIndex(ERROR_SYMBOL)),
+                           locationStack[repair.stackPosition],
+                           buffer[repair.bufferPosition - 1]);
                 stateStackTop = repair.stackPosition;
         }
 
@@ -2405,17 +2405,14 @@ public class DiagnoseParser implements ParseErrorCodes
 
 
     //
-    // This procedure is invoked by an LPG PARSER or a semantic
-    // routine to process an error message.  The LPG parser always
-    // passes the value 0 to msg_level to indicate an error.
-    // This routine simply stores all necessary information about
-    // the message into an array: error.
+    // This method is invoked by an LPG PARSER or a semantic
+    // routine to process an error message.
     //
     protected void emitError(int msg_code,
-                               int name_index,
-                               int left_token,
-                               int right_token,
-                               int scope_name_index)
+                             int name_index,
+                             int left_token,
+                             int right_token,
+                             int scope_name_index)
     {
         int left_token_loc = (left_token > right_token ? right_token : left_token),
             right_token_loc = right_token;
