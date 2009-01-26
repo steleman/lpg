@@ -7,12 +7,12 @@ public abstract class AbstractToken implements IToken
                 endOffset = 0,
                 tokenIndex = 0,
                 adjunctIndex;
-    private IPrsStream prsStream;
+    private IPrsStream iPrsStream;
 
     public AbstractToken() {}
-    public AbstractToken(IPrsStream prsStream, int startOffset, int endOffset, int kind)
+    public AbstractToken(IPrsStream iPrsStream, int startOffset, int endOffset, int kind)
     {
-        this.prsStream = prsStream;
+        this.iPrsStream = iPrsStream;
         this.startOffset = startOffset;
         this.endOffset = endOffset;
         this.kind = kind;
@@ -39,36 +39,46 @@ public abstract class AbstractToken implements IToken
     public void setAdjunctIndex(int adjunctIndex) { this.adjunctIndex = adjunctIndex; }
     public int getAdjunctIndex() { return adjunctIndex; }
     
-    public IPrsStream getPrsStream() { return prsStream; }
-    public int getLine() { return (prsStream == null ? 0 : prsStream.getLexStream().getLineNumberOfCharAt(startOffset)); }
-    public int getColumn() { return (prsStream == null ? 0 : prsStream.getLexStream().getColumnOfCharAt(startOffset)); }
-    public int getEndLine() { return (prsStream == null ? 0 : prsStream.getLexStream().getLineNumberOfCharAt(endOffset)); }
-    public int getEndColumn() { return (prsStream == null ? 0 : prsStream.getLexStream().getColumnOfCharAt(endOffset)); }
+    public IPrsStream getIPrsStream() { return iPrsStream; }
+    public ILexStream getILexStream() { return iPrsStream == null ? null : iPrsStream.getILexStream(); }
+    public int getLine() { return (iPrsStream == null ? 0 : iPrsStream.getILexStream().getLineNumberOfCharAt(startOffset)); }
+    public int getColumn() { return (iPrsStream == null ? 0 : iPrsStream.getILexStream().getColumnOfCharAt(startOffset)); }
+    public int getEndLine() { return (iPrsStream == null ? 0 : iPrsStream.getILexStream().getLineNumberOfCharAt(endOffset)); }
+    public int getEndColumn() { return (iPrsStream == null ? 0 : iPrsStream.getILexStream().getColumnOfCharAt(endOffset)); }
+
+    /**
+     * @deprecated replaced by {@link #getIPrsStream()}
+     */
+    public IPrsStream getPrsStream() { return iPrsStream; }
+
+
+    /**
+     * @deprecated replaced by {@link #getILexStream()}
+     */
+    public ILexStream getLexStream() { return iPrsStream == null ? null : iPrsStream.getILexStream(); }
 
     /**
      * @deprecated replaced by {@link #toString()}
      */
     public String getValue(char[] inputChars)
     {
-        if (prsStream != null)
+        if (iPrsStream != null)
             return toString();
-        if (prsStream.getLexStream() instanceof LexStream)
+        if (iPrsStream.getLexStream() instanceof LexStream)
         {
-            LexStream lex_stream = (LexStream) prsStream.getLexStream();
+            LexStream lex_stream = (LexStream) iPrsStream.getLexStream();
             if (inputChars != lex_stream.getInputChars())
                 throw new MismatchedInputCharsException();
             return toString();
         }
         throw new UnknownStreamType("Unknown stream type " +
-                                    prsStream.getLexStream().getClass().toString());
+                                    iPrsStream.getLexStream().getClass().toString());
     }
 
     public String toString()
     {
-        return (prsStream == null
+        return (iPrsStream == null
                            ? "<toString>"
-                           : prsStream.toString(this, this));
+                           : iPrsStream.toString(this, this));
     }
-
-    public ILexStream getLexStream() { return prsStream == null ? null : prsStream.getLexStream(); }
 }

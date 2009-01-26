@@ -8,7 +8,7 @@ import java.util.HashMap;
 //
 public class PrsStream implements IPrsStream, ParseErrorCodes
 {
-    private ILexStream lexStream;
+    private ILexStream iLexStream;
     private int kindMap[] = null;
     private ArrayList tokens = new ArrayList();
     private ArrayList adjuncts = new ArrayList();
@@ -17,10 +17,10 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public PrsStream() { }
     
-    public PrsStream(ILexStream lexStream)
+    public PrsStream(ILexStream iLexStream)
     {
-        this.lexStream = lexStream;
-        if (lexStream != null) lexStream.setPrsStream(this);
+        this.iLexStream = iLexStream;
+        if (iLexStream != null) iLexStream.setPrsStream(this);
         resetTokenStream();
     }
 
@@ -34,11 +34,11 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     {
     	// SMS 12 Feb 2008
     	// lexStream might be null, maybe only erroneously, but it has happened
-    	if (lexStream == null)
+    	if (iLexStream == null)
     		throw new NullPointerException(
     			"lpg.runtime.PrsStream.remapTerminalSymbols(..):  lexStream is null");
     	
-        String[] ordered_lexer_symbols = lexStream.orderedExportedSymbols();
+        String[] ordered_lexer_symbols = iLexStream.orderedExportedSymbols();
         if (ordered_lexer_symbols == null)
             throw new NullExportedSymbolsException();
         if (ordered_parser_symbols == null)
@@ -81,7 +81,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public void setLexStream(ILexStream lexStream) 
     { 
-        this.lexStream = lexStream; 
+        this.iLexStream = lexStream; 
         resetTokenStream();
     }
     
@@ -90,7 +90,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
      */
     public void resetLexStream(LexStream lexStream) 
     { 
-        this.lexStream = lexStream; 
+        this.iLexStream = lexStream; 
         if (lexStream != null) lexStream.setPrsStream(this);
     }
     
@@ -186,34 +186,34 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     public int getLineNumberOfTokenAt(int i)
     {
         IToken t = (IToken)tokens.get(i);
-        return lexStream.getLineNumberOfCharAt(t.getStartOffset());
+        return iLexStream.getLineNumberOfCharAt(t.getStartOffset());
     }
 
     public int getEndLineNumberOfTokenAt(int i)
     {
         IToken t = (IToken)tokens.get(i);
-        return lexStream.getLineNumberOfCharAt(t.getEndOffset());
+        return iLexStream.getLineNumberOfCharAt(t.getEndOffset());
     }
 
     public int getColumnOfTokenAt(int i)
     {
         IToken t = (IToken)tokens.get(i);
-        return lexStream.getColumnOfCharAt(t.getStartOffset());
+        return iLexStream.getColumnOfCharAt(t.getStartOffset());
     }
 
     public int getEndColumnOfTokenAt(int i)
     {
         IToken t = (IToken)tokens.get(i);
-        return lexStream.getColumnOfCharAt(t.getEndOffset());
+        return iLexStream.getColumnOfCharAt(t.getEndOffset());
     }
 
     public String[] orderedTerminalSymbols() { return null; }
 
-    public int getLineOffset(int i) { return lexStream.getLineOffset(i); }
+    public int getLineOffset(int i) { return iLexStream.getLineOffset(i); }
 
-    public int getLineCount() { return lexStream.getLineCount(); }
+    public int getLineCount() { return iLexStream.getLineCount(); }
 
-    public int getLineNumberOfCharAt(int i) { return lexStream.getLineNumberOfCharAt(i); }
+    public int getLineNumberOfCharAt(int i) { return iLexStream.getLineNumberOfCharAt(i); }
 
     public int getColumnOfCharAt(int i) { return getColumnOfCharAt(i); }
     
@@ -244,16 +244,16 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     // TODO: should this function throw an exception instead of returning null?
     public char [] getInputChars()
     {
-        return (lexStream instanceof LexStream
-                ? ((LexStream) lexStream).getInputChars()
+        return (iLexStream instanceof LexStream
+                ? ((LexStream) iLexStream).getInputChars()
                 : null);
     }
 
     // TODO: should this function throw an exception instead of returning null?
     public byte [] getInputBytes()
     {
-        return (lexStream instanceof Utf8LexStream
-                ? ((Utf8LexStream) lexStream).getInputBytes()
+        return (iLexStream instanceof Utf8LexStream
+                ? ((Utf8LexStream) iLexStream).getInputBytes()
                 : null);
     }
     
@@ -264,7 +264,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public String toString(IToken t1, IToken t2)
     {
-    	return lexStream.toString(t1.getStartOffset(), t2.getEndOffset());
+    	return iLexStream.toString(t1.getStartOffset(), t2.getEndOffset());
     }
 
     public int getSize() { return tokens.size(); }
@@ -322,7 +322,12 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public void setStreamLength(int len) { this.len = len; }
 
-    public ILexStream getLexStream() { return lexStream; }
+    public ILexStream getILexStream() { return iLexStream; }
+
+    /**
+     * @deprecated replaced by {@link #getILexStream()}
+     */
+    public ILexStream getLexStream() { return iLexStream; }
 
     public void dumpTokens()
     {
@@ -412,7 +417,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public boolean afterEol(int i) { return (i < 1 ? true : getEndLineNumberOfTokenAt(i - 1) < getLineNumberOfTokenAt(i)); }
 
-    public String getFileName() { return lexStream.getFileName(); }
+    public String getFileName() { return iLexStream.getFileName(); }
 
     //
     // Here is where we report errors.  The default method is simply to print the error message to the console.
@@ -425,11 +430,11 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     // IMessageHandler errMsg = null; // the error message handler object is declared in LexStream
     //
     public void setMessageHandler(IMessageHandler errMsg) {
-        lexStream.setMessageHandler(errMsg);
+        iLexStream.setMessageHandler(errMsg);
     }
 
     public IMessageHandler getMessageHandler() {
-        return lexStream.getMessageHandler();
+        return iLexStream.getMessageHandler();
     }
     
     public void reportError(int errorCode, int leftToken, int rightToken, String errorInfo)
@@ -465,11 +470,11 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public void reportError(int errorCode, int leftToken, int errorToken, int rightToken, String errorInfo[])
     {
-        lexStream.reportLexicalError(errorCode, 
-                                     getStartOffset(leftToken),
-                                     getEndOffset(rightToken),
-                                     getStartOffset(errorToken),
-                                     getEndOffset(errorToken),
-                                     errorInfo == null ? new String[] {} : errorInfo);
+        iLexStream.reportLexicalError(errorCode, 
+                                      getStartOffset(leftToken),
+                                      getEndOffset(rightToken),
+                                      getStartOffset(errorToken),
+                                      getEndOffset(errorToken),
+                                      errorInfo == null ? new String[] {} : errorInfo);
     }
 }

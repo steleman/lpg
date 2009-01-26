@@ -4,7 +4,13 @@ import java.util.ArrayList;
 
 public interface IPrsStream extends TokenStream
 {
+    ILexStream getILexStream();
+
+    /**
+     * @deprecated replaced by {@link #getILexStream()}
+     */
     ILexStream getLexStream();
+    
     void setLexStream(ILexStream lexStream);
     
     /**

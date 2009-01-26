@@ -22,7 +22,7 @@ public class LexStream implements ILexStream, ParseErrorCodes
     private int tab = DEFAULT_TAB;
 
     /**
-     * @deprecated Use function getPrsStream()
+     * @deprecated Use function getIPrsStream()
      */
     protected /* private ... when not deprecated! */ IPrsStream prsStream;
 
@@ -154,6 +154,11 @@ public class LexStream implements ILexStream, ParseErrorCodes
         this.prsStream = prsStream;
     }
     
+    public IPrsStream getIPrsStream() { return prsStream; }
+    
+    /**
+     * @deprecated replaced by {@link #getIPrsStream()}
+     */
     public IPrsStream getPrsStream()
     {
         return prsStream;

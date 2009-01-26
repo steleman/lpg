@@ -7,9 +7,9 @@ public class Token extends AbstractToken
     {
         super(null, startOffset, endOffset, kind);
     }
-    public Token(IPrsStream prsStream, int startOffset, int endOffset, int kind)
+    public Token(IPrsStream iPrsStream, int startOffset, int endOffset, int kind)
     {
-        super(prsStream, startOffset, endOffset, kind);
+        super(iPrsStream, startOffset, endOffset, kind);
     }
 
     //
@@ -17,12 +17,12 @@ public class Token extends AbstractToken
     //
     public IToken[] getFollowingAdjuncts()
     {
-        return getPrsStream().getFollowingAdjuncts(getTokenIndex());
+        return getIPrsStream().getFollowingAdjuncts(getTokenIndex());
     }
 
     public IToken[] getPrecedingAdjuncts()
     {
-        return getPrsStream().getPrecedingAdjuncts(getTokenIndex());
+        return getIPrsStream().getPrecedingAdjuncts(getTokenIndex());
     }
 
 }

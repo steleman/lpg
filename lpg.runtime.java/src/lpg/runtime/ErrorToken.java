@@ -8,7 +8,7 @@ public class ErrorToken extends Token
 
     public ErrorToken(IToken firstToken, IToken lastToken, IToken errorToken, int startOffset, int endOffset, int kind)
     {
-        super(firstToken.getPrsStream(), startOffset, endOffset, kind);
+        super(firstToken.getIPrsStream(), startOffset, endOffset, kind);
 
         this.firstToken = firstToken;
         this.lastToken = lastToken;

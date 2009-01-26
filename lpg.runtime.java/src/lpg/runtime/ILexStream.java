@@ -2,6 +2,11 @@ package lpg.runtime;
 
 public interface ILexStream extends TokenStream
 {
+    IPrsStream getIPrsStream();
+
+    /**
+     * @deprecated replaced by {@link #getIPrsStream()}
+     */
     IPrsStream getPrsStream();
     
     void setPrsStream(IPrsStream stream);

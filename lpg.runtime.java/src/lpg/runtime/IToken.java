@@ -22,7 +22,18 @@ public interface IToken
     public IToken[] getPrecedingAdjuncts();
     public IToken[] getFollowingAdjuncts();
 
+    public ILexStream getILexStream();
+    /**
+     * @deprecated replaced by {@link #getILexStream()}
+     */
+    public ILexStream getLexStream();
+    
+    public IPrsStream getIPrsStream();
+    /**
+     * @deprecated replaced by {@link #getIPrsStream()}
+     */
     public IPrsStream getPrsStream();
+    
     public int getLine();
     public int getColumn();
     public int getEndLine();
@@ -34,5 +45,4 @@ public interface IToken
     public abstract String getValue(char[] inputChars);
 
     public abstract String toString();
-    public ILexStream getLexStream();
 }

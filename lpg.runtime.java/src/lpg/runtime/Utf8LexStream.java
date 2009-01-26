@@ -178,7 +178,7 @@ public class Utf8LexStream implements ILexStream, ParseErrorCodes
     private String fileName;
     private IntSegmentedTuple lineOffsets;
     private int tab = DEFAULT_TAB;
-    private IPrsStream prsStream;
+    private IPrsStream iPrsStream;
 
     public Utf8LexStream() // can be used with explicit initialize call
     {
@@ -306,9 +306,14 @@ public class Utf8LexStream implements ILexStream, ParseErrorCodes
 
     public int getLineOffset(int i) { return lineOffsets.get(i); }
 
-    public void setPrsStream(IPrsStream prsStream) { this.prsStream = prsStream; }
+    public void setPrsStream(IPrsStream iPrsStream) { this.iPrsStream = iPrsStream; }
     
-    public IPrsStream getPrsStream() { return prsStream; }
+    public IPrsStream getIPrsStream() { return iPrsStream; }
+
+    /**
+     * @deprecated replaced by {@link #getIPrsStream()}
+     */
+    public IPrsStream getPrsStream() { return iPrsStream; }
 
     public String[] orderedExportedSymbols() { return null; }
 
@@ -462,8 +467,8 @@ public class Utf8LexStream implements ILexStream, ParseErrorCodes
     
     public void makeToken(int startLoc, int endLoc, int kind)
     {
-        if (prsStream != null) // let the parser find the error
-             prsStream.makeToken(startLoc, endLoc, kind);
+        if (iPrsStream != null) // let the parser find the error
+             iPrsStream.makeToken(startLoc, endLoc, kind);
         else reportLexicalError(startLoc, endLoc); // make it a lexical error
     }
     
@@ -513,13 +518,13 @@ public class Utf8LexStream implements ILexStream, ParseErrorCodes
                                                       + error_left_loc + ':'
                                                       + error_right_loc + ':'
                                                       + errorCode + ": ";
-            System.out.println("****Error: " + locationInfo);
+            System.out.print("****Error: " + locationInfo);
             if (errorInfo != null)
             {
                 for (int i = 0; i < errorInfo.length; i++)
                     System.out.print(errorInfo[i] + " ");
             }
-            System.out.print(errorMsgText[errorCode]);
+            System.out.println(errorMsgText[errorCode]);
         }
         else
         {
