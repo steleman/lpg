@@ -41,7 +41,7 @@ public class LexParser
 
     public LexParser(ILexStream tokStream, ParseTable prs, RuleAction ra)
     {
-    	reset(tokStream, prs, ra);
+        reset(tokStream, prs, ra);
     }
 
     //
@@ -51,7 +51,8 @@ public class LexParser
                 stateStackTop,
                 stackLength = 0,
                 stack[],
-                locationStack[];
+                locationStack[],
+                tempStack[];
     
     private void reallocateStacks()
     {
@@ -62,11 +63,13 @@ public class LexParser
         {
             stack = new int[stackLength];
             locationStack = new int[stackLength];
+            tempStack = new int[stackLength];
         }
         else
         {
             System.arraycopy(stack, 0, stack = new int[stackLength], 0, old_stack_length);
             System.arraycopy(locationStack, 0, locationStack = new int[stackLength], 0, old_stack_length);
+            System.arraycopy(tempStack, 0, tempStack = new int[stackLength], 0, old_stack_length);
         }
         return;
     }
@@ -209,26 +212,33 @@ public class LexParser
 
                 locationStack[stateStackTop] = curtok;
     
-                currentAction = tAction(currentAction, current_kind);
-    
-                if (currentAction <= NUM_RULES)
+                //
+                // Compute the action on the next character. If it is a reduce action, we do not
+                // want to accept it until we are sure that the character in question is can be parsed.
+                // What we are trying to avoid is a situation where Curtok is not the EOF token
+                // but it yields a default reduce action in the current configuration even though
+                // it cannot ultimately be shifted; However, the state on top of the configuration also
+                // contains a valid reduce action on EOF which, if taken, would lead to the successful
+                // scanning of the token.
+                // 
+                // Thus, if the character can be parsed, we proceed normally. Otherwise, we proceed
+                // as if we had reached the end of the file (end of the token, since we are really
+                // scanning).
+                // 
+                currentAction = parseNextCharacter(currentAction, curtok, current_kind);
+                if (currentAction == ERROR_ACTION && current_kind != EOFT_SYMBOL) // if not successful try EOF 
                 {
-                    stateStackTop--; // make reduction look like a shift-reduce
-                    do
-                    {
-                        stateStackTop -= (prs.rhs(currentAction) - 1);
-                        ra.ruleAction(currentAction);
-                        int lhs_symbol = prs.lhs(currentAction);
-                        if (lhs_symbol == START_SYMBOL)
-                        {
-                            if (starttok == curtok) // null string reduction to START_SYMBOL is illegal
-                                 break ScanToken;
-                            else continue ProcessTokens;
-                        }
-                        currentAction = prs.ntAction(stack[stateStackTop], lhs_symbol);
-                    } while(currentAction <= NUM_RULES);
+                    int save_next_token = tokStream.peek(); // save position after curtok
+                    tokStream.reset(tokStream.getStreamLength() - 1); // point to the end of the input
+                    currentAction = parseNextCharacter(stack[stateStackTop], curtok, EOFT_SYMBOL);
+                    // assert (currentAction == ACCEPT_ACTION || currentAction == ERROR_ACTION);
+                    tokStream.reset(save_next_token); // reset the stream for the next token after curtok.
                 }
-                else if (currentAction > ERROR_ACTION)
+
+                //
+                // At this point, currentAction is either a Shift, Shift-Reduce, Accept or Error action.
+                //
+                if (currentAction > ERROR_ACTION) // Shift-reduce
                 {
                     lastToken = curtok;
                     curtok = tokStream.getToken();
@@ -244,13 +254,15 @@ public class LexParser
                         currentAction = prs.ntAction(stack[stateStackTop], lhs_symbol);
                     } while(currentAction <= NUM_RULES);
                 }
-                else if (currentAction < ACCEPT_ACTION)
+                else if (currentAction < ACCEPT_ACTION) // Shift
                 {
                     lastToken = curtok;
                     curtok = tokStream.getToken();
                     current_kind = tokStream.getKind(curtok);
                 }
-                else break ScanToken; // ERROR_ACTION only. (ACCEPT_ACTION is not possible)
+                else if (currentAction == ACCEPT_ACTION)
+                     continue ProcessTokens;
+                else break ScanToken; // ERROR_ACTION
             }
 
             //
@@ -282,6 +294,75 @@ public class LexParser
         taking_actions = false; // indicate that we are done
 
         return;
+    }
+
+    //
+    // This function takes as argument a configuration ([stack, stackTop], [tokStream, curtok])
+    // and determines whether or not the reduce action the curtok can be validly parsed in this
+    // configuration.
+    //
+    private int parseNextCharacter(int start_action, int token, int kind)
+    {
+        int pos = stateStackTop,
+            tempStackTop = stateStackTop - 1,
+            act = tAction(start_action, kind);
+        Scan: while (act <= NUM_RULES)
+        {
+            action.add(act);
+
+            do
+            {
+                int lhs_symbol = prs.lhs(act);
+                if (lhs_symbol == START_SYMBOL)
+                    break Scan;
+                tempStackTop -= (prs.rhs(act) - 1);
+                int state = (tempStackTop > pos
+                                          ? tempStack[tempStackTop]
+                                          : stack[tempStackTop]);
+                act = prs.ntAction(state, lhs_symbol);
+            } while(act <= NUM_RULES);
+            if (tempStackTop + 1 >= stack.length)
+                reallocateStacks();
+            //
+            // ... Update the maximum useful position of the stack,
+            // push goto state into (temporary) stack, and compute
+            // the next action on the current symbol ...
+            //
+            pos = pos < tempStackTop ? pos : tempStackTop;
+            tempStack[tempStackTop + 1] = act;
+            act = tAction(act, kind);
+        }
+
+        //
+        // If no error was detected, we update the configuration up to the point prior to the
+        // shift or shift-reduce on the token by processing all reduce and goto actions associated
+        // with the current token.
+        //
+        if (act != ERROR_ACTION)
+        {
+            Replay: for (act = tAction(start_action, kind); act <= NUM_RULES; act = tAction(act, kind))
+            {
+                stateStackTop--;
+                do 
+                {
+                    stateStackTop -= (prs.rhs(act) - 1);
+                    ra.ruleAction(act);
+                    int lhs_symbol = prs.lhs(act);
+                    if (lhs_symbol == START_SYMBOL)
+                    {
+                        act = (starttok == token // null string reduction to START_SYMBOL is illegal
+                                         ? ERROR_ACTION
+                                         : ACCEPT_ACTION);
+                        break Replay;
+                    }
+                    act = prs.ntAction(stack[stateStackTop], lhs_symbol);
+                } while (act <= NUM_RULES);
+                stack[++stateStackTop] = act;
+                locationStack[stateStackTop] = token;
+            }
+        }
+
+        return act;
     }
 
     //
@@ -345,35 +426,39 @@ public class LexParser
                 stack[stateStackTop] = currentAction;
             }
 
-            currentAction = tAction(currentAction, current_kind);
+            //
+            // Compute the action on the next character. If it is a reduce action, we do not
+            // want to accept it until we are sure that the character in question is parsable.
+            // What we are trying to avoid is a situation where curtok is not the EOF token
+            // but it yields a default reduce action in the current configuration even though
+            // it cannot ultimately be shifted; However, the state on top of the configuration also
+            // contains a valid reduce action on EOF which, if taken, would lead to the succesful
+            // scanning of the token.
+            // 
+            // Thus, if the character is parsable, we proceed normally. Otherwise, we proceed
+            // as if we had reached the end of the file (end of the token, since we are really
+            // scanning).
+            // 
+            currentAction = lexNextCharacter(currentAction, current_kind);
+            if (currentAction == ERROR_ACTION && current_kind != EOFT_SYMBOL) // if not successful try EOF
+            {
+                int save_next_token = tokStream.peek(); // save position after curtok
+                tokStream.reset(tokStream.getStreamLength() - 1); // point to the end of the input
+                currentAction = lexNextCharacter(stack[stateStackTop], EOFT_SYMBOL);
+                // assert (currentAction == ACCEPT_ACTION || currentAction == ERROR_ACTION);
+                tokStream.reset(save_next_token); // reset the stream for the next token after curtok.
+            }
 
             action.add(currentAction); // save the action
 
-            if (currentAction <= NUM_RULES)
-            {
-                stateStackTop--; // make reduction look like a shift-reduce
-                do
-                {
-                    int lhs_symbol = prs.lhs(currentAction);
-                    if (lhs_symbol == START_SYMBOL)
-                    {
-                        if (starttok == curtok) // null string reduction to START_SYMBOL is illegal
-                            break ScanToken;
-                        else 
-                        {
-                            parseActions();
-                            return true;
-                        }
-                    }
-                    stateStackTop -= (prs.rhs(currentAction) - 1);
-                    currentAction = prs.ntAction(stack[stateStackTop], lhs_symbol);
-                } while(currentAction <= NUM_RULES);
-            }
-            else if (currentAction > ERROR_ACTION)
+            //
+            // At this point, currentAction is either a Shift, Shift-Reduce, Accept or Error action.
+            //
+            if (currentAction > ERROR_ACTION) //Shift-reduce
             {
                 curtok = tokStream.getToken();
                 if (curtok > end_offset)
-                	curtok = tokStream.getStreamLength();
+                    curtok = tokStream.getStreamLength();
                 current_kind = tokStream.getKind(curtok);
                 currentAction -= ERROR_ACTION;
                 do
@@ -388,14 +473,16 @@ public class LexParser
                     currentAction = prs.ntAction(stack[stateStackTop], lhs_symbol);
                 } while(currentAction <= NUM_RULES);
             }
-            else if (currentAction < ACCEPT_ACTION)
+            else if (currentAction < ACCEPT_ACTION) // Shift
             {
                 curtok = tokStream.getToken();
                 if (curtok > end_offset)
-                	curtok = tokStream.getStreamLength();
+                    curtok = tokStream.getStreamLength();
                 current_kind = tokStream.getKind(curtok);
             }
-            else break; // ERROR_ACTION only. (ACCEPT_ACTION is not possible)
+            else if (currentAction == ACCEPT_ACTION)
+                 return true;
+            else break ScanToken; // ERROR_ACTION
         }
 
         //
@@ -423,7 +510,7 @@ public class LexParser
             tokStream.reportLexicalError(starttok, curtok);
             curtok = tokStream.getToken();
             if (curtok > end_offset)
-            	curtok = tokStream.getStreamLength();
+                curtok = tokStream.getStreamLength();
             current_kind = tokStream.getKind(curtok);
         }
         else
@@ -433,6 +520,72 @@ public class LexParser
         }
         
         return true;
+    }
+
+    //
+    // This function takes as argument a configuration ([stack, stackTop], [tokStream, curtok])
+    // and determines whether or not the reduce action the curtok can be validly parsed in this
+    // configuration.
+    //
+    private int lexNextCharacter(int act, int kind)
+    {
+        int action_save = action.size(),
+            pos = stateStackTop,
+            tempStackTop = stateStackTop - 1;
+        act = tAction(act, kind);
+        Scan: while (act <= NUM_RULES)
+        {
+            action.add(act);
+
+            do
+            {
+                int lhs_symbol = prs.lhs(act);
+                if (lhs_symbol == START_SYMBOL)
+                {
+                    if (starttok == curtok) // null string reduction to START_SYMBOL is illegal
+                    {
+                        act = ERROR_ACTION;
+                        break Scan;
+                    }
+                    else
+                    {
+                        parseActions();
+                        return ACCEPT_ACTION;
+                    }
+                }
+                tempStackTop -= (prs.rhs(act) - 1);
+                int state = (tempStackTop > pos
+                                          ? tempStack[tempStackTop]
+                                          : stack[tempStackTop]);
+                act = prs.ntAction(state, lhs_symbol);
+            } while(act <= NUM_RULES);
+            if (tempStackTop + 1 >= stack.length)
+                reallocateStacks();
+            //
+            // ... Update the maximum useful position of the stack,
+            // push goto state into (temporary) stack, and compute
+            // the next action on the current symbol ...
+            //
+            pos = pos < tempStackTop ? pos : tempStackTop;
+            tempStack[tempStackTop + 1] = act;
+            act = tAction(act, kind);
+        }
+
+        //
+        // If an error was detected, we restore the original configuration.
+        // Otherwise, we update configuration up to the point prior to the
+        // shift or shift-reduce on the token.
+        //
+        if (act == ERROR_ACTION)
+            action.reset(action_save);
+        else
+        {
+            stateStackTop = tempStackTop + 1;
+            for (int i = pos + 1; i <= stateStackTop; i++) // update stack
+                stack[i] = tempStack[i];
+        }
+
+        return act;
     }
 
     //
