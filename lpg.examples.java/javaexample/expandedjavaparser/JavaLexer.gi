@@ -1,14 +1,14 @@
 --
 -- The Java Lexer
 --
-%Options la=2
+%Options la=2,states,list
 %Options fp=JavaLexer
 %options single-productions
 %options package=expandedjavaparser
-%options template=LexerTemplateD.g
-%options filter=JavaKWLexer.g
+%options template=LexerTemplateF.gi
+%options filter=JavaKWLexer.gi
 
-$Define
+%Define
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     -- This type is the type of the parser of the filter grammar
@@ -16,13 +16,13 @@ $Define
     --
     $kw_lexer_class /.$JavaKWLexer./
 
-$End
+%End
 
-$Include
-    LexerBasicMap.g
-$End
+%Include
+    LexerBasicMapF.gi
+%End
 
-$Export
+%Export
 
     SlComment
     MlComment
@@ -82,9 +82,9 @@ $Export
     DOT
     EQUAL
 
-$End
+%End
 
-$Terminals
+%Terminals
     CtlCharNotWS
 
     LF   CR   HT   FF
@@ -136,13 +136,13 @@ $Terminals
     RightParen   ::= ')'
     Equal        ::= '='
 
-$End
+%End
 
-$Start
+%Start
     Token
-$End
+%End
 
-$Rules
+%Rules
 
     ---------------------  Rules for Scanned Tokens --------------------------------
     -- The lexer creates an array list of tokens which is defined in the PrsStream class.
@@ -158,325 +158,270 @@ $Rules
     -- method getRhsFirstToken(i) returns the location of the leftmost character derived from Ai.  
     --------------------------------------------------------------------------------
     Token ::= Identifier
-        /.$BeginAction
+        /.
                     checkForKeyWord();
-          $EndAction
         ./
     Token ::= '"' SLBody '"'
-        /.$BeginAction
+        /.
                     makeToken($_StringLiteral);
-          $EndAction
         ./
     Token ::= "'" NotSQ "'"
-        /.$BeginAction
+        /.
                     makeToken($_CharacterLiteral);
-          $EndAction
         ./
     Token ::= IntegerLiteral
-        /.$BeginAction
+        /.
                     makeToken($_IntegerLiteral);
-          $EndAction
         ./
     Token ::= FloatingPointLiteral
-        /.$BeginAction
+        /.
                     makeToken($_FloatingPointLiteral);
-          $EndAction
         ./
     Token ::= DoubleLiteral
-        /.$BeginAction
+        /.
                     makeToken($_DoubleLiteral);
-          $EndAction
         ./
     Token ::= '/' '*' Inside Stars '/'
-        /.$BeginAction
-                    if (getKind(getRhsFirstTokenIndex(3)) == Char_Star)
+        /.
+                    if (getILexStream().getKind(getRhsFirstTokenIndex(3)) == $sym_type.Char_Star)
                          makeComment($_DocComment);
                     else makeComment($_MlComment);
-          $EndAction
         ./
     Token ::= SLC
-        /.$BeginAction
+        /.
                     makeComment($_SlComment);
-          $EndAction
         ./
     Token ::= WS -- White Space is scanned but not added to output vector
-        /.$BeginAction
+        /.
                     skipToken();
-          $EndAction
         ./
     Token ::= '+'
-        /.$BeginAction
+        /.
                     makeToken($_PLUS);
-          $EndAction
         ./
     Token ::= '-'
-        /.$BeginAction
+        /.
                     makeToken($_MINUS);
-          $EndAction
         ./
 
     Token ::= '*'
-        /.$BeginAction
+        /.
                     makeToken($_MULTIPLY);
-          $EndAction
         ./
 
     Token ::= '/'
-        /.$BeginAction
+        /.
                     makeToken($_DIVIDE);
-          $EndAction
         ./
 
     Token ::= '('
-        /.$BeginAction
+        /.
                     makeToken($_LPAREN);
-          $EndAction
         ./
 
     Token ::= ')'
-        /.$BeginAction
+        /.
                     makeToken($_RPAREN);
-          $EndAction
         ./
 
     Token ::= '='
-        /.$BeginAction
+        /.
                     makeToken($_EQUAL);
-          $EndAction
         ./
 
     Token ::= ','
-        /.$BeginAction
+        /.
                     makeToken($_COMMA);
-          $EndAction
         ./
 
     Token ::= ':'
-        /.$BeginAction
+        /.
                     makeToken($_COLON);
-          $EndAction
         ./
 
     Token ::= ';'
-        /.$BeginAction
+        /.
                     makeToken($_SEMICOLON);
-          $EndAction
         ./
 
     Token ::= '^'
-        /.$BeginAction
+        /.
                     makeToken($_XOR);
-          $EndAction
         ./
 
     Token ::= '%'
-        /.$BeginAction
+        /.
                     makeToken($_REMAINDER);
-          $EndAction
         ./
 
     Token ::= '~'
-        /.$BeginAction
+        /.
                     makeToken($_TWIDDLE);
-          $EndAction
         ./
 
     Token ::= '|'
-        /.$BeginAction
+        /.
                     makeToken($_OR);
-          $EndAction
         ./
 
     Token ::= '&'
-        /.$BeginAction
+        /.
                     makeToken($_AND);
-          $EndAction
         ./
 
     Token ::= '<'
-        /.$BeginAction
+        /.
                     makeToken($_LESS);
-          $EndAction
         ./
 
     Token ::= '>'
-        /.$BeginAction
+        /.
                     makeToken($_GREATER);
-          $EndAction
         ./
 
     Token ::= '.'
-        /.$BeginAction
+        /.
                     makeToken($_DOT);
-          $EndAction
         ./
 
     Token ::= '!'
-        /.$BeginAction
+        /.
                     makeToken($_NOT);
-          $EndAction
         ./
 
     Token ::= '['
-        /.$BeginAction
+        /.
                     makeToken($_LBRACKET);
-          $EndAction
         ./
 
     Token ::= ']'
-        /.$BeginAction
+        /.
                     makeToken($_RBRACKET);
-          $EndAction
         ./
 
     Token ::= '{'
-        /.$BeginAction
+        /.
                     makeToken($_LBRACE);
-          $EndAction
         ./
 
     Token ::= '}'
-        /.$BeginAction
+        /.
                     makeToken($_RBRACE);
-          $EndAction
         ./
 
     Token ::= '?'
-        /.$BeginAction
+        /.
                     makeToken($_QUESTION);
-          $EndAction
         ./
 
     Token ::= '+' '+'
-        /.$BeginAction
+        /.
                     makeToken($_PLUS_PLUS);
-          $EndAction
         ./
 
     Token ::= '-' '-'
-        /.$BeginAction
+        /.
                     makeToken($_MINUS_MINUS);
-          $EndAction
         ./
 
     Token ::= '=' '='
-        /.$BeginAction
+        /.
                     makeToken($_EQUAL_EQUAL);
-          $EndAction
         ./
 
     Token ::= '<' '='
-        /.$BeginAction
+        /.
                     makeToken($_LESS_EQUAL);
-          $EndAction
         ./
 
     Token ::= '>' '='
-        /.$BeginAction
+        /.
                     makeToken($_GREATER_EQUAL);
-          $EndAction
         ./
 
     Token ::= '!' '='
-        /.$BeginAction
+        /.
                     makeToken($_NOT_EQUAL);
-          $EndAction
         ./
 
     Token ::= '<' '<'
-        /.$BeginAction
+        /.
                     makeToken($_LEFT_SHIFT);
-          $EndAction
         ./
 
     Token ::= '>' '>'
-        /.$BeginAction
+        /.
                     makeToken($_RIGHT_SHIFT);
-          $EndAction
         ./
 
     Token ::= '>' '>' '>'
-        /.$BeginAction
+        /.
                     makeToken($_UNSIGNED_RIGHT_SHIFT);
-          $EndAction
         ./
 
     Token ::= '+' '='
-        /.$BeginAction
+        /.
                     makeToken($_PLUS_EQUAL);
-          $EndAction
         ./
 
     Token ::= '-' '='
-        /.$BeginAction
+        /.
                     makeToken($_MINUS_EQUAL);
-          $EndAction
         ./
 
     Token ::= '*' '='
-        /.$BeginAction
+        /.
                     makeToken($_MULTIPLY_EQUAL);
-          $EndAction
         ./
 
     Token ::= '/' '='
-        /.$BeginAction
+        /.
                     makeToken($_DIVIDE_EQUAL);
-          $EndAction
         ./
 
     Token ::= '&' '='
-        /.$BeginAction
+        /.
                     makeToken($_AND_EQUAL);
-          $EndAction
         ./
 
     Token ::= '|' '='
-        /.$BeginAction
+        /.
                     makeToken($_OR_EQUAL);
-          $EndAction
         ./
 
     Token ::= '^' '='
-        /.$BeginAction
+        /.
                     makeToken($_XOR_EQUAL);
-          $EndAction
         ./
 
     Token ::= '%' '='
-        /.$BeginAction
+        /.
                     makeToken($_REMAINDER_EQUAL);
-          $EndAction
         ./
 
     Token ::= '<' '<' '='
-        /.$BeginAction
+        /.
                     makeToken($_LEFT_SHIFT_EQUAL);
-          $EndAction
         ./
 
     Token ::= '>' '>' '='
-        /.$BeginAction
+        /.
                     makeToken($_RIGHT_SHIFT_EQUAL);
-          $EndAction
         ./
 
     Token ::= '>' '>' '>' '='
-        /.$BeginAction
+        /.
                     makeToken($_UNSIGNED_RIGHT_SHIFT_EQUAL);
-          $EndAction
         ./
 
     Token ::= '|' '|'
-        /.$BeginAction
+        /.
                     makeToken($_OR_OR);
-          $EndAction
         ./
 
     Token ::= '&' '&'
-        /.$BeginAction
+        /.
                     makeToken($_AND_AND);
-          $EndAction
         ./
 
     IntegerLiteral -> Integer
@@ -500,7 +445,7 @@ $Rules
     Inside ::= Inside Stars NotSlashOrStar
              | Inside '/'
              | Inside NotSlashOrStar
-             | $empty
+             | %Empty
 
     Stars -> '*'
            | Stars '*'
@@ -508,7 +453,7 @@ $Rules
     SLC ::= '/' '/'
           | SLC NotEol
 
-    SLBody ::= $empty
+    SLBody ::= %Empty
              | SLBody NotDQ
 
     Integer -> Digit
@@ -638,4 +583,4 @@ $Rules
                      | '\' '"'
                      | '\' "'"
                      | '\' '\'
-$End
+%End

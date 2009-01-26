@@ -5,7 +5,7 @@
 package expandedjavaparser;
 
 import expandedjavaparser.Ast.*;
-import lpg.runtime.java.*;
+import lpg.runtime.*;
 
 /**
  * @author Gerry Fisher
@@ -13,7 +13,7 @@ import lpg.runtime.java.*;
  */
 public class JavaResultVisitor extends AbstractResultVisitor
 {
-    PrsStream prsStream;
+    IPrsStream iPrsStream;
 	
     public Object unimplementedVisitor(String s) {
         System.out.println(s);
@@ -23,9 +23,9 @@ public class JavaResultVisitor extends AbstractResultVisitor
     /**
 	 * 
 	 */
-    public JavaResultVisitor(PrsStream prsStream)
+    public JavaResultVisitor(IPrsStream iPrsStream)
     {
-	this.prsStream = prsStream;
+	    this.iPrsStream = iPrsStream;
     }
 
     String getSpannedText(Ast node)
@@ -35,7 +35,7 @@ public class JavaResultVisitor extends AbstractResultVisitor
     	System.out.println(node.getClass().getName() + ": " + leftSpan + ".." + rightSpan);
     	return /*rightSpan < leftSpan
                          ? ""
-                         :*/  new String(prsStream.getInputChars(), leftSpan, rightSpan - leftSpan + 1);
+                         :*/  new String(iPrsStream.getInputChars(), leftSpan, rightSpan - leftSpan + 1);
 
 //        return prsStream.toString(node.getLeftIToken(), node.getRightIToken());
     }
@@ -43,7 +43,7 @@ public class JavaResultVisitor extends AbstractResultVisitor
 	public Object visit(CompilationUnit n) 
     {
 		System.out.println("The input file is: ");
-		System.out.println("\t" + prsStream.getLexStream().getFileName());
+		System.out.println("\t" + iPrsStream.getILexStream().getFileName());
     	if (n != null)
     	{
     		PackageDeclaration pkDecl = n.getPackageDeclarationopt();

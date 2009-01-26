@@ -6,8 +6,8 @@
 %options verbose
 %options la=2
 %options package=expandedjavaparser
-%options template=dtParserTemplateE.g
-%options import_terminals=JavaLexer.g
+%options template=dtParserTemplateF.gi
+%options import_terminals=JavaLexer.gi
 
 ------------------------------------------------------------------------
 --
@@ -23,14 +23,14 @@
 --
 ------------------------------------------------------------------------
 
-$Notice
+%Notice
     /.//
     // A copyright notice must contain a "C" enclosed in parentheses: (C) 
     //
     ./
-$End
+%End
 
-$Terminals
+%Terminals
     IDENTIFIER
 
     abstract boolean break byte case catch char class const
@@ -105,31 +105,31 @@ $Terminals
     COMMA     ::= ','
     DOT       ::= '.'
     EQUAL     ::= '='
-$End
+%End
 
-$EOL
+%EOL
     ;
-$End
+%End
 
-$Start
+%Start
     CompilationUnit
-$End
+%End
 
-$Recover
+%Recover
     ErrorID
-$End
+%End
 
-$Headers
+%Headers
     /.
         public IToken getPrevious(IToken tok)
         {
-            return getIToken(getPrevious(tok.getTokenIndex()));
+            return getIPrsStream().getIToken(getIPrsStream().getPrevious(tok.getTokenIndex()));
         }
         
         public IToken getDocComment(IToken token)
         {
             int token_index = token.getTokenIndex();
-            IToken[] adjuncts = getPrecedingAdjuncts(token_index);
+            IToken[] adjuncts = getIPrsStream().getPrecedingAdjuncts(token_index);
             int i = adjuncts.length - 1;
             IToken comment = (i >= 0 && adjuncts[i].getKind() == $sym_type.TK_DocComment
                                       ? adjuncts[i]
@@ -138,9 +138,9 @@ $Headers
         }
         
     ./
-$End
+%End
    
-$Rules
+%Rules
     --18.3 Productions from 3: Lexical Structure
     --
     -- Expand the definition IntegerLiteral and BooleanLiteral
@@ -288,7 +288,6 @@ $Rules
     --18.8.1 Productions from 8.1: Class Declarations
     ClassDeclaration ::= Modifiersopt 'class' 'IDENTIFIER'$Name Superopt Interfacesopt ClassBody
     /.
-        /* $identifier */
         private IToken docComment;
         public IToken getDocComment() { return docComment; }
             
@@ -854,73 +853,73 @@ $Rules
     -- The following rules are for optional nonterminals.
     --
     ---------------------------------------------------------------------------------------
-    PackageDeclarationopt ::= $empty
+    PackageDeclarationopt ::= %Empty
                             | PackageDeclaration
 
-    Superopt ::= $empty
+    Superopt ::= %Empty
                | Super
 
-    Expressionopt ::= $empty
+    Expressionopt ::= %Empty
                     | Expression
 
-    ClassBodyopt ::= $empty     --1.1 feature
+    ClassBodyopt ::= %Empty     --1.1 feature
                    | ClassBody  --1.1 feature
 
-    ImportDeclarationsopt$$ImportDeclaration ::= $empty
+    ImportDeclarationsopt$$ImportDeclaration ::= %Empty
                                                | ImportDeclarations
 
-    TypeDeclarationsopt$$TypeDeclaration ::= $empty
+    TypeDeclarationsopt$$TypeDeclaration ::= %Empty
                                            | TypeDeclarations
 
-    ClassBodyDeclarationsopt$$ClassBodyDeclaration ::= $empty
+    ClassBodyDeclarationsopt$$ClassBodyDeclaration ::= %Empty
                                                      | ClassBodyDeclarations
 
-    Modifiersopt$$Modifier ::= $empty
+    Modifiersopt$$Modifier ::= %Empty
                              | Modifiers
 
-    ExplicitConstructorInvocationopt ::= $empty
+    ExplicitConstructorInvocationopt ::= %Empty
                                        | ExplicitConstructorInvocation
 
-    BlockStatementsopt$$BlockStatement ::= $empty
+    BlockStatementsopt$$BlockStatement ::= %Empty
                                          | BlockStatements
 
-    Dimsopt$$Dim ::= $empty
+    Dimsopt$$Dim ::= %Empty
                    | Dims
 
-    ArgumentListopt$$Expression ::= $empty
+    ArgumentListopt$$Expression ::= %Empty
                                   | ArgumentList
 
-    Throwsopt$$ClassType ::= $empty
+    Throwsopt$$ClassType ::= %Empty
                            | Throws
 
-    FormalParameterListopt$$FormalParameter ::= $empty
+    FormalParameterListopt$$FormalParameter ::= %Empty
                                               | FormalParameterList
 
-    Interfacesopt$$InterfaceType ::= $empty
+    Interfacesopt$$InterfaceType ::= %Empty
                                    | Interfaces
 
-    InterfaceMemberDeclarationsopt$$InterfaceMemberDeclaration ::= $empty
+    InterfaceMemberDeclarationsopt$$InterfaceMemberDeclaration ::= %Empty
                                                                  | InterfaceMemberDeclarations
 
-    ForInitopt ::= $empty
+    ForInitopt ::= %Empty
                  | ForInit
 
-    ForUpdateopt$$StatementExpression ::= $empty
+    ForUpdateopt$$StatementExpression ::= %Empty
                                         | ForUpdate
 
-    ExtendsInterfacesopt$$InterfaceType ::= $empty
+    ExtendsInterfacesopt$$InterfaceType ::= %Empty
                                           | ExtendsInterfaces
 
-    Catchesopt$$CatchClause ::= $empty
+    Catchesopt$$CatchClause ::= %Empty
                               | Catches
     
-    VariableInitializersopt$$VariableInitializer ::= $empty
+    VariableInitializersopt$$VariableInitializer ::= %Empty
                                                    | VariableInitializers
 
-    SwitchBlockStatementsopt$$SwitchBlockStatement ::= $empty
+    SwitchBlockStatementsopt$$SwitchBlockStatement ::= %Empty
                                                      | SwitchBlockStatements
 
-    SwitchLabelsopt$$SwitchLabel ::= $empty
+    SwitchLabelsopt$$SwitchLabel ::= %Empty
                                    | SwitchLabels
 
     ---------------------------------------------------------------------------------------
@@ -935,11 +934,11 @@ $Rules
     --
     ---------------------------------------------------------------------------------------
 
-    Commaopt ::= $empty
+    Commaopt ::= %Empty
                | ,
 
-    IDENTIFIERopt ::= $empty
+    IDENTIFIERopt ::= %Empty
                     | IDENTIFIER
 
 
-$End
+%End
