@@ -1,7 +1,7 @@
 %options soft-keywords
 %options la=2
 %options package=softjavaparser
-%options template=btParserTemplateD.g
+%options template=btParserTemplateF.gi
 
 ------------------------------------------------------------------------
 --
@@ -17,7 +17,7 @@
 --
 ------------------------------------------------------------------------
 
-$Keywords
+%Keywords
 
     abstract boolean break byte case catch char class const
     continue default do double else extends false final finally float
@@ -27,15 +27,15 @@ $Keywords
     synchronized this throw throws transient true try void
     volatile while
 
-$End
+%End
 
-$Identifier
+%Identifier
 
     IDENTIFIER
 
-$End
+%End
 
-$Terminals
+%Terminals
 
     IntegerLiteral        -- the usual
     LongLiteral           -- IntegerLiteral followed by 'l' or 'L'
@@ -102,53 +102,49 @@ $Terminals
     DOT       ::= '.'
     EQUAL     ::= '='
 
-$End
+%End
 
-$EOL
+%EOL
     ;
-$End
+%End
 
-$Start
+%Start
     Goal
-$End
+%End
 
-$Rules
+%Rules
 
     --18.2 Productions from 2.3: The syntactic Grammar
 
     Goal ::= initialize CompilationUnit
-        /.$BeginAction
-                    $setSym1(new Ast());
-          $EndAction
+        /.
+                    setResult(new Ast());
         ./
 
     Goal ::= initialize ConstructorBody
-        /.$BeginAction
-                    $setSym1(new Ast());
-          $EndAction
+        /.
+                    setResult(new Ast());
         ./
 
-    initialize ::= $empty
-        /.$BeginJava
+    initialize ::= %Empty
+        /.
                     System.out.println("****Begin Parser: ");
                     System.out.flush();
-                    $setResult(null);
-          $EndJava
+                    setResult(null);
         ./
 
     identifier ::= IDENTIFIER
-        /.$BeginAction
-                    if (getKind($getToken(1)) != $sym_type.TK_IDENTIFIER)
+        /.
+                    if (getIPrsStream().getKind(getRhsTokenIndex(1)) != $sym_type.TK_IDENTIFIER)
                     {
                         System.out.println("Turning keyword " +
-                                           getName($getToken(1)) +
+                                           getIPrsStream().getName(getRhsTokenIndex(1)) +
                                            " at " +
-                                           getLine($getToken(1)) +
+                                           getIPrsStream().getLine(getRhsTokenIndex(1)) +
                                            ":" +
-                                           getColumn($getToken(1)) +
+                                           getIPrsStream().getColumn(getRhsTokenIndex(1)) +
                                            " into an identifier");
                     }
-          $EndAction
         ./
 
     --18.3 Productions from 3: Lexical Structure
@@ -917,20 +913,20 @@ $Rules
     --
     ---------------------------------------------------------------------------------------
 
-    PackageDeclarationopt ::= $empty
+    PackageDeclarationopt ::= %Empty
 
     PackageDeclarationopt ::= PackageDeclaration
 
-    Superopt ::= $empty
+    Superopt ::= %Empty
 
     Superopt ::= Super
 
-    Expressionopt ::= $empty
+    Expressionopt ::= %Empty
 
     Expressionopt ::= Expression
 
     --1.1 feature
-    ClassBodyopt ::= $empty
+    ClassBodyopt ::= %Empty
 
     --1.1 feature
     ClassBodyopt ::= ClassBody
@@ -947,68 +943,68 @@ $Rules
     --
     ---------------------------------------------------------------------------------------
 
-    ,opt ::= $empty
+    ,opt ::= %Empty
 
     ,opt ::= ,
 
-    ImportDeclarationsopt ::= $empty
+    ImportDeclarationsopt ::= %Empty
 
     ImportDeclarationsopt ::= ImportDeclarations
 
-    TypeDeclarationsopt ::= $empty
+    TypeDeclarationsopt ::= %Empty
 
     TypeDeclarationsopt ::= TypeDeclarations
 
-    ClassBodyDeclarationsopt ::= $empty
+    ClassBodyDeclarationsopt ::= %Empty
 
     ClassBodyDeclarationsopt ::= ClassBodyDeclarations
 
-    Modifiersopt ::= $empty
+    Modifiersopt ::= %Empty
 
     Modifiersopt ::= Modifiers
 
-    BlockStatementsopt ::= $empty
+    BlockStatementsopt ::= %Empty
 
     BlockStatementsopt ::= BlockStatements
 
-    Dimsopt ::= $empty
+    Dimsopt ::= %Empty
 
     Dimsopt ::= Dims
 
-    ArgumentListopt ::= $empty
+    ArgumentListopt ::= %Empty
 
     ArgumentListopt ::= ArgumentList
 
-    Throwsopt ::= $empty
+    Throwsopt ::= %Empty
 
     Throwsopt ::= Throws
 
-    FormalParameterListopt ::= $empty
+    FormalParameterListopt ::= %Empty
 
     FormalParameterListopt ::= FormalParameterList
 
-    Interfacesopt ::= $empty
+    Interfacesopt ::= %Empty
 
     Interfacesopt ::= Interfaces
 
-    InterfaceMemberDeclarationsopt ::= $empty
+    InterfaceMemberDeclarationsopt ::= %Empty
 
     InterfaceMemberDeclarationsopt ::= InterfaceMemberDeclarations
 
-    ForInitopt ::= $empty
+    ForInitopt ::= %Empty
 
     ForInitopt ::= ForInit
 
-    ForUpdateopt ::= $empty
+    ForUpdateopt ::= %Empty
 
     ForUpdateopt ::= ForUpdate
 
-    ExtendsInterfacesopt ::= $empty
+    ExtendsInterfacesopt ::= %Empty
 
     ExtendsInterfacesopt ::= ExtendsInterfaces
 
-    Catchesopt ::= $empty
+    Catchesopt ::= %Empty
 
     Catchesopt ::= Catches
 
-$End
+%End

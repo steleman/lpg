@@ -2,7 +2,6 @@ package softjavaparser;
 
 import expandedjavaparser.JavaLexer;
 import expandedjavaparser.Option;
-import lpg.examples.java.expr3.*;
 
 public class Main
 {
@@ -30,17 +29,17 @@ public class Main
 
             t1 = System.currentTimeMillis();
 
-            java_lexer = new JavaLexer(option); // Create the lexer
+            java_lexer = new JavaLexer(option.getFileName()); // Create the lexer
             
             t2 = System.currentTimeMillis();
 
-            java_parser = new SoftJavaParser(java_lexer); // create the parser
+            java_parser = new SoftJavaParser(java_lexer.getILexStream()); // create the parser
 
             t3 = System.currentTimeMillis();
             
             System.out.println("****Begin lexer: ");
 
-            java_lexer.lexer(java_parser); // Lex the stream to produce the token stream
+            java_lexer.lexer(java_parser.getIPrsStream()); // Lex the stream to produce the token stream
 
             t4 = System.currentTimeMillis();
             
@@ -62,18 +61,18 @@ public class Main
             if (option.dumpTokens())
             {
                 System.out.println("\n****Output Tokens: \n");
-                java_parser.dumpTokens();
+                java_parser.getIPrsStream().dumpTokens();
             }
 
             System.out.println("\n****Parsing statistics: \n");
-            System.out.println("****File length = " + java_lexer.getStreamLength());
-            System.out.println("****Number of Lines = " + (java_lexer.getLineCount() - 1));
+            System.out.println("****File length = " + java_lexer.getILexStream().getStreamLength());
+            System.out.println("****Number of Lines = " + (java_lexer.getILexStream().getLineCount() - 1));
             System.out.println("****Lexer Construction + input time :" + (t2 - t1));
             System.out.println("****Parser Construction time :" + (t3 - t2));           
             System.out.println("****Lexing time :" + (t4 - t3));
             System.out.println("****Parsing time :" + (t5 - t4));
             System.out.println("****Total time :" + (t5 - t1));
-            System.out.println("****Number of tokens : " + java_parser.getTokens().size());
+            System.out.println("****Number of tokens : " + java_parser.getIPrsStream().getTokens().size());
             System.out.println("****Initial Max Memory:    \t " + r1 + ", used: " + (r1 - f1));
             System.out.println("****After Parse Max Memory:\t " + r2 + ", used: " + (r2 - f2));
             System.out.println("****After GC Max Memory:\t " + r3 + ", used: " + (r3 - f3));
