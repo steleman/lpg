@@ -5,7 +5,6 @@
 package expr2;
 
 import expr2.ExprAst.*;
-import lpg.runtime.*;
 
 /**
  * @author Gerry Fisher

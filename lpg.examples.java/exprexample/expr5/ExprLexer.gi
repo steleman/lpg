@@ -6,15 +6,15 @@
 %Options fp=ExprLexer,prefix=Char_
 %options single-productions
 %options noserialize
-%options package=lpg.examples.java.expr3
-%options template=LexerTemplateE.g
+%options package=expr5
+%options template=LexerTemplateF.gi
 %options export_terminals=("ExprParsersym.java", "TK_")
 
-$Include
-    LexerVeryBasicMap.g
-$End
+%Include
+    LexerVeryBasicMapF.gi
+%End
 
-$Export
+%Export
 
     IntegerLiteral
     PLUS
@@ -22,9 +22,9 @@ $Export
     LPAREN
     RPAREN
 
-$End
+%End
 
-$Terminals
+%Terminals
     CtlCharNotWS
 
     LF   CR   HT   FF
@@ -76,17 +76,17 @@ $Terminals
     RightParen   ::= ')'
     Equal        ::= '='
 
-$End
+%End
 
-$Eof
+%Eof
     EOF
-$End
+%End
 
-$Start
+%Start
     Token
-$End
+%End
 
-$Rules
+%Rules
 
     ---------------------  Rules for Scanned Tokens --------------------------------
     -- The lexer creates an array list of tokens which is defined in the PrsStream class.
@@ -102,35 +102,29 @@ $Rules
     -- method getRhsFirstToken(i) returns the location of the leftmost character derived from Ai.  
     --------------------------------------------------------------------------------
    Token ::= IntegerLiteral
-        /.$BeginAction
+        /.
                     makeToken($_IntegerLiteral);
-          $EndAction
         ./
     Token ::= '+'
-        /.$BeginAction
+        /.
                     makeToken($_PLUS);
-          $EndAction
         ./
     Token ::= '*'
-        /.$BeginAction
+        /.
                     makeToken($_MULTIPLY);
-          $EndAction
         ./
     Token ::= '('
-        /.$BeginAction
+        /.
                     makeToken($_LPAREN);
-          $EndAction
         ./
 
     Token ::= ')'
-        /.$BeginAction
+        /.
                     makeToken($_RPAREN);
-          $EndAction
         ./
     Token ::= WS -- White Space is scanned but not added to output vector
-        /.$BeginAction
+        /.
                     skipToken();
-          $EndAction
         ./
     IntegerLiteral -> Integer
                     | Integer LetterLl
@@ -165,4 +159,4 @@ $Rules
     WS -> WSChar
         | WS WSChar
 
-$End
+%End

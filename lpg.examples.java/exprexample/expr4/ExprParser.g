@@ -2,41 +2,37 @@
 %options ast_type=Integer
 %options programming_language=java
 %options package=expr4
-%options template=dtParserTemplateE.g
-%options import_terminals=ExprLexer.g
+%options template=dtParserTemplateF.gi
+%options import_terminals=ExprLexer.gi
 
-$Terminals
+%Terminals
     PLUS ::= +
     MULTIPLY ::= *
     LPAREN ::= (
     RPAREN ::= )
-$end
+%end
 
-$Types
+%Types
     Integer ::= E | T | F
-$End
+%End
 
-$Rules
+%Rules
     E ::= E + T
-        /.$BeginJava
+        /.
                     setResult(new Integer(E.intValue() + T.intValue()));
-          $EndJava
         ./
         | T
     T ::= T * F
-        /.$BeginJava
+        /.
                     setResult(new Integer(T.intValue() * F.intValue()));
-          $EndJava
         ./
         | F
     F ::= IntegerLiteral$number
-        /.$BeginJava
+        /.
                     setResult(new Integer(number.toString()));
-          $EndJava
         ./
     F$ParenExpr ::= ( E )
-        /.$BeginJava
+        /.
                     setResult(E);
-          $EndJava
         ./
-$End
+%End

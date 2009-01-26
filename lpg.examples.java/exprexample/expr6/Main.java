@@ -1,5 +1,7 @@
 package expr6;
 
+import expr6.ExprAst.*;
+
 public class Main
 {
 	public static void main(String[] args)
@@ -12,16 +14,21 @@ public class Main
         try
         {
             option = new Option(args);
-            Expr_lexer = new ExprLexer(option); // Create the lexer
-            Expr_parser = new ExprParser(Expr_lexer);	// Create the parser
-            Expr_lexer.lexer(Expr_parser); // Lex the stream to produce the token stream
+            Expr_lexer = new ExprLexer(option.getFileName()); // Create the lexer
+            Expr_parser = new ExprParser(Expr_lexer.getILexStream());	// Create the parser
+            Expr_lexer.lexer(Expr_parser.getIPrsStream()); // Lex the stream to produce the token stream
             if (option.dumpTokens())
             {
                 System.out.println("\n****Output Tokens: \n");
-                Expr_parser.dumpTokens();
+                Expr_parser.getIPrsStream().dumpTokens();
             }
+            
             // Parse the token stream creating an Ast and then visit the Ast to obtain the result
-            System.out.println(Expr_visitor.visitAst(Expr_parser.parser()));
+            Ast ast = Expr_parser.parser();
+            if (ast == null) 
+                 System.out.println("****Failure");
+            else Expr_visitor.visitAst(ast);
+
             return;
         }
         catch (Exception e)

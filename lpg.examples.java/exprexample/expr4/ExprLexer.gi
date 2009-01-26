@@ -1,16 +1,19 @@
 --
--- The EXPR Lexer
+-- The Java Lexer
 --
+
 %Options la=2
-%options package=lpg.examples.java.expr1
-%options fp=ExprLexer
-%options template=LexerTemplateD.g
+%Options fp=ExprLexer,prefix=Char_
+%options single-productions
+%options package=expr4
+%options template=LexerTemplateF.gi
+%options export_terminals=("ExprParsersym.java", "TK_")
 
-$Include
-    LexerVeryBasicMap.g
-$End
+%Include
+    LexerVeryBasicMapF.gi
+%End
 
-$Export
+%Export
 
     IntegerLiteral
     PLUS
@@ -18,9 +21,9 @@ $Export
     LPAREN
     RPAREN
 
-$End
+%End
 
-$Terminals
+%Terminals
     CtlCharNotWS
 
     LF   CR   HT   FF
@@ -72,43 +75,55 @@ $Terminals
     RightParen   ::= ')'
     Equal        ::= '='
 
-$End
+%End
 
-$Start
+%Eof
+    EOF
+%End
+
+%Start
     Token
-$End
+%End
 
-$Rules
+%Rules
+
+    ---------------------  Rules for Scanned Tokens --------------------------------
+    -- The lexer creates an array list of tokens which is defined in the PrsStream class.
+    -- A token has three attributes: a start offset, an end offset and a kind.
+    -- 
+    -- Only rules that produce complete tokens have actions to create token objects.
+    -- When making a token, calls to the methods, $getToken(1) and $getRightSpan(), 
+    -- provide the offsets (i.e. the span) of a rule's right hand side (rhs) and thus of the token.
+    -- For a rule of the form A ::= A1 A2 ... An, the start offset of the rhs of A is given by
+    -- getToken(1) or by getLeftToken() and the end offset by getRightToken().
+    --  
+    -- Regarding rules for parsing in general, note that for a rhs symbol Ai, the 
+    -- method getRhsFirstToken(i) returns the location of the leftmost character derived from Ai.  
+    --------------------------------------------------------------------------------
    Token ::= IntegerLiteral
-        /.$BeginAction
+        /.
                     makeToken($_IntegerLiteral);
-          $EndAction
         ./
     Token ::= '+'
-        /.$BeginAction
+        /.
                     makeToken($_PLUS);
-          $EndAction
         ./
     Token ::= '*'
-        /.$BeginAction
+        /.
                     makeToken($_MULTIPLY);
-          $EndAction
         ./
     Token ::= '('
-        /.$BeginAction
+        /.
                     makeToken($_LPAREN);
-          $EndAction
         ./
 
     Token ::= ')'
-        /.$BeginAction
+        /.
                     makeToken($_RPAREN);
-          $EndAction
         ./
     Token ::= WS -- White Space is scanned but not added to output vector
-        /.$BeginAction
+        /.
                     skipToken();
-          $EndAction
         ./
     IntegerLiteral -> Integer
                     | Integer LetterLl
@@ -143,4 +158,4 @@ $Rules
     WS -> WSChar
         | WS WSChar
 
-$End
+%End

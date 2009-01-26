@@ -1,21 +1,21 @@
 %options ast_directory=./ExprAst,automatic_ast=toplevel,variables=nt,visitor=default,states
 %options programming_language=java
 %options package=expr1
-%options template=dtParserTemplateD.g
-%options import_terminals=ExprLexer.g
+%options template=dtParserTemplateF.gi
+%options import_terminals=ExprLexer.gi
 
-$Terminals
+%Terminals
     PLUS ::= +
     MULTIPLY ::= *
     LPAREN ::= (
     RPAREN ::= )
-$end
+%end
 
-$Rules
+%Rules
     E ::= E + T
             | T
     T ::= T * F
         | F
     F ::= IntegerLiteral$Number
     F$ParenExpr ::= ( E )
-$End
+%End

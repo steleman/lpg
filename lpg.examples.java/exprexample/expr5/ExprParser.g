@@ -1,29 +1,29 @@
 %options ast_directory=./ExprAst,automatic_ast=toplevel,variables=nt,visitor=preorder
 %options programming_language=java
 %options package=expr5
-%options template=dtParserTemplateD.g
-%options import_terminals=ExprLexer.g
+%options template=dtParserTemplateF.gi
+%options import_terminals=ExprLexer.gi
 
-$Terminals
+%Terminals
     PLUS ::= +
     MULTIPLY ::= *
     LPAREN ::= (
     RPAREN ::= )
-$end
+%end
 
-$Ast
+%Ast
     /.
         int value;
         public int getValue() { return value; }
         public void setValue(int value) { this.value = value; }
     ./
-$End
+%End
 
-$Rules
+%Rules
     E ::= E + T
         | T
     T ::= T * F
         | F
     F ::= IntegerLiteral
     F$ParenExpr ::= ( E )
-$End
+%End

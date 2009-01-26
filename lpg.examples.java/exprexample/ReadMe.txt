@@ -22,3 +22,6 @@ Expr4:
 Expr5:
     Same as Expr2 except that it uses the new PREORDER visitor instead of
     the DEFAULT visitor.
+    
+Expr6: accepts a comma-seperated list of expressions as input
+    

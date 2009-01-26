@@ -19,7 +19,8 @@ import java.util.Stack;
 
 public class ExprVisitor extends AbstractVisitor {
 
-	Stack evalStack = new Stack();
+	Stack<Ast> exprStack = new Stack<Ast>();
+	Stack<Integer> evalStack = new Stack<Integer>();
 	
 	public String visitAst(Ast ast) { 
 		if (ast != null)
@@ -27,13 +28,10 @@ public class ExprVisitor extends AbstractVisitor {
 			ast.accept(this);
 			
 			for (int j = 0; j < evalStack.size(); j++)
-			{
-				System.out.println("***The value of the expression is: " + getValue(j).toString());
-			}
-			return "****Success";
+                System.out.println(exprStack.get(j).toString() + " = " + evalStack.get(j).toString());
+            return "****Success";
 		}
-		else
-			return "****No Values";
+		else return "****No Values";
 	}
 	
 	public void unimplementedVisitor(String s) {
@@ -41,7 +39,6 @@ public class ExprVisitor extends AbstractVisitor {
 	}
 
     public boolean visit(EList expr_list) { return true; }
-
     public void endVisit(EList expr_list) {  }
 
     public boolean visit(E expr) { return true; }
@@ -49,6 +46,9 @@ public class ExprVisitor extends AbstractVisitor {
     {
         int t = ((Integer)evalStack.pop()).intValue();
         int e = ((Integer)evalStack.pop()).intValue();
+        exprStack.pop();
+        exprStack.pop();
+        exprStack.push(expr);
         evalStack.push(new Integer(e + t));
     }
 
@@ -57,20 +57,21 @@ public class ExprVisitor extends AbstractVisitor {
     {
         int f = ((Integer)evalStack.pop()).intValue();
         int t = ((Integer)evalStack.pop()).intValue();
+        exprStack.pop();
+        exprStack.pop();
+        exprStack.push(expr);
         evalStack.push(new Integer(t * f));
     }
 
     public boolean visit(F expr) { return true; }
     public void endVisit(F expr) 
     {
+        exprStack.push(expr);
         evalStack.push(new Integer(expr.getIToken().toString()));
     }
 
     public boolean visit(ParenExpr expr) { return true; }
-
     public void endVisit(ParenExpr expr) {  }
-
-    public Integer getValue() { return (Integer)evalStack.peek();}
 
     public Integer getValue(int i) { return (Integer)evalStack.get(i);}
 }

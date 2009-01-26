@@ -2,18 +2,18 @@
 %options fp=ExprParser,prefix=TK_
 %options programming_language=java
 %options package=expr6
-%options template=dtParserTemplateD.g
-%options import_terminals=ExprLexer.g
+%options template=dtParserTemplateF.gi
+%options import_terminals=ExprLexer.gi
 
-$Terminals
+%Terminals
     PLUS     ::= +
     MULTIPLY ::= *
     LPAREN   ::= (
     RPAREN   ::= )
     COMMA    ::= ,
-$end
+%end
 
-$Rules
+%Rules
     EL$$E ::= E
             | EL , E
 
@@ -26,4 +26,4 @@ $Rules
     F ::= IntegerLiteral
 
     F$ParenExpr ::= ( E )
-$End
+%End

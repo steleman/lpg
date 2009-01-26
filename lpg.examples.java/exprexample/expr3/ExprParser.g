@@ -2,26 +2,26 @@
 %options automatic_ast=toplevel
 %options variables=nt
 %options package=expr3
-%options template=dtParserTemplateD.g
-%options import_terminals=ExprLexer.g
+%options template=dtParserTemplateF.gi
+%options import_terminals=ExprLexer.gi
 
-$Terminals
+%Terminals
     PLUS ::= +
     MULTIPLY ::= *
     LPAREN ::= (
     RPAREN ::= )
     
-$end
+%end
 
-$Ast
+%Ast
     /.
         int value;
         public int getValue() { return value; }
         protected void setValue(int value) { this.value = value; }
     ./
-$End
+%End
 
-$Rules
+%Rules
     E ::= E + T
     /.
         void initialize()
@@ -52,4 +52,4 @@ $Rules
             setValue(((Ast) getE()).getValue());
         }
     ./
-$End
+%End
