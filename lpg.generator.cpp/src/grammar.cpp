@@ -1407,7 +1407,7 @@ void Grammar::ProcessRules(Tuple<int> &declared_terminals)
     //
     //     prostheticAst[i] = new ProstheticAst() { Ast create(Token error_token) { return null; } }
     //
-    // A prosthesis is creted by invoking:
+    // A prosthesis is created by invoking:
     //
     //     prostheticAst[i].create(the_error_token);
     //

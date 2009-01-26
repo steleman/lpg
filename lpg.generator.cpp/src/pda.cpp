@@ -772,7 +772,7 @@ void Pda::MakeReductions(void)
         msg.Next() = "Output file \"";
         msg.Next() = option -> grm_file;
         msg.Next() = " is not LR(K).";
-        option -> EmitError(0, msg);
+        option -> EmitWarning(0, msg);
 
         for (int symbol = grammar -> FirstNonTerminal(); symbol <= grammar -> LastNonTerminal(); symbol++)
         {
@@ -804,33 +804,49 @@ void Pda::MakeReductions(void)
     }
     else
     {
-	LexStream *ls = grammar -> GetLexStream();
+        LexStream *ls = grammar -> GetLexStream();
 
         if (num_reduce_reduce_conflicts > 0 || num_shift_reduce_conflicts > 0)
         {
-	    Tuple<const char *> msg;
+            Tuple<const char *> msg;
 
-	    msg.Next() = "Grammar is not ";
+            msg.Next() = "Grammar is not ";
             if (! option -> slr)
             {
                 if (highest_level != Util::INFINITY)
                 {
-		    IntToString hl_str(highest_level);
+                    IntToString hl_str(highest_level);
 
-		    msg.Next() = "LALR(";
-		    msg.Next() = hl_str.String();
-		    msg.Next() = ").";
+                    msg.Next() = "LALR(";
+                    msg.Next() = hl_str.String();
+                    msg.Next() = ")";
                 }
-                else msg.Next() = " LALR(K).";
+                else msg.Next() = " LALR(K)";
             }
-            else msg.Next() = " SLR(1).";
-	    option -> EmitWarning(ls -> GetTokenReference(grammar -> rules[0].first_token_index), msg);
+            else msg.Next() = " SLR(1)";
+            msg.Next() = " - it contains ";
+            IntToString rr_count(num_reduce_reduce_conflicts);
+            IntToString sr_count(num_shift_reduce_conflicts);
+            if (num_reduce_reduce_conflicts > 0)
+            {
+                msg.Next() = rr_count.String();
+                msg.Next() = " reduce/reduce conflicts";
+                if (num_shift_reduce_conflicts > 0)
+                    msg.Next() = " and ";
+            }
+            if (num_shift_reduce_conflicts > 0)
+            {
+                msg.Next() = sr_count.String();
+                msg.Next() = " shift/reduce conflicts";
+            }
+            msg.Next() = ".";
+            option -> EmitWarning(ls -> GetTokenReference(grammar -> rules[0].first_token_index), msg);
         }
         else if (! option -> quiet)
         {
-	    Tuple<const char *> msg;
+            Tuple<const char *> msg;
 
-	    msg.Next() = "Grammar is ";
+            msg.Next() = "Grammar is ";
 
             if (highest_level == 0)
                 msg.Next() = " LR(0).";
@@ -838,13 +854,13 @@ void Pda::MakeReductions(void)
                 msg.Next() = " SLR(1).";
             else
             {
-		IntToString hl_str(highest_level);
+                IntToString hl_str(highest_level);
 
                 msg.Next() = " LALR(";
-		msg.Next() = hl_str.String();
+                msg.Next() = hl_str.String();
                 msg.Next() = ").";
             }
-	    option -> EmitInformative(ls -> GetTokenReference(grammar -> rules[0].first_token_index), msg);
+            option -> EmitInformative(ls -> GetTokenReference(grammar -> rules[0].first_token_index), msg);
         }
     }
 
