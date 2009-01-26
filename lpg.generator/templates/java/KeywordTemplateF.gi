@@ -61,7 +61,7 @@
 
 %Headers
     /.
-    public class $action_type extends $prs_type // implements $exp_type
+    public class $action_type extends $prs_type
     {
         private char[] inputChars;
         private final int keywordKind[] = new int[$num_rules + 1];

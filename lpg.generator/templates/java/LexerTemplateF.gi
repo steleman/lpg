@@ -65,16 +65,16 @@
     /.
                 //
                 // Rule $rule_number:  $rule_text
-                //./
+                //
+                ./
 
     $DefaultAction
-    /. $Header
-                case $rule_number: { ./
+    /.$Header$case $rule_number: { ./
 
     $BeginAction /.$DefaultAction./
 
     $EndAction
-    /.                break;
+    /.            break;
                 }./
 
     $BeginJava
@@ -84,8 +84,7 @@
     $EndJava /.$EndAction./
 
     $NoAction
-    /. $Header
-                case $rule_number:
+    /.$Header$case $rule_number:
                     break; ./
 
     $BeginActions
@@ -185,7 +184,12 @@
 
         public $action_type() {}
 
-        public LexStream getLexStream() { return lexStream; }
+        public ILexStream getILexStream() { return lexStream; }
+
+        /**
+         * @deprecated replaced by {@link #getILexStream()}
+         */
+        public ILexStream getLexStream() { return lexStream; }
 
         private void initializeLexer($prs_stream_class prsStream, int start_offset, int end_offset)
         {

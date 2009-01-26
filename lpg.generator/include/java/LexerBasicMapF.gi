@@ -48,7 +48,7 @@
         {
             int startOffset = getLeftSpan(),
                 endOffset = getRightSpan();
-            lexStream.getPrsStream().makeAdjunct(startOffset, endOffset, kind);
+            lexStream.getIPrsStream().makeAdjunct(startOffset, endOffset, kind);
         }
 
         final void skipToken()

@@ -30,11 +30,11 @@
     /.
                 //
                 // Rule $rule_number:  $rule_text
-                //./
+                //
+                ./
 
     $BeginAction
-    /. $Header
-                case $rule_number: {./
+    /.$Header$case $rule_number: {./
 
     $EndAction
     /.                break;
@@ -47,18 +47,15 @@
     $EndJava /.$EndAction./
 
     $NoAction
-    /. $Header
-                case $rule_number:
+    /.$Header$case $rule_number:
                     break;./
 
     $BadAction
-    /. $Header
-                case $rule_number:
+    /.$Header$case $rule_number:
                     throw new Error("No action specified for rule " + $rule_number);./
 
     $NullAction
-    /. $Header
-                case $rule_number:
+    /.$Header$case $rule_number:
                     setResult(null);
                     break;./
 
@@ -264,6 +261,18 @@
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
         public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }
         public int getEOFTokenKind() { return prsTable.getEoftSymbol(); }
+        public IPrsStream getIPrsStream() { return prsStream; }
+
+        /**
+         * @deprecated replaced by {@link #getIPrsStream()}
+         *
+         */
+        public PrsStream getPrsStream() { return prsStream; }
+
+        /**
+         * @deprecated replaced by {@link #getIPrsStream()}
+         *
+         */
         public PrsStream getParseStream() { return prsStream; }
 
         public $ast_class parser()
