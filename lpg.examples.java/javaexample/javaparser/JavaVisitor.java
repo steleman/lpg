@@ -11,7 +11,7 @@ import javaparser.JavaParser.IName;
 import javaparser.JavaParser.ImportDeclarationList;
 import javaparser.JavaParser.PackageDeclaration;
 
-import lpg.runtime.java.PrsStream;
+import lpg.runtime.IPrsStream;
 
 /**
  * @author Gerry Fisher
@@ -19,11 +19,11 @@ import lpg.runtime.java.PrsStream;
  */
 public class JavaVisitor extends AbstractVisitor 
 {
-    PrsStream prsStream;
+    IPrsStream iPrsStream;
 	
-    public JavaVisitor(PrsStream prsStream)
+    public JavaVisitor(IPrsStream iPrsStream)
 	{
-		this.prsStream = prsStream;
+		this.iPrsStream = iPrsStream;
 	}
 	
 	//ArrayList importDecls;
@@ -32,13 +32,13 @@ public class JavaVisitor extends AbstractVisitor
     {
     	int leftSpan = node.getLeftIToken().getStartOffset();
     	int rightSpan = node.getRightIToken().getEndOffset();
-    	return new String(prsStream.getInputChars(), leftSpan, rightSpan - leftSpan + 1);
+    	return new String(iPrsStream.getInputChars(), leftSpan, rightSpan - leftSpan + 1);
     }
 	
 	public void visit(CompilationUnit n) 
     {
 		System.out.println("The input file is: ");
-		System.out.println("\t" + prsStream.getLexStream().getFileName());
+		System.out.println("\t" + iPrsStream.getILexStream().getFileName());
 
         PackageDeclaration pkDecl = n.getPackageDeclarationopt();
     	String[] pkgName = new String[1];

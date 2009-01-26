@@ -5,7 +5,7 @@
 package javaparser;
 
 import javaparser.JavaParser.*;
-import lpg.runtime.java.*;
+import lpg.runtime.*;
 
 /**
  * @author Gerry Fisher
@@ -13,7 +13,7 @@ import lpg.runtime.java.*;
  */
 public class JavaResultVisitor extends AbstractResultVisitor
 {
-    PrsStream prsStream;
+    IPrsStream iPrsStream;
 	
     public Object unimplementedVisitor(String s) {
         System.out.println(s);
@@ -23,22 +23,15 @@ public class JavaResultVisitor extends AbstractResultVisitor
     /**
 	 * 
 	 */
-    public JavaResultVisitor(PrsStream prsStream)
+    public JavaResultVisitor(IPrsStream iPrsStream)
 	{
-		this.prsStream = prsStream;
+		this.iPrsStream = iPrsStream;
 	}
 
-	String getSpannedText(Ast node)
-    {
-    	int leftSpan = node.getLeftIToken().getStartOffset();
-    	int rightSpan = node.getRightIToken().getEndOffset();
-    	return new String(prsStream.getInputChars(), leftSpan, rightSpan - leftSpan + 1);
-    }
-	
 	public Object visit(CompilationUnit n) 
     {
 		System.out.println("The input file is: ");
-		System.out.println("\t" + prsStream.getLexStream().getFileName());
+		System.out.println("\t" + iPrsStream.getILexStream().getFileName());
     	if (n != null)
     	{
     		PackageDeclaration pkDecl = n.getPackageDeclarationopt();
@@ -53,7 +46,7 @@ public class JavaResultVisitor extends AbstractResultVisitor
             if (importDecls.size() > 0)
             {
                 for (int i = 0; i < importDecls.size(); i++)
-                    System.out.println(getSpannedText((Ast)(importDecls.getImportDeclarationAt(i))));
+                    System.out.println(importDecls.getImportDeclarationAt(i).toString());
             }
             else System.out.println("There are no import declarations");
 
@@ -71,7 +64,7 @@ public class JavaResultVisitor extends AbstractResultVisitor
 	
     public Object visit(PackageDeclaration n) 
     {
-    	return getSpannedText((Ast)n.getName());
+    	return n.getName().toString();
     }
 
     public Object visit(EmptyDeclaration n)
@@ -87,12 +80,12 @@ public class JavaResultVisitor extends AbstractResultVisitor
     	InterfaceTypeList interfacesOpt = n.getInterfacesopt();
     	
     	if (modifiers.size() > 0) 
-    		System.out.print(getSpannedText((Ast)modifiers) + " ");
-    	System.out.print( "class " + getSpannedText((AstToken) n.getName()));
+    		System.out.print(modifiers.toString() + " ");
+    	System.out.print( "class " + n.getName().toString());
     	if (superOpt != null)
-    		System.out.print(" " + getSpannedText((Ast)superOpt));
+    		System.out.print(" " + superOpt.toString());
     	if (interfacesOpt.size() > 0)
-    		System.out.print(" " + getSpannedText((Ast)interfacesOpt));
+    		System.out.print(" implements " + interfacesOpt.toString());
     	System.out.println(" { ... }");
     	
     	return null;
@@ -103,11 +96,11 @@ public class JavaResultVisitor extends AbstractResultVisitor
     	ModifierList modifiers = n.getModifiersopt();
     	InterfaceTypeList extendsOpt = n.getExtendsInterfacesopt();
 
-    	if (modifiers != null) 
-    		System.out.print(getSpannedText((Ast)modifiers) + " ");
-    	System.out.print( "interface " + getSpannedText((AstToken) n.getName()));
+    	if (modifiers.size() > 0) 
+    		System.out.print(modifiers.toString() + " ");
+    	System.out.print("interface " + n.getName().toString());
     	if (extendsOpt != null)
-    		System.out.print(" " + getSpannedText((Ast)extendsOpt));
+    		System.out.print(" extends " + extendsOpt.toString());
     	System.out.println(" { ... }");
     	
     	return null;
