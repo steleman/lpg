@@ -4,11 +4,10 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import genericjavaparser.JavaLexer;
-import lpg.runtime.java.Differ;
-import lpg.runtime.java.DifferLines;
-import lpg.runtime.java.DifferTokens;
-import lpg.runtime.java.LexStream;
-import lpg.runtime.java.PrsStream;
+import lpg.runtime.Differ;
+import lpg.runtime.DifferLines;
+import lpg.runtime.DifferTokens;
+import lpg.runtime.PrsStream;
 
 public class Main
 {
@@ -26,10 +25,10 @@ public class Main
             JavaLexer old_lexer = new JavaLexer(old_file),
                       new_lexer = new JavaLexer(new_file);
 
-            PrsStream old_stream = new PrsStream(old_lexer);
+            PrsStream old_stream = new PrsStream(old_lexer.getILexStream());
             old_lexer.lexer(old_stream);
 
-            PrsStream new_stream = new PrsStream(new_lexer);
+            PrsStream new_stream = new PrsStream(new_lexer.getILexStream());
             new_lexer.lexer(new_stream);
 
             Differ diff = (differ_tokens ? (Differ) new DifferTokens(old_stream, new_stream)

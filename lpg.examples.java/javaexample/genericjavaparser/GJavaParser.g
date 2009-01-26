@@ -1,25 +1,25 @@
 %options fp=JavaParser
-%options list
+%options states,list
 %options package=genericjavaparser
-%options template=btParserTemplateD.g
-%options import_terminals=GJavaLexer.g
+%options template=btParserTemplateF.gi
+%options import_terminals=GJavaLexer.gi
 
-$Notice
+%Notice
     /.//
     // This is the grammar specification from the Final Draft of the generic spec.
     //./
-$End 
+%End 
 
-$Globals
+%Globals
     /.
     import java.lang.*;./
-$End
+%End
 
-$Identifier
+%Identifier
     IDENTIFIER
-$End
+%End
 
-$Keywords
+%Keywords
     abstract
     assert
     boolean
@@ -71,9 +71,9 @@ $Keywords
     while 
     false
     true
-$End
+%End
 
-$Terminals
+%Terminals
 
     IntegerLiteral        -- the usual
     LongLiteral           -- IntegerLiteral followed by 'l' or 'L'
@@ -98,8 +98,8 @@ $Terminals
     MINUS_EQUAL                ::= -=
     NOT                        ::= !
     NOT_EQUAL                  ::= !=
-    REMAINDER                  ::= %
-    REMAINDER_EQUAL            ::= %=  
+    REMAINDER                  ::= '%'
+    REMAINDER_EQUAL            ::= '%='
     AND                        ::= &
     AND_AND                    ::= && 
     AND_EQUAL                  ::= &= 
@@ -115,8 +115,8 @@ $Terminals
     SEMICOLON                  ::= ;
     QUESTION                   ::= ?
     AT                         ::= @  
-    LBRACKET                   ::= [
-    RBRACKET                   ::= ]
+    LBRACKET                   ::= '['
+    RBRACKET                   ::= ']'
     XOR                        ::= ^ 
     XOR_EQUAL                  ::= ^=
     LBRACE                     ::= {
@@ -140,21 +140,52 @@ $Terminals
     UNSIGNED_RIGHT_SHIFT       ::= >>>
     UNSIGNED_RIGHT_SHIFT_EQUAL ::= >>>=
     ELLIPSIS                   ::= ...
-$End
+%End
 
-$Start
+%Start
     CompilationUnit
-$End
+%End
 
-$Rules
+%Ast
+    /.
+        void CheckClassModifiers() {}
+        void CheckFieldModifiers() {}
+        void CheckVariableModifiers() {}
+        void CheckMethodModifiers() {}
+        void CheckConstructorModifiers() {}
+        void CheckInterfaceModifiers() {}
+        void CheckConstantModifiers() {}
+        void CheckAbstractMethodModifiers() {}
+    ./
+%End
+
+%Rules
+    Modifiersopt$$Modifier ::= %Empty
+                             | Modifiers
+    Modifiers$$Modifier ::= Modifier
+                          | Modifiers Modifier
+    Modifier ::= Annotation
+               | public
+               | protected
+               | private
+               | abstract
+               | static
+               | final
+               | strictfp 
+               | transient
+               | volatile
+               | synchronized
+               | native
+%End
+
+%Rules
 
     identifier ::= IDENTIFIER
-        /.$BeginAction
+        /.
                     if (getRhsIToken(1).getKind() != $prs_type.TK_IDENTIFIER)
                     {
-                         System.out.println("Turning keyword " + getRhsIToken(1).toString() + " into an identifier");
+                        System.out.println("Turning keyword " + getRhsIToken(1).toString() + " into an identifier");
                     }
-          $EndAction
         ./
 
     -- Chapter 4
@@ -198,7 +229,7 @@ $Rules
 
     TypeVariable ::= identifier
 
-    ArrayType ::= Type [ ]
+    ArrayType ::= Type '[' ']'
 
     TypeParameter ::= TypeVariable TypeBoundopt
 
@@ -250,9 +281,8 @@ $Rules
     -- Chapter 7
 
     CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
-        /.$BeginAction
+        /.
                     $setSym1(new Ast());
-          $EndAction
         ./
 
     ImportDeclarations ::= ImportDeclaration
@@ -280,18 +310,20 @@ $Rules
                       | InterfaceDeclaration
                       | ;
                       | ERROR_TOKEN
-        /.$BeginAction
-                    reportError(NO_MESSAGE_CODE,
-                                getRhsFirstTokenIndex(1),
-                                getRhsLastTokenIndex(1),
-                                new String[] { "Invalid Type Declaration" });
-          $EndAction
+        /.
+                    getIPrsStream().reportError(ParseErrorCodes.NO_MESSAGE_CODE,
+                                                getRhsFirstTokenIndex(1),
+                                                getRhsLastTokenIndex(1),
+                                                new String[] { "Invalid Type Declaration" });
         ./
 
     -- Chapter 8
 
     ClassDeclaration ::= NormalClassDeclaration
                        | EnumDeclaration
+
+-- 
+
 
     NormalClassDeclaration ::= ClassModifiersopt class identifier TypeParametersopt Superopt Interfacesopt ClassBody
 
@@ -339,12 +371,11 @@ $Rules
                            | StaticInitializer
                            | ConstructorDeclaration
                            | ERROR_TOKEN
-        /.$BeginAction
-                    reportError(NO_MESSAGE_CODE,
-                                getRhsFirstTokenIndex(1),
-                                getRhsLastTokenIndex(1),
-                                new String[] { "Invalid Class Member Declaration" });
-          $EndAction
+        /.
+                    getIPrsStream().reportError(ParseErrorCodes.NO_MESSAGE_CODE,
+                                                getRhsFirstTokenIndex(1),
+                                                getRhsLastTokenIndex(1),
+                                                new String[] { "Invalid Class Member Declaration" });
         ./
 
     ClassMemberDeclaration ::= FieldDeclaration
@@ -362,7 +393,7 @@ $Rules
                          | VariableDeclaratorId = VariableInitializer
     
     VariableDeclaratorId ::= identifier
-                           | VariableDeclaratorId [ ]
+                           | VariableDeclaratorId '[' ']'
     
     VariableInitializer ::= Expression
                           | ArrayInitializer
@@ -388,7 +419,7 @@ $Rules
     
     MethodDeclarator ::= identifier ( FormalParameterListopt )
     
-    MethodDeclarator ::= MethodDeclarator [ ]
+    MethodDeclarator ::= MethodDeclarator '[' ']'
     
     FormalParameterList ::= LastFormalParameter
                           | FormalParameters , LastFormalParameter
@@ -410,7 +441,7 @@ $Rules
     -- See above
     --
     --VariableDeclaratorId ::= identifier
-    --                       | VariableDeclaratorId [ ]
+    --                       | VariableDeclaratorId '[' ']'
     --    
     MethodModifiers ::= MethodModifier
                       | MethodModifiers MethodModifier
@@ -511,12 +542,11 @@ $Rules
                                  | InterfaceDeclaration
                                  | ;
                                  | ERROR_TOKEN
-        /.$BeginAction
-                    reportError(NO_MESSAGE_CODE,
-                                getRhsFirstTokenIndex(1),
-                                getRhsLastTokenIndex(1),
-                                new String[] { "Invalid Interface Member Declaration" });
-          $EndAction
+        /.
+                    getIPrsStream().reportError(ParseErrorCodes.NO_MESSAGE_CODE,
+                                                getRhsFirstTokenIndex(1),
+                                                getRhsLastTokenIndex(1),
+                                                new String[] { "Invalid Interface Member Declaration" });
         ./
     
     ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
@@ -628,7 +658,7 @@ $Rules
     --                     | VariableDeclaratorId = VariableInitializer
     --
     --VariableDeclaratorId ::= identifier
-    --                       | VariableDeclaratorId [ ]
+    --                       | VariableDeclaratorId '[' ']'
     --
     --VariableInitializer ::= Expression
     --                      | ArrayInitializer
@@ -667,12 +697,11 @@ $Rules
     
     EmptyStatement ::= ;
                      | ERROR_TOKEN
-        /.$BeginAction
-                    reportError(NO_MESSAGE_CODE,
-                                getRhsFirstTokenIndex(1),
-                                getRhsLastTokenIndex(1),
-                                new String[] { "Invalid Statement" });
-          $EndAction
+        /.
+                    getIPrsStream().reportError(ParseErrorCodes.NO_MESSAGE_CODE,
+                                                getRhsFirstTokenIndex(1),
+                                                getRhsLastTokenIndex(1),
+                                                new String[] { "Invalid Statement" });
         ./
 
     LabeledStatement ::= identifier : Statement
@@ -768,7 +797,7 @@ $Rules
     --FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
     --
     --VariableDeclaratorId ::= identifier
-    --                       | VariableDeclaratorId [ ]
+    --                       | VariableDeclaratorId '[' ']'
     
     -- Chapter 15
     
@@ -805,7 +834,7 @@ $Rules
     --
     ClassInstanceCreationExpression ::=  new TypeArgumentsopt ClassOrInterfaceType TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
                                       | Primary . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
-                                      | name . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+                                      | identifier . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
     
     ArgumentList ::= Expression
                    | ArgumentList , Expression
@@ -826,10 +855,10 @@ $Rules
     DimExprs ::= DimExpr
                | DimExprs DimExpr
     
-    DimExpr ::= [ Expression ]
+    DimExpr ::= '[' Expression ']'
     
-    Dims ::= [ ]
-           | Dims [ ]
+    Dims ::= '[' ']'
+           | Dims '[' ']'
     
     FieldAccess ::= Primary . identifier
                   | super . identifier
@@ -847,8 +876,8 @@ $Rules
     --ArgumentList ::= Expression
     --               | ArgumentList , Expression
     --
-    ArrayAccess ::= ExpressionName [ Expression ]
-                  | PrimaryNoNewArray [ Expression ]
+    ArrayAccess ::= ExpressionName '[' Expression ']'
+                  | PrimaryNoNewArray '[' Expression ']'
     
     PostfixExpression ::= Primary
                         | ExpressionName
@@ -880,7 +909,7 @@ $Rules
     MultiplicativeExpression ::= UnaryExpression
                                | MultiplicativeExpression * UnaryExpression
                                | MultiplicativeExpression / UnaryExpression
-                               | MultiplicativeExpression % UnaryExpression
+                               | MultiplicativeExpression '%' UnaryExpression
     
     AdditiveExpression ::= MultiplicativeExpression
                          | AdditiveExpression + MultiplicativeExpression
@@ -932,7 +961,7 @@ $Rules
     AssignmentOperator ::= =
                          | *=
                          | /=
-                         | %=
+                         | '%='
                          | +=
                          | -=
                          | <<=
@@ -949,142 +978,142 @@ $Rules
     --
     -- Optional rules
     --
-    Dimsopt ::= $Empty
+    Dimsopt ::= %Empty
               | Dims
 
-    Catchesopt ::= $Empty
+    Catchesopt ::= %Empty
                  | Catches
 
-    identifieropt ::= $Empty
+    identifieropt ::= %Empty
                     | identifier
 
-    ForUpdateopt ::= $Empty
+    ForUpdateopt ::= %Empty
                    | ForUpdate
 
-    Expressionopt ::= $Empty
+    Expressionopt ::= %Empty
                     | Expression
 
-    ForInitopt ::= $Empty
+    ForInitopt ::= %Empty
                  | ForInit
 
-    SwitchLabelsopt ::= $Empty
+    SwitchLabelsopt ::= %Empty
                       | SwitchLabels
 
-    SwitchBlockStatementGroupsopt ::= $Empty
+    SwitchBlockStatementGroupsopt ::= %Empty
                                     | SwitchBlockStatementGroups
 
-    VariableModifiersopt ::= $Empty
+    VariableModifiersopt ::= %Empty
                            | VariableModifiers
 
-    VariableInitializersopt ::= $Empty
+    VariableInitializersopt ::= %Empty
                               | VariableInitializers
 
-    ElementValuesopt ::= $Empty
+    ElementValuesopt ::= %Empty
                        | ElementValues
 
-    ElementValuePairsopt ::= $Empty
+    ElementValuePairsopt ::= %Empty
                            | ElementValuePairs
 
-    DefaultValueopt ::= $Empty
+    DefaultValueopt ::= %Empty
                       | DefaultValue
 
-    AnnotationTypeElementDeclarationsopt ::= $Empty
+    AnnotationTypeElementDeclarationsopt ::= %Empty
                                            | AnnotationTypeElementDeclarations
 
-    AbstractMethodModifiersopt ::= $Empty
+    AbstractMethodModifiersopt ::= %Empty
                                  | AbstractMethodModifiers
 
-    ConstantModifiersopt ::= $Empty
+    ConstantModifiersopt ::= %Empty
                            | ConstantModifiers
 
-    InterfaceMemberDeclarationsopt ::= $Empty
+    InterfaceMemberDeclarationsopt ::= %Empty
                                      | InterfaceMemberDeclarations
 
-    ExtendsInterfacesopt ::= $Empty
+    ExtendsInterfacesopt ::= %Empty
                            | ExtendsInterfaces
 
-    InterfaceModifiersopt ::= $Empty
+    InterfaceModifiersopt ::= %Empty
                             | InterfaceModifiers
 
-    ClassBodyopt ::= $Empty
+    ClassBodyopt ::= %Empty
                    | ClassBody
 
-    Argumentsopt ::= $Empty
+    Argumentsopt ::= %Empty
                    | Arguments
 
-    EnumBodyDeclarationsopt ::= $Empty
+    EnumBodyDeclarationsopt ::= %Empty
                               | EnumBodyDeclarations
 
-    ,opt ::= $Empty
+    ,opt ::= %Empty
            | ,
 
-    EnumConstantsopt ::= $Empty
+    EnumConstantsopt ::= %Empty
                        | EnumConstants
 
-    ArgumentListopt ::= $Empty
+    ArgumentListopt ::= %Empty
                       | ArgumentList
 
-    BlockStatementsopt ::= $Empty
+    BlockStatementsopt ::= %Empty
                          | BlockStatements
 
-    ExplicitConstructorInvocationopt ::= $Empty
+    ExplicitConstructorInvocationopt ::= %Empty
                                        | ExplicitConstructorInvocation
 
-    ConstructorModifiersopt ::= $Empty
+    ConstructorModifiersopt ::= %Empty
                               | ConstructorModifiers
 
-    ...opt ::= $Empty
+    ...opt ::= %Empty
              | ...
 
-    FormalParameterListopt ::= $Empty
+    FormalParameterListopt ::= %Empty
                              | FormalParameterList
 
-    Throwsopt ::= $Empty
+    Throwsopt ::= %Empty
                 | Throws
 
-    MethodModifiersopt ::= $Empty
+    MethodModifiersopt ::= %Empty
                          | MethodModifiers
 
-    FieldModifiersopt ::= $Empty
+    FieldModifiersopt ::= %Empty
                         | FieldModifiers
 
-    ClassBodyDeclarationsopt ::= $Empty
+    ClassBodyDeclarationsopt ::= %Empty
                                | ClassBodyDeclarations
 
-    Interfacesopt ::= $Empty
+    Interfacesopt ::= %Empty
                     | Interfaces
 
-    Superopt ::= $Empty
+    Superopt ::= %Empty
                | Super
 
-    TypeParametersopt ::= $Empty
+    TypeParametersopt ::= %Empty
                         | TypeParameters
 
-    ClassModifiersopt ::= $Empty
+    ClassModifiersopt ::= %Empty
                         | ClassModifiers
 
-    Annotationsopt ::= $Empty
+    Annotationsopt ::= %Empty
                      | Annotations
 
-    TypeDeclarationsopt ::= $Empty
+    TypeDeclarationsopt ::= %Empty
                           | TypeDeclarations
 
-    ImportDeclarationsopt ::= $Empty
+    ImportDeclarationsopt ::= %Empty
                             | ImportDeclarations
 
-    PackageDeclarationopt ::= $Empty
+    PackageDeclarationopt ::= %Empty
                             | PackageDeclaration
 
-    WildcardBoundsOpt ::= $Empty
+    WildcardBoundsOpt ::= %Empty
                         | WildcardBounds
 
-    AdditionalBoundListopt ::= $Empty
+    AdditionalBoundListopt ::= %Empty
                              | AdditionalBoundList
 
-    TypeBoundopt ::= $Empty
+    TypeBoundopt ::= %Empty
                    | TypeBound
 
-    TypeArgumentsopt ::= $Empty
+    TypeArgumentsopt ::= %Empty
                        | TypeArguments
 
-$End
+%End
