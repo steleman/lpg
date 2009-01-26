@@ -1033,7 +1033,7 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public String toString()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return leftIToken.getLexStream().toString(leftIToken.getStartOffset(), rightIToken.getEndOffset());\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return leftIToken.getILexStream().toString(leftIToken.getStartOffset(), rightIToken.getEndOffset());\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public ");
@@ -1114,18 +1114,18 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
                                  ast_buffer.Put(" other = (");
                                  ast_buffer.Put(classname);
                                  ast_buffer.Put(") o;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return getLeftIToken().getLexStream() == other.getLeftIToken().getLexStream() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getLeftIToken().getILexStream() == other.getLeftIToken().getILexStream() &&\n");
     ast_buffer.Put(indentation); ast_buffer.Put("               getLeftIToken().getTokenIndex() == other.getLeftIToken().getTokenIndex() &&\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("               getRightIToken().getLexStream() == other.getRightIToken().getLexStream() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("               getRightIToken().getILexStream() == other.getRightIToken().getILexStream() &&\n");
     ast_buffer.Put(indentation); ast_buffer.Put("               getRightIToken().getTokenIndex() == other.getRightIToken().getTokenIndex();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        if (getLeftIToken().getLexStream() != null) hash = hash * 31 + getLeftIToken().getLexStream().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (getLeftIToken().getILexStream() != null) hash = hash * 31 + getLeftIToken().getILexStream().hashCode();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + getLeftIToken().getTokenIndex();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        if (getRightIToken().getLexStream() != null) hash = hash * 31 + getRightIToken().getLexStream().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (getRightIToken().getILexStream() != null) hash = hash * 31 + getRightIToken().getILexStream().hashCode();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + getRightIToken().getTokenIndex();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
@@ -1284,14 +1284,14 @@ void JavaAction::GenerateAstTokenType(NTC &ntc, TextBuffer &ast_buffer,
                                  ast_buffer.Put(" other = (");
                                  ast_buffer.Put(classname);
                                  ast_buffer.Put(") o;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        return getIToken().getLexStream() == other.getIToken().getLexStream() &&\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getIToken().getILexStream() == other.getIToken().getILexStream() &&\n");
     ast_buffer.Put(indentation); ast_buffer.Put("               getIToken().getTokenIndex() == other.getIToken().getTokenIndex();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public int hashCode()\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        int hash = 7;\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        if (getIToken().getLexStream() != null) hash = hash * 31 + getIToken().getLexStream().hashCode();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        if (getIToken().getILexStream() != null) hash = hash * 31 + getIToken().getILexStream().hashCode();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        hash = hash * 31 + getIToken().getTokenIndex();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return hash;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
