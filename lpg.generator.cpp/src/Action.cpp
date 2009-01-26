@@ -472,10 +472,35 @@ void Action::ProcessCodeActions(Tuple<ActionBlockElement> &actions, Array<const 
                 strcpy(&(macro_name[1]), name);
             }
 
-            if (FindLocalMacro(macro_name, macro_name_length) || rule_macro_table.FindName(macro_name, macro_name_length))
+            //
+            // This problem can occur when the same variable is used more than once on the right-hand side of a rule.
+            // The user can bypass this problem by simply renaming the variable. For example:
+            //
+            // Rule ::= a B a$a2
+            //
+            // In the example above, the second instance of a is renamed a2.
+            //
+            if (rule_macro_table.FindName(macro_name, macro_name_length))
             {
-                 option -> EmitError(processed_rule_element.token_index, "Illegal respecification of a predefined macro");
-                 return_code = 12;
+                Tuple<const char *> msg;
+                msg.Next() = "Illegal respecification of predefined macro \"";
+                msg.Next() = macro_name;
+                msg.Next() = "\"";
+                option -> EmitError(processed_rule_element.token_index, msg);
+                return_code = 12;
+            }
+
+            //
+            // This check addresses the case where the right-hand side of a rule contains a variable
+            // with the same name as that of a predefined local macro (e.g., package)
+            //
+            if (FindLocalMacro(macro_name, macro_name_length))
+            {
+                Tuple<const char *> msg;
+                msg.Next() = "Definition of the rule macro \"";
+                msg.Next() = macro_name;
+                msg.Next() = "\" temporarily hides the definition of a local macro with the same name";
+                option -> EmitWarning(processed_rule_element.token_index, msg);
             }
 
             if (! Code::IsValidVariableName(macro_name + 1))
@@ -1964,13 +1989,21 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                 ;
 
             //
-            // First, see if the macro is a local macro.
-            // Next, check to see if it is an export_symbol macro
+            // First, see if the macro is a Rule macro.
+            // Next, check to see if it is a Local macro, a filter macro, an export_symbol macro
             // Finally, check to see if it is a user-defined macro
             //
             SimpleMacroSymbol *simple_macro;
             MacroSymbol *macro;
-            if ((simple_macro = FindLocalMacro(cursor, end_cursor - cursor)) != NULL)
+            if ((simple_macro = FindRuleMacro(cursor, end_cursor - cursor)) != NULL)
+            {
+                char *value = simple_macro -> Value();
+                assert(value);
+                buffer -> Put(value);
+
+                cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
+            }
+            else if ((simple_macro = FindLocalMacro(cursor, end_cursor - cursor)) != NULL)
             {
                 char *value = simple_macro -> Value();
                 if (value)
@@ -2054,14 +2087,6 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                     EmitMacroWarning(filename, cursor, end_cursor, msg);
                 }
                 else assert(false);
-
-                cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
-            }
-            else if ((simple_macro = FindRuleMacro(cursor, end_cursor - cursor)) != NULL)
-            {
-                char *value = simple_macro -> Value();
-                assert(value);
-                buffer -> Put(value);
 
                 cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
             }
