@@ -11,7 +11,7 @@ public class Main
         Runtime r = Runtime.getRuntime();
         long r1, r2, r3,
              f1, f2, f3,
-             t1, t2, t3, t4;
+             t1, t2, t3;
 
         try
         {
@@ -24,7 +24,7 @@ public class Main
 
             t1 = System.currentTimeMillis();
 
-            xml_parser = new XmlParser(option);
+            xml_parser = new XmlParser(option.getFileName());
 
             t2 = System.currentTimeMillis();
 

@@ -10,20 +10,20 @@
 %options scopes
 %options single_productions
 %options package=xmlparser
-%options template=dtUnifiedTemplate.g
+%options template=dtUnifiedTemplateF.gi
 
-$Define
+%Define
     --
     -- Definition of macros used in the parser template
     --
     $super_stream_class /.Utf8LpgLexStream./
-$End
+%End
 
-$Include
-    XmlUtil.g
-$End
+%Include
+    XmlUtil.gi
+%End
 
-$Terminals
+%Terminals
 
     -- U0000    NUL  --  (Null char.)
     -- U0001    SOH  --  (Start of Header)
@@ -172,32 +172,29 @@ $Terminals
     ExtSubsetMarker
     ExtParserEntMarker
 
-$End
+%End
 
-$Error
+%Error
     Unused
-$End
+%End
 
-$Start
+%Start
    document
-$End
+%End
 
-$Rules
+%Rules
     --[1] document ::= prolog element Misc* 
     document ::= prolog element Misc*$
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
                | ExtSubsetMarker extSubset
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
                | ExtParserEntMarker extParsedEnt
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
 
     -- [2] Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
@@ -245,11 +242,11 @@ $Rules
     --                  | "'" ([^%&'] | PEReference | Reference)* "'" 
     EntityValue ::= '"' DoubleEntityValueContent '"'  
                   | "'" SingleEntityValueContent "'" 
-    DoubleEntityValueContent ::= $Empty
+    DoubleEntityValueContent ::= %Empty
                                | DoubleEntityValueContent Char[^%&"]
                                | DoubleEntityValueContent PEReference
                                | DoubleEntityValueContent Reference
-    SingleEntityValueContent ::= $Empty
+    SingleEntityValueContent ::= %Empty
                                | SingleEntityValueContent Char[^%&']
                                | SingleEntityValueContent PEReference
                                | SingleEntityValueContent Reference
@@ -258,10 +255,10 @@ $Rules
     --                | "'" ([^<&'] | Reference)* "'" 
     AttValue ::= '"' DoubleAttValueContent '"'  
                | "'" SingleAttValueContent "'" 
-    DoubleAttValueContent ::= $Empty
+    DoubleAttValueContent ::= %Empty
                             | DoubleAttValueContent Char[^<&"]
                             | DoubleAttValueContent Reference
-    SingleAttValueContent ::= $Empty
+    SingleAttValueContent ::= %Empty
                             | SingleAttValueContent Char[^<&']
                             | SingleAttValueContent Reference
 
@@ -269,18 +266,18 @@ $Rules
     SystemLiteral ::= '"' DoubleSystemLiteralContent '"'
                     | "'" SingleSystemLiteralContent "'"
 
-    DoubleSystemLiteralContent ::= $Empty
+    DoubleSystemLiteralContent ::= %Empty
                                  | DoubleSystemLiteralContent Char[^"]
 
-    SingleSystemLiteralContent ::= $Empty
+    SingleSystemLiteralContent ::= %Empty
                                  | SingleSystemLiteralContent Char[^']
 
     --[12] PubidLiteral ::= '"' PubidChar* '"' | "'" (PubidChar - "'")* "'" 
     PubidLiteral ::= '"' DoublePubidLiteralContent '"'
                    | "'" SinglePubidLiteralContent "'" 
-    DoublePubidLiteralContent ::= $Empty
+    DoublePubidLiteralContent ::= %Empty
                                 | DoublePubidLiteralContent PubidChar
-    SinglePubidLiteralContent ::= $Empty
+    SinglePubidLiteralContent ::= %Empty
                                 | SinglePubidLiteralContent PubidChar[^']
 
     --[13] PubidChar ::= #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%] 
@@ -292,7 +289,7 @@ $Rules
                | CharDataContent ']'
                | CharDataContent 2OrMoreBrackets
 
-    CharDataContent ::= $Empty
+    CharDataContent ::= %Empty
                       | CharDataContent 2OrMoreBrackets Char[^<&]>]
                       | CharDataContent '>'
                       | CharDataContent ']' Char[^<&]]
@@ -305,7 +302,7 @@ $Rules
     Comment ::= '<' '!' '-' '-' CommentContent '-' '-' '>'
               | '<' '!' '-' '-' CommentContent '-' '-' '-' '>'
 
-    CommentContent ::= $Empty
+    CommentContent ::= %Empty
                      | CommentContent Char[^-] 
                      | CommentContent '-' Char[^-]
 
@@ -334,7 +331,7 @@ $Rules
                 | '_' PITargettail
                 | ':' PITargettail
 
-    PITargettail ::= $Empty
+    PITargettail ::= %Empty
                    | PITargettail NameChar
 
     --[18] CDSect ::= CDStart CData CDEnd 
@@ -345,7 +342,7 @@ $Rules
     --
 
     --[20] CData ::= (Char* - (Char* ']]>' Char*))  
-    CData ::= $Empty
+    CData ::= %Empty
             | CData 2OrMoreBrackets Char[^]>]
             | CData '>'
             | CData ']' Char[^]>]
@@ -385,7 +382,7 @@ $Rules
    VersionNum ::= '1' '.' '0' 
 
     --[27] Misc ::= Comment | PI | S 
-    Misc* ::= $Empty
+    Misc* ::= %Empty
             | WhiteSpaces 
             | Misc* Comment
             | Misc* PI
@@ -412,7 +409,7 @@ $Rules
     --          | WhiteSpaces
 
     --[28b] intSubset ::= (markupdecl | DeclSep)* 
-    intSubset ::= $Empty
+    intSubset ::= %Empty
                 | WhiteSpaces
                 | intSubset markupdecl
                 | intSubset PEReference
@@ -432,7 +429,7 @@ $Rules
                 | TextDecl extSubsetDecl 
 
     --[31] extSubsetDecl ::= ( markupdecl | conditionalSect | DeclSep)* 
-    extSubsetDecl ::= $Empty
+    extSubsetDecl ::= %Empty
                     | WhiteSpaces
                     | extSubsetDecl markupdecl
                     | extSubsetDecl conditionalSect
@@ -454,31 +451,27 @@ $Rules
               | '<' Name Attributes WhiteSpaces '/' '>'
 
               | '<' Name$SName Attributes '>' content  '<' '/' Name$EName '>'
-        /.$BeginJava
+        /.
                     checkNames($SName, $EName);
                     setResult(new Ast());
-          $EndJava
         ./
               | '<' Name$SName Attributes WhiteSpaces '>' content  '<' '/' Name$EName '>'
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
               | '<' Name$SName Attributes '>' content  '<' '/' Name$EName WhiteSpaces '>' 
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
               | '<' Name$SName Attributes WhiteSpaces '>' content  '<' '/' Name$EName WhiteSpaces$ '>' 
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
 
     --[40] STag ::= '<' Name (S Attribute)* S? '>' [WFC: Unique Att Spec]
     --STag ::= '<' Name Attributes '>'
     --       | '<' Name Attributes WhiteSpaces '>'
-    Attributes ::= $Empty
+    Attributes ::= %Empty
                  | Attributes WhiteSpaces Attribute
 
     --[41] Attribute ::= Name Eq AttValue [VC: Attribute Value Type] 
@@ -596,7 +589,7 @@ $Rules
     --[52] AttlistDecl ::= '<!ATTLIST' S Name AttDef* S? '>' 
     AttlistDecl ::= '<' '!' 'A' 'T' 'T' 'L' 'I' 'S' 'T' WhiteSpaces Name AttDef* '>' 
                   | '<' '!' 'A' 'T' 'T' 'L' 'I' 'S' 'T' WhiteSpaces Name AttDef* WhiteSpaces '>' 
-    AttDef* ::= $Empty
+    AttDef* ::= %Empty
               | AttDef* AttDef
 
     --[53] AttDef ::= S Name S AttType S DefaultDecl 
@@ -634,7 +627,7 @@ $Rules
                    | 'N' 'O' 'T' 'A' 'T' 'I' 'O' 'N' WhiteSpaces '(' Name InnerNotationTypeContent WhiteSpaces ')'
                    | 'N' 'O' 'T' 'A' 'T' 'I' 'O' 'N' WhiteSpaces '(' WhiteSpaces Name InnerNotationTypeContent ')'
                    | 'N' 'O' 'T' 'A' 'T' 'I' 'O' 'N' WhiteSpaces '(' WhiteSpaces Name InnerNotationTypeContent WhiteSpaces ')'
-    InnerNotationTypeContent ::= $Empty
+    InnerNotationTypeContent ::= %Empty
                                | InnerNotationTypeContent WhiteSpaces '|' Name
                                | InnerNotationTypeContent WhiteSpaces '|' WhiteSpaces Name
 
@@ -643,7 +636,7 @@ $Rules
                   | '(' Nmtoken InnerEnumerationContent WhiteSpaces ')'
                   | '(' WhiteSpaces Nmtoken InnerEnumerationContent ')'
                   | '(' WhiteSpaces Nmtoken InnerEnumerationContent WhiteSpaces ')'
-    InnerEnumerationContent ::= $Empty
+    InnerEnumerationContent ::= %Empty
                               | InnerEnumerationContent '|' Nmtoken
                               | InnerEnumerationContent '|' WhiteSpaces Nmtoken
                               | InnerEnumerationContent WhiteSpaces '|' Nmtoken
@@ -678,7 +671,7 @@ $Rules
                          | ignoreSectContents '<' '!' '[' ignoreSectContents ']' ']' '>' Ignore
 
     --[65] Ignore ::= Char* - (Char* ('<![' | ']]>') Char*)  
-    Ignore ::= $Empty
+    Ignore ::= %Empty
              | Ignore Char[^<]]
              | Ignore '<' Char[^!]
              | Ignore '<' '!' Char[^[]
@@ -1112,10 +1105,10 @@ $Rules
     --                | [#x3031-#x3035]
     --                | [#x309D-#x309E]
     --                | [#x30FC-#x30FE]  
-$End
+%End
 
-$Import
-    XmlCharSubsets.g
-  $DropSymbols
+%Import
+    XmlCharSubsets.gi
+  %DropSymbols
        NonSpaceChar
-$End
+%End

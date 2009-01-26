@@ -14,17 +14,17 @@
 %options scopes
 %options single_productions
 %options package=xmlparser
-%options template=dtUnifiedTemplate.g
+%options template=dtUnifiedTemplateF.gi
 
-$Include
-    XmlNSCharSubsets.g
-$End
+%Include
+    XmlNSCharSubsets.gi
+%End
 
-$Import
+%Import
   
   "XmlParser.g"
 
-  $DropSymbols
+  %DropSymbols
       element
       Attribute
       doctypedecl
@@ -33,14 +33,14 @@ $Import
       AttlistDecl
       AttDef
 
-  $DropRules
+  %DropRules
       cp ::= Name
            | Name '?'
            | Name '*'
            | Name '+'
-$End
+%End
 
-$Rules
+%Rules
     --[1]   NSAttName ::= PrefixedAttName 
     --                  | DefaultAttName 
     --[2]   PrefixedAttName ::= 'xmlns:' NCName [  NSC: Leading "XML" ]
@@ -90,25 +90,21 @@ $Rules
               | '<' QName Attributes WhiteSpaces '/' '>'
 
               | '<' QName$SName Attributes '>' content  '<' '/' QName$EName '>'
-        /.$BeginJava
+        /.
                     checkNames($SName, $EName);
                     setResult(new Ast());
-          $EndJava
         ./
               | '<' QName$SName Attributes WhiteSpaces '>' content  '<' '/' QName$EName '>'
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
               | '<' QName$SName Attributes '>' content  '<' '/' QName$EName WhiteSpaces '>' 
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
               | '<' QName$SName Attributes WhiteSpaces '>' content  '<' '/' QName$EName WhiteSpaces$ '>' 
-        /.$BeginJava
+        /.
                     setResult(new Ast());
-          $EndJava
         ./
 
     --[12]  Attribute ::= NSAttName Eq AttValue 
@@ -163,4 +159,4 @@ $Rules
     -- NSAttName subsumes QName. See above
     --
     AttDef ::= WhiteSpaces NSAttName WhiteSpaces$ AttType WhiteSpaces$ DefaultDecl 
-$End
+%End

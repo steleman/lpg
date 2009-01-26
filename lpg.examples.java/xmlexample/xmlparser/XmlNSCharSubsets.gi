@@ -1,4 +1,4 @@
-$Rules
+%Rules
     NameChar[^:] ->    
              Aa
            | Bb
@@ -361,4 +361,4 @@ $Rules
     --     | ':'
            | CombiningChar
            | Extender 
-$End
+%End

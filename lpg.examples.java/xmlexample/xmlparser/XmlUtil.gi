@@ -1,4 +1,4 @@
-$Headers
+%Headers
     --
     -- Additional methods for the action class not provided in the template
     --
@@ -10,9 +10,9 @@ $Headers
         //
         //
         //
-        public $action_type(Option option) throws java.io.IOException
+        public $action_type(String filename) throws java.io.IOException
         {
-            this(option.getFileName(), ECLIPSE_TAB_VALUE);
+            this(filename, ECLIPSE_TAB_VALUE);
             this.buffer = getInputBytes();
             this.lastIndex = getLastIndex();
         }
@@ -1089,4 +1089,4 @@ $Headers
                 if (tokenKind[i] == 0) tokenKind[i] = Char_OtherValidChar;
         }
     ./
-$End
+%End

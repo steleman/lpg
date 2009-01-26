@@ -1,4 +1,4 @@
-$Rules
+%Rules
     U0009 -> HT
     U000A -> LF
     U000D -> CR
@@ -2319,7 +2319,7 @@ $Rules
                    | '$'
                    | '_'
                    | '%'
-$End
+%End
 
 
 
