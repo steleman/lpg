@@ -11,6 +11,7 @@
 %options prefix=TK_
 %options action-block=("*.java", "/.", "./")
 %options ParseTable=lpg.runtime.ParseTable
+%options nt-check
 
 --
 -- This template requires that the name of the EOF token be set
@@ -34,7 +35,8 @@
                 ./
 
     $BeginAction
-    /.$Header$case $rule_number: {./
+    /.$Header$case $rule_number: {
+                   //#line $next_line "$input_file$"./
 
     $EndAction
     /.                break;
@@ -42,7 +44,8 @@
 
     $BeginJava
     /.$BeginAction
-                    $symbol_declarations./
+                    $symbol_declarations
+                    //#line $next_line "$input_file$"./
 
     $EndJava /.$EndAction./
 
@@ -78,7 +81,8 @@
 	    public void ruleAction$rule_number(int ruleNumber)
 	    {
 	        switch (ruleNumber)
-	        {./
+	        {
+                //#line $next_line "$input_file$"./
 
     $EndActions
     /.
@@ -111,7 +115,7 @@
             
             try
             {
-                return ($ast_class) btParser.parseEntry($sym_type.$entry_marker, error_repair_count);
+                return ($ast_class) btParser.fuzzyParseEntry($sym_type.$entry_marker, error_repair_count);
             }
             catch (BadParseException e)
             {
@@ -258,6 +262,7 @@
             reset(lexStream);
         }
         
+        public int numTokenKinds() { return $sym_type.numTokenKinds; }
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
         public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }
         public int getEOFTokenKind() { return prsTable.getEoftSymbol(); }
@@ -296,7 +301,7 @@
             
             try
             {
-                return ($ast_class) btParser.parse(error_repair_count);
+                return ($ast_class) btParser.fuzzyParse(error_repair_count);
             }
             catch (BadParseException e)
             {
