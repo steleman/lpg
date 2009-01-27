@@ -1,3 +1,11 @@
+%Terminals
+    DollarSign ::= '$'
+    Percent ::= '%'
+    _
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+%End
+
 %Headers
     /.
         final static int tokenKind[] = new int[128];
@@ -62,7 +70,7 @@
     
         final int getKind(char c)
         {
-            return ((c & 0xFFFFFF80 == 0) /* 0 <= c < 128? */ ? tokenKind[c] : 0);
+            return (((c & 0xFFFFFF80) == 0) /* 0 <= c < 128? */ ? tokenKind[c] : 0);
         }
     ./
 %End
