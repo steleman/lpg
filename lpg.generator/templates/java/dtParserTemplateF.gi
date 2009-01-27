@@ -8,9 +8,9 @@
 --
 %Options programming_language=java,margin=4
 %Options table,error_maps,scopes
-%options prefix=TK_
-%options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.ParseTable
+%Options prefix=TK_
+%Options action-block=("*.java", "/.", "./")
+%Options ParseTable=lpg.runtime.ParseTable
 
 --
 -- This template requires that the name of the EOF token be set
@@ -256,6 +256,7 @@
             reset(lexStream);
         }
 
+        public int numTokenKinds() { return $sym_type.numTokenKinds; }
         public String[] orderedTerminalSymbols() { return $sym_type.orderedTerminalSymbols; }
         public String getTokenKindName(int kind) { return $sym_type.orderedTerminalSymbols[kind]; }            
         public int getEOFTokenKind() { return prsTable.getEoftSymbol(); }
