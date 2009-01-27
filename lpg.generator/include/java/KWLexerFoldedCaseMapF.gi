@@ -1,9 +1,8 @@
 %Terminals
     DollarSign ::= '$'
+    Percent ::= '%'
     _
-    
-    a    b    c    d    e    f    g    h    i    j    k    l    m
-    n    o    p    q    r    s    t    u    v    w    x    y    z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
 %End
 
 %Headers
@@ -19,6 +18,7 @@
         {
             tokenKind['$'] = $sym_type.$prefix$DollarSign$suffix$;
             tokenKind['_'] = $sym_type.$prefix$_$suffix$;
+            tokenKind['%'] = $sym_type.$prefix$Percent$suffix$;
 
             tokenKind['a'] = $sym_type.$prefix$a$suffix$;
             tokenKind['b'] = $sym_type.$prefix$b$suffix$;
