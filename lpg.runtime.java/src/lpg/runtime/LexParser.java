@@ -308,8 +308,6 @@ public class LexParser
             act = tAction(start_action, kind);
         Scan: while (act <= NUM_RULES)
         {
-            action.add(act);
-
             do
             {
                 int lhs_symbol = prs.lhs(act);
