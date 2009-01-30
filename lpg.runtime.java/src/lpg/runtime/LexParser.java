@@ -225,12 +225,12 @@ public class LexParser
                 // as if we had reached the end of the file (end of the token, since we are really
                 // scanning).
                 // 
-                currentAction = parseNextCharacter(currentAction, curtok, current_kind);
+                parseNextCharacter(curtok, current_kind);
                 if (currentAction == ERROR_ACTION && current_kind != EOFT_SYMBOL) // if not successful try EOF 
                 {
                     int save_next_token = tokStream.peek(); // save position after curtok
                     tokStream.reset(tokStream.getStreamLength() - 1); // point to the end of the input
-                    currentAction = parseNextCharacter(stack[stateStackTop], curtok, EOFT_SYMBOL);
+                    parseNextCharacter(curtok, EOFT_SYMBOL);
                     // assert (currentAction == ACCEPT_ACTION || currentAction == ERROR_ACTION);
                     tokStream.reset(save_next_token); // reset the stream for the next token after curtok.
                 }
@@ -298,27 +298,31 @@ public class LexParser
 
     //
     // This function takes as argument a configuration ([stack, stackTop], [tokStream, curtok])
-    // and determines whether or not the reduce action the curtok can be validly parsed in this
-    // configuration.
+    // and determines whether or not curtok can be validly parsed in this configuration. If so,
+    // it parses curtok and returns the final shift or shift-reduce action on it. Otherwise, it
+    // leaves the configuration unchanged and returns ERROR_ACTION.
     //
-    private int parseNextCharacter(int start_action, int token, int kind)
+    private void parseNextCharacter(int token, int kind)
     {
-        int pos = stateStackTop,
-            tempStackTop = stateStackTop - 1,
-            act = tAction(start_action, kind);
-        Scan: while (act <= NUM_RULES)
+        int start_action = stack[stateStackTop], 
+        	pos = stateStackTop,
+            tempStackTop = stateStackTop - 1;
+
+        Scan: for (currentAction = tAction(start_action, kind);
+                   currentAction <= NUM_RULES;
+                   currentAction = tAction(currentAction, kind))
         {
             do
             {
-                int lhs_symbol = prs.lhs(act);
+                int lhs_symbol = prs.lhs(currentAction);
                 if (lhs_symbol == START_SYMBOL)
                     break Scan;
-                tempStackTop -= (prs.rhs(act) - 1);
+                tempStackTop -= (prs.rhs(currentAction) - 1);
                 int state = (tempStackTop > pos
                                           ? tempStack[tempStackTop]
                                           : stack[tempStackTop]);
-                act = prs.ntAction(state, lhs_symbol);
-            } while(act <= NUM_RULES);
+                currentAction = prs.ntAction(state, lhs_symbol);
+            } while(currentAction <= NUM_RULES);
             if (tempStackTop + 1 >= stack.length)
                 reallocateStacks();
             //
@@ -327,8 +331,7 @@ public class LexParser
             // the next action on the current symbol ...
             //
             pos = pos < tempStackTop ? pos : tempStackTop;
-            tempStack[tempStackTop + 1] = act;
-            act = tAction(act, kind);
+            tempStack[tempStackTop + 1] = currentAction;
         }
 
         //
@@ -336,31 +339,39 @@ public class LexParser
         // shift or shift-reduce on the token by processing all reduce and goto actions associated
         // with the current token.
         //
-        if (act != ERROR_ACTION)
+        if (currentAction != ERROR_ACTION)
         {
-            Replay: for (act = tAction(start_action, kind); act <= NUM_RULES; act = tAction(act, kind))
+            //
+            // Note that it is important that the global variable currentAction be used here when
+            // we are actually processing the rules. The reason being that the user-defined function
+        	// ra.ruleAction() may call public functions defined in this class (such as getLastToken())
+        	// which require that currentAction be properly initialized. 
+            //
+            Replay: for (currentAction = tAction(start_action, kind);
+                         currentAction <= NUM_RULES;
+                         currentAction = tAction(currentAction, kind))
             {
                 stateStackTop--;
                 do 
                 {
-                    stateStackTop -= (prs.rhs(act) - 1);
-                    ra.ruleAction(act);
-                    int lhs_symbol = prs.lhs(act);
+                    stateStackTop -= (prs.rhs(currentAction) - 1);
+                    ra.ruleAction(currentAction);
+                    int lhs_symbol = prs.lhs(currentAction);
                     if (lhs_symbol == START_SYMBOL)
                     {
-                        act = (starttok == token // null string reduction to START_SYMBOL is illegal
-                                         ? ERROR_ACTION
-                                         : ACCEPT_ACTION);
+                        currentAction = (starttok == token // null string reduction to START_SYMBOL is illegal
+                                                   ? ERROR_ACTION
+                                                   : ACCEPT_ACTION);
                         break Replay;
                     }
-                    act = prs.ntAction(stack[stateStackTop], lhs_symbol);
-                } while (act <= NUM_RULES);
-                stack[++stateStackTop] = act;
+                    currentAction = prs.ntAction(stack[stateStackTop], lhs_symbol);
+                } while (currentAction <= NUM_RULES);
+                stack[++stateStackTop] = currentAction;
                 locationStack[stateStackTop] = token;
             }
         }
 
-        return act;
+        return;
     }
 
     //
