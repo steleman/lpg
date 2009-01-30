@@ -6,14 +6,14 @@
 --     $additional_interfaces
 --     $super_stream_class
 --
--- B E G I N N I N G   O F   T E M P L A T E   dtUnifiedTemplate
+-- B E G I N N I N G   O F   T E M P L A T E   dtUnifiedTemplateF
 --
 %Options programming_language=java
 %Options table
 %Options margin=4
 %Options prefix=Char_
-%options action-block=("*.java", "/.", "./")
-%options ParseTable=lpg.runtime.ParseTable
+%Options action-block=("*.java", "/.", "./")
+%Options ParseTable=lpg.runtime.ParseTable
 
 --
 -- The EOF and ERROR symbols are assigned a default here as a
