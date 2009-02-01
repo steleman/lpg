@@ -25,4 +25,3 @@
 %Import
     LexerBasicMapF.gi
 %End
-

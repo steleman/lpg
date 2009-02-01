@@ -12,6 +12,8 @@
         static
         {
             tokenKind['$'] = $sym_type.$prefix$DollarSign$suffix$;
+            tokenKind['%'] = $sym_type.$prefix$Percent$suffix$;
+            tokenKind['_'] = $sym_type.$prefix$_$suffix$;
 
             tokenKind['a'] = $sym_type.$prefix$a$suffix$;
             tokenKind['b'] = $sym_type.$prefix$b$suffix$;
