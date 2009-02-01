@@ -2,3 +2,4 @@ XmlParser.java
 XmlParser.l
 XmlParserprs.java
 XmlParsersym.java
+XmlNSParser.l
