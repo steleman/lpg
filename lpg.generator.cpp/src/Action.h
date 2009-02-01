@@ -227,8 +227,8 @@ public:
     Token *GetMacroErrorToken(const char *, const char *, const char *);
     void EmitMacroError(const char *, const char *, const char *, Tuple<const char *> &);
     void EmitMacroWarning(const char *, const char *, const char *, Tuple<const char *> &);
-    Symbol *FindClosestMatchForMacro(const char *, const char *, const char *);
-    void ProcessActionLine(int, TextBuffer *, const char *, const char *, const char *, int, int);
+    Symbol *FindClosestMatchForMacro(const char *, const char *, const char *, const char *, const char *);
+    void ProcessActionLine(int, TextBuffer *, const char *, const char *, const char *, int, int, const char * = NULL, const char * = NULL);
     void GenerateCode(TextBuffer *, const char *, int);
 
 protected:

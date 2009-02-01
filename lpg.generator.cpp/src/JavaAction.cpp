@@ -78,7 +78,9 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                                   beginjava,
                                   &beginjava[strlen(beginjava)],
                                   line_no,
-                                  rule_number);
+                                  rule_number,
+                                  head - block -> BlockBeginLength(),
+                                  head);
             }
             else if (FindUndeclaredMacro(beginjava, strlen(beginjava)) == NULL)
             {
@@ -104,7 +106,9 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
                                   endjava,
                                   &endjava[strlen(endjava)],
                                   lex_stream -> EndLine(action.block_token),
-                                  rule_number);
+                                  rule_number,
+                                  tail,
+                                  tail + block -> BlockEndLength());
             }
             else if (FindUndeclaredMacro(endjava, strlen(endjava)) == NULL)
             {
@@ -1312,8 +1316,8 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
                                        Tuple<int> &ungenerated_rule,
                                        Tuple<int> &generated_rule)
 {
-    const char *rule_info = " *<li>Rule $rule_number:  $rule_text",
-               *ungenerated_rule_info = " *<li>Rule $rule_number:  $rule_text";
+    const char *rule_info = " *<li>Rule $rule_number:  $rule_text";
+
     ast_buffer.Put(indentation); ast_buffer.Put("/**");
     if (ungenerated_rule.Length() > 0)
     {
@@ -1323,15 +1327,25 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
         for (int i = 0; i < ungenerated_rule.Length(); i++)
         {
             int rule_no = ungenerated_rule[i];
+
+            LexStream::TokenIndex separator_token = grammar -> parser.rules[grammar -> rules[rule_no].source_index].separator_index;
+            int line_no = lex_stream -> Line(separator_token),
+                start = lex_stream -> StartLocation(separator_token),
+                end   = lex_stream -> EndLocation(separator_token) + 1;
+            const char *start_cursor_location = &(lex_stream -> InputBuffer(separator_token)[start]),
+                       *end_cursor_location = &(lex_stream -> InputBuffer(separator_token)[end]);
+
             ast_buffer.Put("\n");
             ast_buffer.Put(indentation);
             ProcessActionLine(ActionBlockElement::BODY,
                               &ast_buffer,
-                              option -> DefaultBlock() -> ActionfileSymbol() -> Name(),
-                              ungenerated_rule_info,
-                              &ungenerated_rule_info[strlen(ungenerated_rule_info)],
-                              0,
-                              rule_no);
+                              lex_stream -> FileName(separator_token),
+                              rule_info,
+                              &rule_info[strlen(rule_info)],
+                              line_no,
+                              rule_no,
+                              start_cursor_location,
+                              end_cursor_location);
         }
         ast_buffer.Put("\n");
         ast_buffer.Put(indentation);
@@ -1345,15 +1359,25 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
     for (int i = 0; i < generated_rule.Length(); i++)
     {
         int rule_no = generated_rule[i];
+
+            LexStream::TokenIndex separator_token = grammar -> parser.rules[grammar -> rules[rule_no].source_index].separator_index;
+            int line_no = lex_stream -> Line(separator_token),
+                start = lex_stream -> StartLocation(separator_token),
+                end   = lex_stream -> EndLocation(separator_token) + 1;
+            const char *start_cursor_location = &(lex_stream -> InputBuffer(separator_token)[start]),
+                       *end_cursor_location = &(lex_stream -> InputBuffer(separator_token)[end]);
+
         ast_buffer.Put("\n");
         ast_buffer.Put(indentation);
         ProcessActionLine(ActionBlockElement::BODY,
                           &ast_buffer,
-                          option -> DefaultBlock() -> ActionfileSymbol() -> Name(),
+                          lex_stream -> FileName(separator_token), // option -> DefaultBlock() -> ActionfileSymbol() -> Name(),
                           rule_info,
                           &rule_info[strlen(rule_info)],
-                          0,
-                          rule_no);
+                          line_no,
+                          rule_no,
+                          start_cursor_location,
+                          end_cursor_location);
     }
 
     ast_buffer.Put("\n");

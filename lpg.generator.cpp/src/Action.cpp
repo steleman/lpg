@@ -1825,12 +1825,12 @@ void Action::GetCallingMacroLocations(Tuple<Token *> &locations)
 //
 //
 //
-Token *Action::GetMacroErrorToken(const char *filename, const char *cursor, const char *end_cursor)
+Token *Action::GetMacroErrorToken(const char *filename, const char *start_cursor_location, const char *end_cursor_location)
 {
     InputFileSymbol *file_symbol = lex_stream -> FindOrInsertFile(filename);
-    int error_location = cursor - file_symbol -> Buffer();
+    int error_location = start_cursor_location - file_symbol -> Buffer();
     Token *error_token = lex_stream -> GetErrorToken(file_symbol, error_location);
-    error_token -> SetEndLocation(error_location + end_cursor - cursor - 1);
+    error_token -> SetEndLocation(error_location + end_cursor_location - start_cursor_location - 1);
     error_token -> SetKind(0);
 
     return error_token;
@@ -1839,13 +1839,13 @@ Token *Action::GetMacroErrorToken(const char *filename, const char *cursor, cons
 //
 //
 //
-void Action::EmitMacroError(const char *filename, const char *cursor, const char *end_cursor, Tuple<const char *> &msg)
+void Action::EmitMacroError(const char *filename, const char *start_cursor_location, const char *end_cursor_location, Tuple<const char *> &msg)
 {
     Tuple<Token *> macro_token;
     GetCallingMacroLocations(macro_token);
 
     option -> EmitWarning((macro_token.Length() == 0
-                                                 ? GetMacroErrorToken(filename, cursor, end_cursor)
+                                                 ? GetMacroErrorToken(filename, start_cursor_location, end_cursor_location)
                                                  : macro_token[0]),
                           msg);
     control -> Exit(12);
@@ -1855,13 +1855,13 @@ void Action::EmitMacroError(const char *filename, const char *cursor, const char
 //
 //
 //
-void Action::EmitMacroWarning(const char *filename, const char *cursor, const char *end_cursor, Tuple<const char *> &msg)
+void Action::EmitMacroWarning(const char *filename, const char *start_cursor_location, const char *end_cursor_location, Tuple<const char *> &msg)
 {
     Tuple<Token *> macro_token;
     GetCallingMacroLocations(macro_token);
 
     option -> EmitWarning((macro_token.Length() == 0
-                                                 ? GetMacroErrorToken(filename, cursor, end_cursor)
+                                                 ? GetMacroErrorToken(filename, start_cursor_location, end_cursor_location)
                                                  : macro_token[0]),
                           msg);
 }
@@ -1870,7 +1870,7 @@ void Action::EmitMacroWarning(const char *filename, const char *cursor, const ch
 //
 //
 //
-Symbol *Action::FindClosestMatchForMacro(const char *filename, const char *cursor, const char *end_cursor)
+Symbol *Action::FindClosestMatchForMacro(const char *filename, const char *cursor, const char *end_cursor, const char *start_cursor_location, const char *end_cursor_location)
 {
     int length = end_cursor - cursor;
     char *macro_name = new char[length + 1];
@@ -1935,7 +1935,7 @@ Symbol *Action::FindClosestMatchForMacro(const char *filename, const char *curso
         msg.Next() = "\"";
     }
 
-    EmitMacroWarning(filename, cursor, end_cursor, msg);
+    EmitMacroWarning(filename, start_cursor_location, end_cursor_location, msg);
 
     InsertUndeclaredMacro(macro_name); // to avoid repeating error message about this macro
 
@@ -1953,7 +1953,15 @@ Symbol *Action::FindClosestMatchForMacro(const char *filename, const char *curso
 // stituted for the name. The modified action text is then printed out in
 // the action file.
 //
-void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *filename, const char *cursor, const char *tail, int line_no, int rule_no)
+void Action::ProcessActionLine(int location,
+                               TextBuffer *buffer,
+                               const char *filename,
+                               const char *cursor,
+                               const char *tail,
+                               int line_no,
+                               int rule_no,
+                               const char *start_cursor_location,
+                               const char *end_cursor_location)
 {
     assert(buffer);
 
@@ -2126,7 +2134,11 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                 BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
                 if (block == NULL) // if the macro was not found, see if there is a close match.
                 {
-                    Symbol *symbol = FindClosestMatchForMacro(filename, cursor, end_cursor);
+                    Symbol *symbol = FindClosestMatchForMacro(filename,
+                                                              cursor,
+                                                              end_cursor, 
+                                                              start_cursor_location == NULL ? cursor : start_cursor_location,
+                                                              end_cursor_location == NULL ? end_cursor : end_cursor_location);
                     if (symbol == NULL)
                     {
                         buffer -> PutChar(*cursor);
@@ -2150,8 +2162,8 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
                         end   = lex_stream -> EndLocation(block_token) - block -> BlockEndLength() + 1;
 
                     file_location_stack.Push(filename);
-                    cursor_location_stack.Push(cursor);
-                    end_cursor_location_stack.Push(end_cursor);
+                    cursor_location_stack.Push(start_cursor_location == NULL ? cursor : start_cursor_location);
+                    end_cursor_location_stack.Push(end_cursor_location == NULL ? end_cursor : end_cursor_location);
 
                     macro -> MarkInUse();
 
@@ -2228,7 +2240,11 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
             }
             else // undefined macro
             {
-                Symbol *symbol = FindClosestMatchForMacro(filename, cursor, end_cursor);
+                Symbol *symbol = FindClosestMatchForMacro(filename,
+                                                          cursor,
+                                                          end_cursor,
+                                                          start_cursor_location == NULL ? cursor : start_cursor_location,
+                                                          end_cursor_location == NULL ? end_cursor : end_cursor_location);
                 if (symbol == NULL)
                 {
                     buffer -> PutChar(*cursor); // process the escape symbol
@@ -2255,11 +2271,20 @@ void Action::ProcessActionLine(int location, TextBuffer *buffer, const char *fil
 
 void Action::GenerateCode(TextBuffer *ast_buffer, const char *code, int rule_no)
 {
+    LexStream::TokenIndex separator_token = grammar -> parser.rules[grammar -> rules[rule_no].source_index].separator_index;
+    int line_no = lex_stream -> Line(separator_token),
+        start = lex_stream -> StartLocation(separator_token),
+        end   = lex_stream -> EndLocation(separator_token) + 1;
+    const char *start_cursor_location = &(lex_stream -> InputBuffer(separator_token)[start]),
+               *end_cursor_location = &(lex_stream -> InputBuffer(separator_token)[end]);
+
     ProcessActionLine(ActionBlockElement::BODY,
                       ast_buffer,
-                      option -> DefaultBlock() -> ActionfileSymbol() -> Name(),
+                      lex_stream -> FileName(separator_token),
                       code,
                       &code[strlen(code)],
-                      0,
-                      rule_no);
+                      line_no,
+                      rule_no,
+                      start_cursor_location,
+                      end_cursor_location);
 }
