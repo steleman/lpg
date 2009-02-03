@@ -274,7 +274,7 @@ protected:
 
     void Act130(void);
 
-#line 1334 "jikespg.g"
+#line 1340 "jikespg.g"
 
 };
 #endif

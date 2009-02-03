@@ -121,7 +121,7 @@
 
 %End
 
-%Rules
+%Headers
 
     /!
         #line $next_line "$input_file$"
@@ -575,6 +575,10 @@
 
     ./
 
+%End
+
+%Rules
+
     JikesPG_INPUT ::= Grammar
         /.$Action
         $DefaultHeader
@@ -614,70 +618,70 @@
     Grammar ::= %Empty
         /.$NoAction./
 
-    Grammar ::= Grammar include_segment [END_KEY]
+    Grammar ::= Grammar include_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar notice_segment [END_KEY]
+    Grammar ::= Grammar notice_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar define_segment [END_KEY]
+    Grammar ::= Grammar define_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar terminals_segment [END_KEY]
+    Grammar ::= Grammar terminals_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar export_segment [END_KEY]
+    Grammar ::= Grammar export_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar import_segment [END_KEY]
+    Grammar ::= Grammar import_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar softkeywords_segment [END_KEY]
+    Grammar ::= Grammar softkeywords_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar eof_segment [END_KEY]
+    Grammar ::= Grammar eof_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar eol_segment [END_KEY]
+    Grammar ::= Grammar eol_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar error_segment [END_KEY]
+    Grammar ::= Grammar error_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar recover_segment [END_KEY]
+    Grammar ::= Grammar recover_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar identifier_segment [END_KEY]
+    Grammar ::= Grammar identifier_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar start_segment [END_KEY]
+    Grammar ::= Grammar start_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar alias_segment [END_KEY]
+    Grammar ::= Grammar alias_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar names_segment [END_KEY]
+    Grammar ::= Grammar names_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar headers_segment [END_KEY]
+    Grammar ::= Grammar headers_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar ast_segment [END_KEY]
+    Grammar ::= Grammar ast_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar globals_segment [END_KEY]
+    Grammar ::= Grammar globals_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar trailers_segment [END_KEY]
+    Grammar ::= Grammar trailers_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar rules_segment [END_KEY]
+    Grammar ::= Grammar rules_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar types_segment [END_KEY]
+    Grammar ::= Grammar types_segment END_KEY_opt
         /.$NoAction./
 
-    Grammar ::= Grammar dps_segment [END_KEY]
+    Grammar ::= Grammar dps_segment END_KEY_opt
         /.$NoAction./
 
     include_segment ::= INCLUDE_KEY
@@ -1310,10 +1314,10 @@
     name ::= IDENTIFIER_KEY
         /.$NoAction./
 
-    [END_KEY] ::= %Empty
+    END_KEY_opt ::= %Empty
         /.$NoAction./
 
-    [END_KEY] ::= END_KEY 
+    END_KEY_opt ::= END_KEY 
         /.$NoAction./
 
     {action_segment} ::= %Empty
@@ -1327,7 +1331,9 @@
         }
         ./
 
-    ----------------------------------------------------------------------
+%End
+
+%Trailers
 
     /!
         #line $next_line "$input_file"
