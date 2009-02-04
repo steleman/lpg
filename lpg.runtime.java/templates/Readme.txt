@@ -1,0 +1,1 @@
+The template files have been moved to lpg.generator/templates/java

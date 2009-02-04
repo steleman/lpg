@@ -1,0 +1,1 @@
+The include files have been moved to lpg.generator/include/java
