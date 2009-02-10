@@ -6,7 +6,7 @@
       provider-name="%providerName">
 
    <description url="http://www.sourceforge.net/projects/lpg">
-      The LPG parser generator executable, along with the Java runtime to be used with the generated parsers/scanners.
+      %description
    </description>
 
    <license url="%licenseURL">
