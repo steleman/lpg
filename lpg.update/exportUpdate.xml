@@ -16,7 +16,7 @@
 		<scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${update.server.username}@${update.server}:${update.server.dir}"></scp>
 	</target>
 
-	<target name="build.update.zip" depends="build.plugins,build.feature">
+	<target name="build.update.zip" depends="build.plugins,build.features">
 		<delete dir="${update.temp.folder}"/>
 		<mkdir dir="${update.temp.folder}"/>
 		<antcall target="copy.feature">
@@ -43,7 +43,7 @@
 		<delete dir="${update.temp.folder}"/>
 	</target>
 
-	<target name="build.feature">
+	<target name="build.features">
 		<property name="rtdir" value="../lpg.runtime.feature"/>
 		<ant antfile="${rtdir}/exportFeature.xml" target="build.feature.jar" dir="${rtdir}"/>
         <property name="gendir" value="../lpg.generator.feature"/>
