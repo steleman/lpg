@@ -5,4 +5,5 @@ Debug
 lpg.generator.cpp.ncb
 BisonToLPG.zip
 lpg-*
+bin
 grammar
