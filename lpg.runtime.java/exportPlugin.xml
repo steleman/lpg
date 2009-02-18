@@ -64,10 +64,13 @@
             </classpath>
             <src path="src/"/>
         </javac>
+        <copy todir="${temp.folder}/bin">
+            <fileset dir="src" includes="**/*.properties"/>
+        </copy>
         <!-- Copy necessary resources -->
 
 		<jar destfile="lpgruntime.jar" basedir="${temp.folder}/bin"
-			 includes="**/*.class"/>
+			 includes="**/*.class,**/*.properties"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
 			 manifest="META-INF/MANIFEST.MF"
 			includes="lpgruntime.jar"/>
