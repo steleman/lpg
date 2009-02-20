@@ -49,6 +49,7 @@
 		<echo message="basedir = ${basedir}"/>
 		<property name="temp.folder" value="temp"/>
 		<mkdir dir="${temp.folder}"/>
+		<mkdir dir="${build.result.folder}"/>
 
         <delete dir="${temp.folder}/bin"/>
         <mkdir dir="${temp.folder}/bin"/>
