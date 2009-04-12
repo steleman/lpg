@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public interface IPrsStream extends TokenStream
 {
+    IMessageHandler getMessageHandler();
     void setMessageHandler(IMessageHandler errMsg);
 
     ILexStream getILexStream();
