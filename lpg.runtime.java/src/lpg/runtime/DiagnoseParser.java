@@ -969,17 +969,6 @@ public class DiagnoseParser implements ParseErrorCodes
         if (candidate.symbol != 0)
             return candidate;
 
-        if (tokStream.getKind(error_token) == EOFT_SYMBOL)
-        {
-            emitError(EOF_CODE,
-                      terminalIndex(EOFT_SYMBOL),
-                      prevtok,
-                      prevtok);
-            candidate.symbol = 0;
-            candidate.location = error_token;
-            return candidate;
-        }
-
         //
         // At this point, primary and (initial attempt at) secondary
         // recovery did not work.  We will now get into "panic mode" and
@@ -987,28 +976,75 @@ public class DiagnoseParser implements ParseErrorCodes
         // a successful recovery or have consumed the remaining input
         // tokens.
         //
-        while(tokStream.getKind(buffer[BUFF_UBOUND]) != EOFT_SYMBOL)
+        if (tokStream.getKind(error_token) != EOFT_SYMBOL)
         {
-            candidate = secondaryPhase(buffer[MAX_DISTANCE - MIN_DISTANCE + 2]);
-            if (candidate.symbol != 0)
-                return candidate;
+            while(tokStream.getKind(buffer[BUFF_UBOUND]) != EOFT_SYMBOL)
+            {
+                candidate = secondaryPhase(buffer[MAX_DISTANCE - MIN_DISTANCE + 2]);
+                if (candidate.symbol != 0)
+                    return candidate;
+            }
+        }
+ 
+        //
+        // If no successful recovery is found and we have reached the
+        // end of the file, check whether or not any scope recovery is
+        // applicable at the end of the file after discarding some
+        // states.
+        //
+        PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
+        scope_repair.bufferPosition = BUFF_UBOUND;
+        for (int top = stateStackTop; top >= 0; top--)
+        {
+            scopeTrial(scope_repair, stateStack, top);
+
+            if (scope_repair.distance > 0)
+                break;
         }
 
         //
-        // We reached the end of the file while panicking. Delete all
-        // remaining tokens in the input.
+        // If any scope repair was successful, emit the message now
         //
-        int i;
-        for (i = BUFF_UBOUND; tokStream.getKind(buffer[i]) == EOFT_SYMBOL; i--)
-            ;
+        for (int i = 0; i < scopeStackTop; i++)
+        {
+            emitError(SCOPE_CODE,
+                      -scopeIndex[i],
+                      locationStack[scopePosition[i]],
+                      buffer[1],
+                      nonterminalIndex(scopeLhs(scopeIndex[i])));
+        }
 
-        emitError(DELETION_CODE,
-                  terminalIndex(tokStream.getKind(prevtok)),
-                  error_token,
-                  buffer[i]);
+        //
+        // If the original error_token was already pointing to the EOF, issue the EOF-reached message.
+        //
+        if (tokStream.getKind(error_token) == EOFT_SYMBOL)
+        {
+            emitError(EOF_CODE,
+                      terminalIndex(EOFT_SYMBOL),
+                      prevtok,
+                      prevtok);
+        }
+        else
+        {
+            //
+            // We reached the end of the file while panicking. Delete all
+            // remaining tokens in the input.
+            //
+            int i;
+            for (i = BUFF_UBOUND; tokStream.getKind(buffer[i]) == EOFT_SYMBOL; i--)
+                ;
 
+            emitError(DELETION_CODE,
+                      terminalIndex(tokStream.getKind(error_token)),
+                      error_token,
+                      buffer[i]);
+        }
+
+        //
+        // Create the "failed" candidate and return it.
+        //
         candidate.symbol = 0;
-        candidate.location = buffer[i];
+        candidate.location = buffer[BUFF_UBOUND]; // point to EOF
 
         return candidate;
     }
@@ -1794,7 +1830,6 @@ public class DiagnoseParser implements ParseErrorCodes
         statePoolTop = 0;
         if (statePool == null || statePool.length < stateStack.length)
             statePool = new StateInfo[stateStack.length];
-
         scopeTrialCheck(repair, stack, stack_top, 0);
 
         repair.code = SCOPE_CODE;
@@ -1967,7 +2002,7 @@ public class DiagnoseParser implements ParseErrorCodes
                             // then we favor a scope recovery over all other kinds
                             // of recovery.
                             //
-                            if (main_configuration_stack.size() == 0 && // no other bactracking possibilities left
+                            if ( // TODO: main_configuration_stack.size() == 0 && // no other bactracking possibilities left
                                 tokStream.getKind(buffer[repair.bufferPosition]) == EOFT_SYMBOL &&
                                 repair.distance == previous_distance)
                             {
@@ -2182,32 +2217,6 @@ public class DiagnoseParser implements ParseErrorCodes
                     repair.code = SCOPE_CODE;
                     repair.symbol = scopeLhs(i) + NT_OFFSET;
                     repair.stackPosition = stateStackTop;
-                    repair.bufferPosition = scope_repair.bufferPosition;
-                }
-            }
-        }
-
-        //
-        // If no successful recovery is found and we have reached the
-        // end of the file, check whether or not scope recovery is
-        // applicable at the end of the file after discarding some
-        // states.
-        //
-        if (repair.code == 0 && tokStream.getKind(buffer[last_index]) == EOFT_SYMBOL)
-        {
-            PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
-            scope_repair.bufferPosition = last_index;
-
-            for (int top = stateStackTop; top >= 0 && repair.code == 0; top--)
-            {
-                scopeTrial(scope_repair, stateStack, top);
-
-                if (scope_repair.distance > 0)
-                {
-                    int i = scopeIndex[scopeStackTop];    // upper bound
-                    repair.code = SCOPE_CODE;
-                    repair.symbol = scopeLhs(i) + NT_OFFSET;
-                    repair.stackPosition = top;
                     repair.bufferPosition = scope_repair.bufferPosition;
                 }
             }
