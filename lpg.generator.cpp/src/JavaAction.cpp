@@ -1165,11 +1165,14 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
                                  ast_buffer.Put(this -> abstract_ast_list_classname);
                                  ast_buffer.Put(" extends ");
                                  ast_buffer.Put(option -> ast_type);
-                                 ast_buffer.Put("\n");
+                                 ast_buffer.Put(" implements IAbstractArrayList<");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(">\n");
     ast_buffer.Put(indentation); ast_buffer.Put("{\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    private boolean leftRecursive;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    private java.util.ArrayList list;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public int size() { return list.size(); }\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.List getList() { return list; }\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    public ");
                                  ast_buffer.Put(option -> ast_type);
                                  ast_buffer.Put(" getElementAt(int i) { return (");
