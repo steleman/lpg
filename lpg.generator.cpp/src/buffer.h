@@ -178,7 +178,7 @@ public:
     //
     void Put(int num)
     {
-        char *digits = "0123456789";
+        const char *digits = "0123456789";
         int  val = (num < 0 ? -num : num);
         char tmp[12],
              *p = &tmp[11];

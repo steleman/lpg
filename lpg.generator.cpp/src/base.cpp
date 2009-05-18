@@ -1784,7 +1784,7 @@ void Base::PrintNonTerminalFirst(void)
 //
 //
 //
-void Base::PrintSymbolMap(char *header, Array<BitSet> &map)
+void Base::PrintSymbolMap(const char *header, Array<BitSet> &map)
 {
     char line[Control::PRINT_LINE_SIZE + 1],
          tok[Control::SYMBOL_SIZE + 1];

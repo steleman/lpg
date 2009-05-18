@@ -1673,7 +1673,7 @@ void Grammar::RestoreSymbol(char *out, char *in)
 // the whole line, we forget the indentation, and printed it. Otherwise, it
 // is "chapped up" and printed in pieces that are each indented.
 //
-void Grammar::PrintLargeToken(char *line, char *token, char *indent, int len)
+void Grammar::PrintLargeToken(char *line, const char *token, const char *indent, int len)
 {
     int toklen;
 

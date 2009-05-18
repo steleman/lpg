@@ -94,7 +94,7 @@ class Base : public Util
     void PrintXref(void);
     void QuickSortSymbols(Array<int> &, int, int);
     void PrintNonTerminalFirst(void);
-    void PrintSymbolMap(char *, Array<BitSet> &);
+    void PrintSymbolMap(const char *, Array<BitSet> &);
     void PrintFollowMap(void);
     void InitRmpself(BoundedArray<BitSetWithOffset> &);
 

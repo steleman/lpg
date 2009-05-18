@@ -289,7 +289,7 @@ void JavaTable::WriteData(TypeId type_id, Array<int> &array)
              WriteInteger((1 << 16) - 1);
              break;
         case I32:
-             WriteInteger((1 << 31) - 1);
+	  WriteInteger((unsigned (1 << 31)) - 1);
              break;
         default:
              assert(false);

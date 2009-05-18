@@ -247,7 +247,7 @@ private:
                    *accept_symbol,
                    *null_symbol;
 
-    VariableSymbol *allocate_variable_symbol(char *keyword)
+    VariableSymbol *allocate_variable_symbol(const char *keyword)
     {
         int length = strlen(keyword) + 1;
         char *string = new char[length + 1];
@@ -369,6 +369,6 @@ public:
     inline int LastRule()  { return num_rules; }
 
     void RestoreSymbol(char *, char *);
-    void PrintLargeToken(char *, char *, char *, int);
+    void PrintLargeToken(char *, const char *, const char *, int);
 };
 #endif /* GRAMMAR_INCLUDED */
