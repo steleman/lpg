@@ -456,9 +456,9 @@ void Pda::MakeReductions(void)
     //
 
     //
-    // If we will be removing single productions, we need to keep   
-    // track of all (state, symbol) pairs on which a conflict is    
-    // detected. The structure conflict_symbols is used as a base   
+    // If we will be removing single productions, we need to keep
+    // track of all (state, symbol) pairs on which a conflict is
+    // detected. The structure conflict_symbols is used as a base
     // to construct that map. See ADD_CONFLICT_SYMBOL below.
     //
     if (option -> single_productions)
@@ -493,7 +493,7 @@ void Pda::MakeReductions(void)
                     (! option -> backtrack) &&
                     (item_ptr  -> next == NULL) &&
                     (base -> item_table[item_no].symbol == grammar -> empty));
-    
+
             //
             // If a state has a complete item, and more than one kernel item
             // which is different from the complete item, then this state
@@ -1328,7 +1328,7 @@ void Pda::PrintStates(void)
     // they are unreachable because the original transition into
     // them was changed into a shift action to a lookahead state
     // instead. In such a case, we make the lookahead state where
-    // the transition to the original state will take place a 
+    // the transition to the original state will take place a
     // predecessor of the original state.
     //
     if (max_la_state > num_states)
@@ -1422,10 +1422,10 @@ void Pda::ProcessConflictActions()
     // We now process all states that contain conflicting actions.
     //
     Tuple<int> shift_list;
-    for (int state_no = 1; state_no < num_states; state_no++)
+    for (int state_no = 1; state_no <= num_states; state_no++)
     {
         //
-        // If any conflict action was detected in state_no, 
+        // If any conflict action was detected in state_no,
         // Remap the shift map associated with it.
         //
         Dfa::ConflictHeader &conflict = statset[state_no].conflict;
@@ -1444,7 +1444,7 @@ void Pda::ProcessConflictActions()
             }
 
             //
-            // First, record the conflicting actions and remove 
+            // First, record the conflicting actions and remove
             // all reductions associated with a symbol on which
             // confliting actions are defined.
             //
