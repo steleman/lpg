@@ -2,7 +2,7 @@
 <feature
       id="lpg.runtime"
       label="%featureName"
-      version="2.0.16"
+      version="2.0.17"
       provider-name="%providerName">
 
    <description url="http://www.sourceforge.net/projects/lpg">
@@ -17,6 +17,6 @@
          id="lpg.runtime"
          download-size="0"
          install-size="0"
-         version="2.0.16"/>
+         version="2.0.17"/>
 
 </feature>
