@@ -93,7 +93,7 @@
 	</target>
 
     <target name="build.sf.release">
-        <property name="release.dir" value="${update.temp.folder}/release"/>
+        <property name="release.dir" value="sf-release"/>
         <property name="lpg.gen" value="../lpg.generator"/>
         <property name="lpg.gen.src" value="../lpg.generator.cpp"/>
         <property name="lpg.runtime.bin" value="../lpg.runtime.java"/>
