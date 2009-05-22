@@ -91,4 +91,28 @@
 			<fileset dir="plugins" includes="*.jar"/>
 		</copy>
 	</target>
+
+    <target name="build.sf.release">
+        <property name="release.dir" value="${update.temp.folder}/release"/>
+        <property name="lpg.gen" value="../lpg.generator"/>
+        <property name="lpg.gen.src" value="../lpg.generator.cpp"/>
+        <property name="lpg.runtime.bin" value="../lpg.runtime.java"/>
+        <mkdir dir="${release.dir}"/>
+        <zip destfile="${release.dir}/lpg-generator-cpp-src-${lpg.runtime.version}.zip" update="true">
+            <fileset dir="${lpg.gen.src}" includes="src/*.cpp,src/*.h,src/Make*,src/jikespg.g,.project" excludes="bin/*,src/*.o"/>
+        </zip>
+        <zip destfile="${release.dir}/lpg-generator-templates-${lpg.runtime.version}.zip" update="true">
+            <fileset dir="${lpg.gen}" includes="templates/java/**/*.g*,include/java/**/*.g*,docs/*"/>
+        </zip>
+        <jar destfile="${release.dir}/lpg-java-runtime-bin-${lpg.runtime.version}.jar" update="true">
+            <fileset dir="${lpg.runtime.bin}/bin" includes="**/*.class,**/*.properties"/>
+            <fileset dir="${lpg.runtime.bin}" includes="META-INF/*"/>
+        </jar>
+        <zip destfile="${release.dir}/lpg-java-runtime-src-${lpg.runtime.version}.zip" update="true">
+            <fileset dir="${lpg.runtime.bin}" includes="src/**/*.java,src/**/*.properties,.project,.classpath,META-INF/*,*.xml,*.htm"/>
+        </zip>
+        <copy file="../lpg.generator.linux_x86/lpgexe/lpg-linux_x86" tofile="${release.dir}/lpg-linux_x86-${lpg.runtime.version}"></copy>
+        <copy file="../lpg.generator.macosx_x86/lpgexe/lpg-macosx_x86" tofile="${release.dir}/lpg-macosx_x86-${lpg.runtime.version}"></copy>
+        <copy file="../lpg.generator.win32_x86/lpgexe/lpg-win32_x86" tofile="${release.dir}/lpg-win32_x86-${lpg.runtime.version}"></copy>
+    </target>
 </project>
