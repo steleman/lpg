@@ -867,21 +867,63 @@ void Action::CompleteClassnameInfo(LCA &lca,
             }
             else // generate independent classes.
             {
+                //
+                // TODO: Old Approach - Remove !!!
+                //
+                // for (int k = 0; k < rule.Length(); k++)
+                // {
+                //     int rule_no = rule[k];
+                //
+                //     IntToString suffix(k); // Using suffix(k) is more invariant than suffix(rule_no);
+                //     int length = strlen(classname[i].real_name) + strlen(suffix.String());
+                //     char *new_name = new char[length + 1];
+                //     strcpy(new_name, classname[i].real_name);
+                //     strcat(new_name, suffix.String());
+                //
+                //     ClassnameElement &additional_classname = classname.Next();
+                //     additional_classname.rule.Next() = rule_no;
+                //     additional_classname.specified_name = classname_set.FindOrInsertName(new_name, strlen(new_name)) -> Name();
+                //     additional_classname.real_name = additional_classname.specified_name;
+                //
+                //     delete [] new_name;
+                // }
+                //
                 for (int k = 0; k < rule.Length(); k++)
                 {
                     int rule_no = rule[k];
 
-                    IntToString suffix(k); // Using suffix(k) is more invariant than suffix(rule_no);
-                    int length = strlen(classname[i].real_name) + strlen(suffix.String());
+                    Tuple<const char *> symbol_list;
+                    int index = grammar -> rules[rule_no].source_index, // original rule index in source
+                        length = strlen(classname[i].real_name) + 1;
+                    for (int j = lex_stream -> Next(grammar -> parser.rules[index].separator_index);
+                             j < grammar -> parser.rules[index].end_rhs_index;
+                             j = lex_stream -> Next(j))
+                    {
+                        if (lex_stream -> Kind(j) == TK_SYMBOL)
+                        {
+                            VariableSymbol *variable_symbol = lex_stream -> GetVariableSymbol(j);
+                            if (variable_symbol != NULL)
+                            {
+                                const char *variable_name = grammar -> RetrieveString(variable_symbol -> SymbolIndex());
+                                length += (strlen(variable_name) + 1);
+                                symbol_list.Next() = variable_name;
+                            }
+                        }
+                    }
+
                     char *new_name = new char[length + 1];
-                    strcpy(new_name, classname[i].real_name);
-                    strcat(new_name, suffix.String());
+                        strcpy(new_name, classname[i].real_name);
+                        strcat(new_name, "_");
+                        for (int k = 0; k < symbol_list.Length(); k++)
+                        {
+                            strcat(new_name, "_");
+                            strcat(new_name, symbol_list[k]);
+                        }
 
-                    ClassnameElement &additional_classname = classname.Next();
-                    additional_classname.rule.Next() = rule_no;
-                    additional_classname.specified_name = classname_set.FindOrInsertName(new_name, strlen(new_name)) -> Name();
-                    additional_classname.real_name = additional_classname.specified_name;
-
+                        ClassnameElement &additional_classname = classname.Next();
+                        additional_classname.rule.Next() = rule_no;
+                        additional_classname.specified_name = classname_set.FindOrInsertName(new_name, strlen(new_name)) -> Name();
+                        additional_classname.real_name = additional_classname.specified_name;
                     delete [] new_name;
                 }
                 classname[i].rule.Reset();
