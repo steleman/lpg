@@ -5,5 +5,4 @@ Bundle-SymbolicName: lpg.runtime
 Bundle-ClassPath: lpgruntime.jar
 Bundle-Version: 2.0.17
 Bundle-Vendor: pcharles@us.ibm.com
-Bundle-Localization: plugin
 Export-Package: lpg.runtime

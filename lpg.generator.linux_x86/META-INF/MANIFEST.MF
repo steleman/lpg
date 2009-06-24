@@ -4,6 +4,5 @@ Bundle-Name: Linux_x86 Fragment
 Bundle-SymbolicName: lpg.generator.linux_x86
 Bundle-Version: 2.0.17
 Fragment-Host: lpg.generator;bundle-version="2.0.17"
-Bundle-Localization: plugin
 Eclipse-PlatformFilter: (& (osgi.os=linux) (osgi.arch=x86))
 Bundle-Vendor: rfuhrer@watson.ibm.com
