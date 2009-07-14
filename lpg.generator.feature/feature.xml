@@ -21,6 +21,8 @@
 
    <plugin
          id="lpg.generator.linux_x86"
+         os="linux"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="2.0.17"
@@ -29,6 +31,8 @@
 
    <plugin
          id="lpg.generator.macosx_x86"
+         os="macosx"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="2.0.17"
@@ -37,6 +41,8 @@
 
    <plugin
          id="lpg.generator.win32_x86"
+         os="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="2.0.17"
