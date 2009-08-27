@@ -4,5 +4,6 @@ Bundle-Name: LPG Java Runtime
 Bundle-SymbolicName: lpg.runtime
 Bundle-ClassPath: lpgruntime.jar
 Bundle-Version: 2.0.17
-Bundle-Vendor: pcharles@us.ibm.com
+Bundle-Vendor: pgcharles@hotmail.com
 Export-Package: lpg.runtime
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
