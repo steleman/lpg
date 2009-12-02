@@ -67,10 +67,18 @@
 			<param name="fragos" value="macosx"/>
 			<param name="fragarch" value="x86"/>
 		</antcall>
+        <antcall target="build.fragment">
+            <param name="fragos" value="macosx"/>
+            <param name="fragarch" value="x86_64"/>
+        </antcall>
 		<antcall target="build.fragment">
 			<param name="fragos" value="linux"/>
 			<param name="fragarch" value="x86"/>
 		</antcall>
+        <antcall target="build.fragment">
+            <param name="fragos" value="linux"/>
+            <param name="fragarch" value="x86_64"/>
+        </antcall>
 	</target>
 
 	<target name="build.fragment">
@@ -113,6 +121,7 @@
         </zip>
         <copy file="../lpg.generator.linux_x86/lpgexe/lpg-linux_x86" tofile="${release.dir}/lpg-linux_x86-${lpg.runtime.version}"></copy>
         <copy file="../lpg.generator.macosx_x86/lpgexe/lpg-macosx_x86" tofile="${release.dir}/lpg-macosx_x86-${lpg.runtime.version}"></copy>
+        <copy file="../lpg.generator.macosx_x86_64/lpgexe/lpg-macosx_x86_64" tofile="${release.dir}/lpg-macosx_x86_64-${lpg.runtime.version}"></copy>
         <copy file="../lpg.generator.win32_x86/lpgexe/lpg-win32_x86" tofile="${release.dir}/lpg-win32_x86-${lpg.runtime.version}"></copy>
     </target>
 </project>
