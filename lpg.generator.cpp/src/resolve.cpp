@@ -1360,6 +1360,14 @@ int Resolve::state_to_resolve_conflicts(Resolve::SourcesElement &sources, int la
     }
 
     //
+    // Could not resolve this conflict - a state with no shift and no reduce actions is encountered
+    //
+    if (num_shift_actions == 0 && default_rule == Util::OMEGA) {
+        clear_action(action, symbol_list);
+        return Util::OMEGA;
+    }
+
+    //
     // By now, we are ready to create a new look-ahead state. The
     // actions for the state are in the ACTION vector, and the
     // constants: NUM_SHIFT_ACTIONS and NUM_REDUCE_ACTIONS indicate
