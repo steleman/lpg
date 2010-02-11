@@ -19,4 +19,10 @@
          install-size="0"
          version="2.0.17"/>
 
+   <plugin
+         id="lpg.runtime.java"
+         download-size="0"
+         install-size="0"
+         version="2.0.17"/>
+
 </feature>
