@@ -1,0 +1,3 @@
+This plugin is a simple wrapper to accommodate clients of the original LPG runtime bundle,
+located in project lpg.runtime.java, and whose ID was lpg.runtime, as well as clients of
+the renamed bundle (still in project lpg.runtime.java), whose ID is lpg.runtime.java.
