@@ -51,13 +51,15 @@
 	</target>
 
 	<target name="build.plugins">
-		<property name="pluginDir" value="../lpg.runtime.java"/>
+        <property name="runtimePluginDir" value="../lpg.runtime"/>
+        <property name="runtimeJavaPluginDir" value="../lpg.runtime.java"/>
 		<mkdir dir="plugins"/>
 		<mkdir dir="features"/>
 
         <ant antfile="../lpg.generator/exportPlugin.xml" target="build.plugin.jar" dir="../lpg.generator"/>
 
-		<ant antfile="${pluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${pluginDir}"/>
+		<ant antfile="${runtimePluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimePluginDir}"/>
+        <ant antfile="${runtimeJavaPluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimeJavaPluginDir}"/>
 
 		<antcall target="build.fragment">
 			<param name="fragos" value="win32"/>
