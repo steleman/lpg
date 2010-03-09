@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="lpg.runtime.java" default="build.plugin.jar" basedir=".">
-	<target name="init">
-		<loadfile property="plugin.id" srcfile="META-INF/MANIFEST.MF">
-			<filterchain>
-				<containsregex pattern="Bundle-SymbolicName:"/>
-				<replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1"/>
-				<striplinebreaks/>
-			</filterchain>
-		</loadfile>
-		<!-- <echo message="Plugin ID = ${plugin.id}"/> -->
+    <target name="init">
+        <loadfile property="plugin.id" srcfile="META-INF/MANIFEST.MF">
+            <filterchain>
+                <containsregex pattern="Bundle-SymbolicName:"/>
+                <replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <!-- <echo message="Plugin ID = ${plugin.id}"/> -->
 
-		<loadfile property="plugin.version" srcfile="META-INF/MANIFEST.MF">
-			<filterchain>
-				<containsregex pattern="Bundle-Version:"/>
-				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
-				<striplinebreaks/>
-			</filterchain>
-		</loadfile>
-		<!-- <echo message="Plugin version = ${plugin.version}"/> -->
+        <loadfile property="plugin.version" srcfile="META-INF/MANIFEST.MF">
+            <filterchain>
+                <containsregex pattern="Bundle-Version:"/>
+                <replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <!-- <echo message="Plugin version = ${plugin.version}"/> -->
 
-		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/>
-		<property name="build.result.folder" value="${basedir}/../lpg.update/plugins"/>
-	</target>
+        <property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/>
+        <property name="build.result.folder" value="${basedir}/../lpg.update/plugins"/>
+    </target>
 
     <target name="javaInit" description="Initializes compiler settings from bundle meta-data">
         <loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs">
@@ -43,17 +43,35 @@
         <echo message="Java target compatibility = ${javacTarget}"/>
 
         <property name="compilerArg" value=""/>
-    </target>
 
-	<target name="build.plugin.jar" depends="init,javaInit">
-		<echo message="basedir = ${basedir}"/>
-		<property name="temp.folder" value="temp"/>
-		<mkdir dir="${temp.folder}"/>
+        <loadfile property="plugin.src.path" srcfile=".classpath">
+            <filterchain>
+                <containsregex pattern="kind=&quot;src&quot;"/>
+                <replaceregex pattern="[ \t]*&lt;classpathentry .* path=&quot;(.*)&quot;/&gt;" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+<!--    <echo message="plugin.src.path = ${plugin.src.path}"/> -->
 
-        <delete dir="${temp.folder}/bin"/>
-        <mkdir dir="${temp.folder}/bin"/>
+        <loadfile property="plugin.output.folder" srcfile=".classpath">
+            <filterchain>
+                <containsregex pattern="kind=&quot;output&quot;"/>
+                <replaceregex pattern="[ \t]*&lt;classpathentry .* path=&quot;(.*)&quot;/&gt;" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+<!--    <echo message="plugin.output.folder = ${plugin.output.folder}"/> -->
+</target>
+
+    <target name="build.plugin.jar" depends="init,javaInit">
+        <echo message="basedir = ${basedir}"/>
+        <property name="temp.folder" value="temp"/>
+
+        <delete dir="${plugin.output.folder}"/>
+        <mkdir dir="${plugin.output.folder}"/>
+
         <!-- compile the source code -->
-        <javac destdir="${temp.folder}/bin" failonerror="${javacFailOnError}"
+        <javac destdir="${plugin.output.folder}" failonerror="${javacFailOnError}"
                verbose="${javacVerbose}" debug="${javacDebugInfo}"
                includeAntRuntime="no" bootclasspath="${bootclasspath}"
                source="${javacSource}" target="${javacTarget}">
@@ -62,17 +80,23 @@
                 <pathelement path="${plugin.dependencies}"/>
                 <pathelement path="${eclipse.build.path}"/>
             </classpath>
-            <src path="src/"/>
+            <src path="${plugin.src.path}"/>
         </javac>
+
+        <mkdir dir="${temp.folder}"/>
+        <delete dir="${temp.folder}/bin"/>
+        <mkdir dir="${temp.folder}/bin"/>
+
         <copy todir="${temp.folder}/bin">
+            <fileset dir="${plugin.output.folder}" includes="**/*.class"/>
             <fileset dir="src" includes="**/*.properties"/>
         </copy>
         <!-- Copy necessary resources -->
 
-		<jar destfile="lpgruntime.jar" basedir="${temp.folder}/bin"
-			 includes="**/*.class,**/*.properties"/>
-		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
-			 manifest="META-INF/MANIFEST.MF"
-			includes="lpgruntime.jar"/>
-	</target>
+        <jar destfile="lpgruntime.jar" basedir="${temp.folder}/bin"
+             includes="**/*.class,**/*.properties"/>
+        <jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
+             manifest="META-INF/MANIFEST.MF"
+            includes="lpgruntime.jar"/>
+    </target>
 </project>
