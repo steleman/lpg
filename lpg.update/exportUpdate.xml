@@ -3,15 +3,20 @@
 	<xmlproperty file="../lpg.runtime.feature/feature.xml" prefix="lpg.runtime"/>
 	<property name="lpg.runtime.version" value="${lpg.runtime.feature(version)}"/>
 
-	<property name="update.name"        value="lpg.update"/>
-	<property name="update.version"     value="${lpg.runtime.version}"/>
-	<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
-	<property name="update.destination" value="${basedir}"/>
-	<property name="update.server"      value="shell.sourceforge.net"/>
-	<property name="update.server.dir"  value="."/>
-	<property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.zip"/>
+	<property name="update.name"         value="lpg.update"/>
+	<property name="update.version"      value="${lpg.runtime.version}"/>
+	<property name="update.temp.folder"  value="${basedir}/update.temp.folder"/>
+	<property name="update.destination"  value="${basedir}"/>
+	<property name="update.server"       value="shell.sourceforge.net"/>
+	<property name="update.server.dir"   value="."/>
+	<property name="zip.file"            value="${update.destination}/${update.name}_${update.version}.zip"/>
 
-	<target name="deploy.zip" description="Copies the update archive to the update server.">
+    <property name="generator.platforms" value="linux_x86,linux_x86_64,macosx_x86,macosx_x86_64,win32_x86"/>
+    <property name="feature.ids.list"    value="lpg.runtime,lpg.generator"/>
+
+    <taskdef resource="antlib.xml" classpath="./ant-imp.jar"/>
+
+    <target name="deploy.zip" description="Copies the update archive to the update server.">
 		<echo message="Copying update zip file to update server ${update.server}"/>
 		<scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${update.server.username}@${update.server}:${update.server.dir}"></scp>
 	</target>
@@ -19,16 +24,13 @@
 	<target name="build.update.zip" depends="build.plugins,build.features">
 		<delete dir="${update.temp.folder}"/>
 		<mkdir dir="${update.temp.folder}"/>
-		<antcall target="copy.feature">
-			<param name="feature.id"      value="lpg.runtime"/>
-			<param name="feature.dir"     value="lpg.runtime.feature"/>
-			<param name="feature.version" value="${update.version}"/>
-		</antcall>
-        <antcall target="copy.feature">
-            <param name="feature.id"      value="lpg.generator"/>
-            <param name="feature.dir"     value="lpg.generator.feature"/>
-            <param name="feature.version" value="${update.version}"/>
-        </antcall>
+	    <for param="feature.id" values="${feature.ids.list}" separator=",">
+	        <antcall target="copy.feature">
+	            <param name="feature.id"      value="${feature.id}"/>
+	            <param name="feature.dir"     value="${feature.id}.feature"/>
+	            <param name="feature.version" value="${update.version}"/>
+	        </antcall>
+        </for>
 
         <copy file="site.xml" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
         <copy file="index.html" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
@@ -44,49 +46,35 @@
 	</target>
 
 	<target name="build.features">
-		<property name="rtdir" value="../lpg.runtime.feature"/>
-		<ant antfile="${rtdir}/exportFeature.xml" target="build.feature.jar" dir="${rtdir}"/>
-        <property name="gendir" value="../lpg.generator.feature"/>
-        <ant antfile="${gendir}/exportFeature.xml" target="build.feature.jar" dir="${gendir}"/>
+        <delete dir="features"/>
+        <mkdir dir="features"/>
+
+	    <for param="feature.id" values="${feature.ids.list}" separator=",">
+	        <ant antfile="../${feature.id}.feature/exportFeature.xml" target="build.feature.jar" dir="../${feature.id}.feature"/>
+        </for>
 	</target>
 
 	<target name="build.plugins">
         <property name="runtimeBridgePluginDir" value="../lpg.runtime"/>
         <property name="runtimeJavaPluginDir" value="../lpg.runtime.java"/>
-        <delete dir="plugins"/>
+
+	    <delete dir="plugins"/>
 		<mkdir dir="plugins"/>
-        <delete dir="features"/>
-		<mkdir dir="features"/>
 
         <ant antfile="../lpg.generator/exportPlugin.xml" target="build.plugin.jar" dir="../lpg.generator"/>
 
 		<ant antfile="${runtimeBridgePluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimeBridgePluginDir}"/>
         <ant antfile="${runtimeJavaPluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimeJavaPluginDir}"/>
 
-		<antcall target="build.fragment">
-			<param name="fragos" value="win32"/>
-			<param name="fragarch" value="x86"/>
-		</antcall>
-		<antcall target="build.fragment">
-			<param name="fragos" value="macosx"/>
-			<param name="fragarch" value="x86"/>
-		</antcall>
-        <antcall target="build.fragment">
-            <param name="fragos" value="macosx"/>
-            <param name="fragarch" value="x86_64"/>
-        </antcall>
-		<antcall target="build.fragment">
-			<param name="fragos" value="linux"/>
-			<param name="fragarch" value="x86"/>
-		</antcall>
-        <antcall target="build.fragment">
-            <param name="fragos" value="linux"/>
-            <param name="fragarch" value="x86_64"/>
-        </antcall>
+        <for param="platform" values="${generator.platforms}" separator=",">
+            <antcall target="build.fragment">
+                <param name="fragment.platform" value="${platform}"/>
+            </antcall>
+        </for>
 	</target>
 
 	<target name="build.fragment">
-		<property name="dir" value="../lpg.generator.${fragos}_${fragarch}"/>
+		<property name="dir" value="../lpg.generator.${fragment.platform}"/>
 		<ant antfile="${dir}/exportFragment.xml" target="build.fragment.jar" dir="${dir}"/>
 	</target>
 
@@ -123,9 +111,9 @@
         <zip destfile="${release.dir}/lpg-java-runtime-src-${lpg.runtime.version}.zip" update="true">
             <fileset dir="${lpg.runtime.bin}" includes="src/**/*.java,src/**/*.properties,.project,.classpath,META-INF/*,*.xml,*.htm"/>
         </zip>
-        <copy file="../lpg.generator.linux_x86/lpgexe/lpg-linux_x86" tofile="${release.dir}/lpg-linux_x86-${lpg.runtime.version}"></copy>
-        <copy file="../lpg.generator.macosx_x86/lpgexe/lpg-macosx_x86" tofile="${release.dir}/lpg-macosx_x86-${lpg.runtime.version}"></copy>
-        <copy file="../lpg.generator.macosx_x86_64/lpgexe/lpg-macosx_x86_64" tofile="${release.dir}/lpg-macosx_x86_64-${lpg.runtime.version}"></copy>
-        <copy file="../lpg.generator.win32_x86/lpgexe/lpg-win32_x86" tofile="${release.dir}/lpg-win32_x86-${lpg.runtime.version}"></copy>
+
+        <for param="platform" values="${generator.platforms}" separator=",">
+            <copy file="../lpg.generator.${platform}/lpgexe/lpg-${platform}" tofile="${release.dir}/lpg-${platform}-${lpg.runtime.version}"/>
+        </for>
     </target>
 </project>
