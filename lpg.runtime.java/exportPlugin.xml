@@ -87,16 +87,23 @@
         <delete dir="${temp.folder}/bin"/>
         <mkdir dir="${temp.folder}/bin"/>
 
+<!--
         <copy todir="${temp.folder}/bin">
             <fileset dir="${plugin.output.folder}" includes="**/*.class"/>
             <fileset dir="src" includes="**/*.properties"/>
         </copy>
-        <!-- Copy necessary resources -->
 
         <jar destfile="lpgruntime.jar" basedir="${temp.folder}/bin"
              includes="**/*.class,**/*.properties"/>
-        <jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
-             manifest="META-INF/MANIFEST.MF"
-            includes="lpgruntime.jar"/>
+  -->
+        <jar destfile="${build.result.folder}/${plugin.jar.name}"
+             manifest="META-INF/MANIFEST.MF">
+            <fileset dir="${plugin.output.folder}">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${plugin.src.path}">
+                <include name="**/*.properties"/>
+            </fileset>
+        </jar>
     </target>
 </project>
