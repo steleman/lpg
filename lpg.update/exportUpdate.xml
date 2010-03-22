@@ -51,14 +51,16 @@
 	</target>
 
 	<target name="build.plugins">
-        <property name="runtimePluginDir" value="../lpg.runtime"/>
+        <property name="runtimeBridgePluginDir" value="../lpg.runtime"/>
         <property name="runtimeJavaPluginDir" value="../lpg.runtime.java"/>
+        <delete dir="plugins"/>
 		<mkdir dir="plugins"/>
+        <delete dir="features"/>
 		<mkdir dir="features"/>
 
         <ant antfile="../lpg.generator/exportPlugin.xml" target="build.plugin.jar" dir="../lpg.generator"/>
 
-		<ant antfile="${runtimePluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimePluginDir}"/>
+		<ant antfile="${runtimeBridgePluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimeBridgePluginDir}"/>
         <ant antfile="${runtimeJavaPluginDir}/exportPlugin.xml" target="build.plugin.jar" dir="${runtimeJavaPluginDir}"/>
 
 		<antcall target="build.fragment">
