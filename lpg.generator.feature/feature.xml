@@ -2,7 +2,7 @@
 <feature
       id="lpg.generator"
       label="LPG Generator and Templates"
-      version="2.0.18"
+      version="2.0.19"
       provider-name="pcharles@us.ibm.com">
 
    <description url="http://www.sourceforge.net/projects/lpg">
@@ -17,7 +17,7 @@
          id="lpg.generator"
          download-size="0"
          install-size="0"
-         version="2.0.18"
+         version="2.0.19"
          unpack="true"/>
 
    <plugin
@@ -26,7 +26,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="2.0.18"
+         version="2.0.19"
          fragment="true"
          unpack="false"/>
 
@@ -36,7 +36,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="2.0.18"
+         version="2.0.19"
          fragment="true"
          unpack="false"/>
 
@@ -46,7 +46,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="2.0.18"
+         version="2.0.19"
          fragment="true"
          unpack="false"/>
 
@@ -56,7 +56,7 @@
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="2.0.18"
+         version="2.0.19"
          fragment="true"
          unpack="false"/>
 
@@ -64,7 +64,7 @@
          id="lpg.generator.macosx_x86_64"
          download-size="0"
          install-size="0"
-         version="2.0.18"
+         version="2.0.19"
          fragment="true"
          unpack="false"/>
 
