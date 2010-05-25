@@ -976,10 +976,9 @@ const char *Option::ClassifyN(const char *start, bool flag)
                     names = OPTIMIZED;
                 else
                 {
-                    i = strxsub(value, "maximum");
-                    if (i == 1)
+                    if (length == 1)
                          return ReportAmbiguousOption(start, "MAXIMUM, MINIMUM");
-                    else if (i == length)
+                    else if (strxsub(value, "maximum") == length)
                          names = MAXIMUM;
                     else if (strxsub(value, "minimum") == length)
                          names = MINIMUM;
@@ -1229,9 +1228,39 @@ const char *Option::ClassifyQ(const char *start, bool flag)
 //
 // read_reduce
 // remap_terminals
+// rule_classnames
 //
 const char *Option::ClassifyR(const char *start, bool flag)
 {
+    if (flag)
+    {
+        int i = OptionMatch(start, "rule", "classnames");
+        if (start[i + 1] == '=' || IsDelimiter(start[i + 1]))
+        {
+            const char *p = start + i + 1,
+                       *q = ValuedOption(p);
+            if (q == NULL)
+            {
+                if (i > 0)
+                     return ReportMissingValue(start, "RULE_CLASSNAMES");
+            }
+            else
+            {
+                const char *value;
+                p = GetStringValue(q, value);
+                int length = strlen(value);
+                if (length == 1)
+                    return ReportAmbiguousOption(start, "SEQUENTIAL, STABLE");
+                else if (strxsub(value, "sequential") == length)
+                     rule_classnames = SEQUENTIAL;
+                else if (strxsub(value, "stable") == length)
+                     rule_classnames = STABLE;
+                else InvalidValueError(start, value, i + 1);
+            }
+            return p;
+        }
+    }
+
     int i = OptionMatch(start, "read", "reduce");
     if (start[i + 1] == '=' || IsDelimiter(start[i + 1]))
     {
@@ -3071,6 +3100,7 @@ void Option::PrintOptionsInEffect()
     opt_string.Next() = AllocateString(quiet ? "QUIET" : "NOQUIET");
     opt_string.Next() = AllocateString(read_reduce ? "READ-REDUCE" : "NOREAD-REDUCE");
     opt_string.Next() = AllocateString(remap_terminals ? "REMAP-TERMINALS" : "NOREMAP-TERMINALS");
+    opt_string.Next() = AllocateString(rule_classnames == SEQUENTIAL ? "RULE_CLASSNAMES=SEQUENTIAL" : "RULE_CLASSNAMES=STABLE");
     opt_string.Next() = AllocateString(scopes ? "SCOPES" : "NOSCOPES");
     opt_string.Next() = AllocateString(serialize ? "SERIALIZE" : "NOSERIALIZE");
     opt_string.Next() = AllocateString(shift_default ? "SHIFT-DEFAULT" : "NOSHIFT-DEFAULT");
@@ -3205,6 +3235,7 @@ void Option::PrintOptionsList(void)
                "-quiet                                                " "\n"
                "-read-reduce                                          " "\n"
                "-remap-terminals                                      " "\n"
+               "-rule_classnames=<sequential|stable>                  " "\n"
                "-scopes                                               " "\n"
                "-serialize                                            " "\n"
                "-shift-default                                        " "\n"

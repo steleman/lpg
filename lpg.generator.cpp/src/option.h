@@ -26,6 +26,12 @@ public:
         OPTIMIZED = 3,
 
         //
+        // Possible values for rule_classnames
+        //
+        SEQUENTIAL = 1,
+        STABLE = 2,
+
+        //
         // Possible values for option "programming_language"
         //
         NONE = 0,
@@ -116,6 +122,7 @@ public:
         margin,
         max_cases,
         names,
+        rule_classnames,
         trace,
         programming_language,
         automatic_ast,
@@ -265,6 +272,7 @@ public:
         margin = 0;
         max_cases = 1024;
         names = OPTIMIZED;
+        rule_classnames = SEQUENTIAL;
         trace = CONFLICTS;
         programming_language = XML;
         escape = ' ';
