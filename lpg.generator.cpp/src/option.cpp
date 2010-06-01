@@ -2498,8 +2498,11 @@ void Option::ProcessPath(Tuple<const char *> &list, const char *path, const char
     strcat(str, path);
 
     int length;
-    for (length = strlen(str) - 1; IsSpace(str[length]); length--)
+    for (length = strlen(str) - 1; length >= 0 && IsSpace(str[length]); length--)
         ; // remove trailing spaces
+    if (length < 0)
+        length = 0;
+
     if (str[length] != ';') // make sure that the path ends with a terminating semicolon
         str[++length] = ';';
     str[++length] = NULL_CHAR;
