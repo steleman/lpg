@@ -1,0 +1,38 @@
+? DIFFS
+? bin
+? lpg
+Index: CTable.cpp
+===================================================================
+RCS file: /cvsroot/lpg/lpg.generator.cpp/src/CTable.cpp,v
+retrieving revision 1.2
+diff -r1.2 CTable.cpp
+177a178,187
+> <<<<<<< CTable.cpp
+> 
+>     // fclose(sysdcl);
+>     fclose(syssym);
+>     fclose(sysprs);
+>     if (grammar -> exported_symbols.Length() > 0)
+>         fclose(sysexp);
+> 
+> =======
+> >>>>>>> 1.2
+Index: jikespg.cpp
+===================================================================
+RCS file: /cvsroot/lpg/lpg.generator.cpp/src/jikespg.cpp,v
+retrieving revision 1.4
+diff -r1.4 jikespg.cpp
+79a80
+>         delete scanner;
+Index: option.cpp
+===================================================================
+RCS file: /cvsroot/lpg/lpg.generator.cpp/src/option.cpp,v
+retrieving revision 1.8
+diff -r1.8 option.cpp
+2501c2501
+<     for (length = strlen(str) - 1; IsSpace(str[length]); length--)
+---
+>     for (length = strlen(str) - 1; length >= 0 && IsSpace(str[length]); length--)
+2502a2503,2504
+>     if (length < 0)
+>       length = 0;
