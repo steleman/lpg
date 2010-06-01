@@ -203,7 +203,15 @@ void MlTable::init_parser_files(void)
 }
 
 
-void MlTable::exit_parser_files(void) { }
+void MlTable::exit_parser_files(void)
+{
+    fclose(sysdcl);
+    fclose(syssym);
+    fclose(sysprs);
+    fclose(sysimp);
+    if (grammar -> exported_symbols.Length() > 0)
+        fclose(sysexp);
+}
 
 
 void MlTable::PrintNames(void)

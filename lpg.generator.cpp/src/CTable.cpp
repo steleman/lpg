@@ -175,6 +175,13 @@ void CTable::exit_parser_files(void)
     fprintf(sysprs, "\n#endif /* %s_INCLUDED */\n", option -> prs_type);
     if (grammar -> exported_symbols.Length() > 0)
         fprintf(sysexp, "\n#endif /* %s_INCLUDED */\n", option -> exp_type);
+
+    fclose(sysdcl);
+    fclose(syssym);
+    fclose(sysprs);
+    if (grammar -> exported_symbols.Length() > 0)
+        fclose(sysexp);
+
     return;
 }
 
