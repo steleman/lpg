@@ -80,7 +80,8 @@ public class DiagnoseParser implements ParseErrorCodes
     protected static final int BUFF_UBOUND  = 31,
                                BUFF_SIZE    = 32,
                                MAX_DISTANCE = 30,
-                               MIN_DISTANCE = 3;
+                               MIN_DISTANCE = 3,
+                               INFINITY = Integer.MAX_VALUE; // should be much bigger than MAX_DISTANCE !!!
 
 
     public int rhs(int index) { return prs.rhs(index); }
@@ -932,7 +933,7 @@ public class DiagnoseParser implements ParseErrorCodes
             act = tAction(act, current_kind);
         }
 
-        return  (act == ACCEPT_ACTION ? MAX_DISTANCE : buffer_index);
+        return  (act == ACCEPT_ACTION ? INFINITY : buffer_index);
     }
 
 
@@ -1514,7 +1515,19 @@ public class DiagnoseParser implements ParseErrorCodes
         RepairCandidate candidate = new RepairCandidate();
         switch (repair.code)
         {
-            case INSERTION_CODE: case BEFORE_CODE: case SCOPE_CODE:
+            case SCOPE_CODE:
+                 //
+                 // If a scope repair is to be applied at the end of the input, accept it as valid
+                 // repair only if after applying it the parser will accept the input. 
+                 //
+                 candidate.symbol = (tokStream.getKind(buffer[repair.bufferPosition]) != EOFT_SYMBOL ||
+                                     repair.distance >= MAX_DISTANCE)
+                                                      ? repair.symbol
+                                                      : 0;
+                 candidate.location = buffer[repair.bufferPosition];
+                 tokStream.reset(buffer[repair.bufferPosition]);
+                 break;
+            case INSERTION_CODE: case BEFORE_CODE:
                  candidate.symbol = repair.symbol;
                  candidate.location = buffer[repair.bufferPosition];
                  tokStream.reset(buffer[repair.bufferPosition]);
@@ -2207,7 +2220,7 @@ public class DiagnoseParser implements ParseErrorCodes
                  repair.code != SCOPE_CODE; scope_repair.bufferPosition++)
             {
                 scopeTrial(scope_repair, stateStack, stateStackTop);
-                int j = (scope_repair.distance == MAX_DISTANCE
+                int j = (scope_repair.distance >= MAX_DISTANCE
                                                 ? last_index
                                                 : scope_repair.distance),
                     k = scope_repair.bufferPosition - 1;
@@ -2280,7 +2293,7 @@ public class DiagnoseParser implements ParseErrorCodes
             previous_loc = locationStack[top];
 
             int parse_distance = parseCheck(stack, top, tokStream.getKind(buffer[2]), 3),
-                j = (parse_distance == MAX_DISTANCE ? last_index : parse_distance);
+                j = (parse_distance >= MAX_DISTANCE ? last_index : parse_distance);
             if ((parse_distance > MIN_DISTANCE) && (j - stack_deletions) > (repair.distance - repair.numDeletions))
             {
                 repair.stackPosition = top;
@@ -2315,7 +2328,7 @@ public class DiagnoseParser implements ParseErrorCodes
                  (repair.numDeletions >= (stack_deletions + i - 1)); i++)
             {
                 int parse_distance = parseCheck(stack, top, tokStream.getKind(buffer[i]), i + 1),
-                    j = (parse_distance == MAX_DISTANCE ? last_index : parse_distance);
+                    j = (parse_distance >= MAX_DISTANCE ? last_index : parse_distance);
 
                 if ((parse_distance - i + 1) > MIN_DISTANCE)
                 {
@@ -2337,7 +2350,7 @@ public class DiagnoseParser implements ParseErrorCodes
                 {
                     int symbol = nasr(l) + NT_OFFSET;
                     parse_distance = parseCheck(stack, top, symbol, i);
-                    j = (parse_distance == MAX_DISTANCE ? last_index : parse_distance);
+                    j = (parse_distance >= MAX_DISTANCE ? last_index : parse_distance);
 
                     if ((parse_distance - i + 1) > MIN_DISTANCE)
                     {
