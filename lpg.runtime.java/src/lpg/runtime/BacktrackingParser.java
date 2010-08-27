@@ -1,5 +1,7 @@
 package lpg.runtime;
 
+import java.util.ArrayList;
+
 public class BacktrackingParser extends Stacks
 {
     private Monitor monitor;
@@ -71,9 +73,9 @@ public class BacktrackingParser extends Stacks
     
     public void reset()
     {
-    	action.reset();
-    	skipTokens = false;
-    	markerTokenIndex = 0;
+        action.reset();
+        skipTokens = false;
+        markerTokenIndex = 0;
     }
     
     public void reset(Monitor monitor, TokenStream tokStream)
@@ -93,22 +95,22 @@ public class BacktrackingParser extends Stacks
     public void reset(Monitor monitor, TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
                                                                                                     NotBacktrackParseTableException
     {
-    	reset(monitor, tokStream);
+        reset(monitor, tokStream);
 
-    	this.prs = prs;
+        this.prs = prs;
         this.ra = ra;
 
-    	START_STATE = prs.getStartState();
-    	NUM_RULES = prs.getNumRules();
-    	NT_OFFSET = prs.getNtOffset();
-    	LA_STATE_OFFSET = prs.getLaStateOffset();
-    	EOFT_SYMBOL = prs.getEoftSymbol();
-    	ERROR_SYMBOL = prs.getErrorSymbol();
-    	ACCEPT_ACTION = prs.getAcceptAction();
-    	ERROR_ACTION = prs.getErrorAction();
+        START_STATE = prs.getStartState();
+        NUM_RULES = prs.getNumRules();
+        NT_OFFSET = prs.getNtOffset();
+        LA_STATE_OFFSET = prs.getLaStateOffset();
+        EOFT_SYMBOL = prs.getEoftSymbol();
+        ERROR_SYMBOL = prs.getErrorSymbol();
+        ACCEPT_ACTION = prs.getAcceptAction();
+        ERROR_ACTION = prs.getErrorAction();
 
-    	if (! prs.isValidForParser()) throw new BadParseSymFileException();
-    	if (! prs.getBacktrack()) throw new NotBacktrackParseTableException();
+        if (! prs.isValidForParser()) throw new BadParseSymFileException();
+        if (! prs.getBacktrack()) throw new NotBacktrackParseTableException();
     }
     
     public void reset(TokenStream tokStream, ParseTable prs, RuleAction ra) throws BadParseSymFileException,
@@ -184,8 +186,62 @@ public class BacktrackingParser extends Stacks
     //
     //
     //
+    private static class ErrorPair {
+        public ErrorPair(int scope_index, int error_token) {
+            scopeIndex = scope_index;
+            errorToken = error_token;
+        }
+        public int scopeIndex,
+                   errorToken;
+    }
+    private ArrayList errors = null;
+    private void reportErrors() {
+        if (errors != null) {
+            for (int k = 0; k < errors.size(); k++) {
+                ErrorPair error = (ErrorPair) errors.get(k);
+                int scope_index = error.scopeIndex,
+                    error_token =  error.errorToken;
+
+                String text = "\"";
+                for (int i = prs.scopeSuffix(scope_index); prs.scopeRhs(i) != 0; i++)
+                {
+                    if (! prs.isNullable(prs.scopeRhs(i)))
+                    {
+                        int symbol_index = (prs.scopeRhs(i) > NT_OFFSET
+                                                ? prs.nonterminalIndex(prs.scopeRhs(i) - NT_OFFSET)
+                                                : prs.terminalIndex(prs.scopeRhs(i)));
+                        if (prs.name(symbol_index).length() > 0)
+                        {
+                            if (text.length() > 1) // Not just starting quote?
+                                text += " "; // add a space separator
+                            text += prs.name(symbol_index);
+                        }
+                    }
+                }
+                text += "\"";
+
+                tokStream.reportError(ParseErrorCodes.SCOPE_CODE,
+                                      error_token,
+                                      error_token,
+                                      new String [] { text });
+            }
+        }
+
+        return;        
+    }
+
+    public void addRecoveryError(int scope_index, int error_index) {
+        if (errors == null)
+            errors = new ArrayList();
+        errors.add(new ErrorPair(scope_index, error_index));
+    }
+    
+    //
+    //
+    //
     public Object fuzzyParseEntry(int marker_kind, int max_error_count) throws BadParseException
     {
+        errors = null; // recovery errors list
         action.reset();
         tokStream.reset(); // Position at first token.
         reallocateStateStack();
@@ -209,8 +265,8 @@ public class BacktrackingParser extends Stacks
         {
             if (! (tokStream instanceof IPrsStream))
                 throw new TokenStreamNotIPrsStreamException();
-            RecoveryParser rp = new RecoveryParser(this, monitor, action, tokens, (IPrsStream) tokStream, prs, max_error_count, 0);
-            start_token = rp.recover(marker_token, error_token);
+            RecoveryParser recovery_parser = new RecoveryParser(this, monitor, action, tokens, (IPrsStream) tokStream, prs, max_error_count, 0);
+            start_token = recovery_parser.recover(marker_token, error_token);
         }
 
         if (marker_token != 0 && start_token == first_token)
@@ -220,7 +276,17 @@ public class BacktrackingParser extends Stacks
             tokens.add(t);
         tokens.add(t);
 
-        return parseActions(marker_kind);
+        Object parsing_result = parseActions(marker_kind);
+
+        //
+        // If the parsing was successful (no BadParseException was thrown) but it required the assistance of      
+        // the recovery parser, issue the diagnostics of the repairs that were applied. Otherwise, the
+        // BadParseException will cause us to bypass this code and leve it up to the DiagnosticParser to
+        // issue the error messages.
+        //      
+        reportErrors();
+
+        return parsing_result;
     }
 
     //
@@ -555,10 +621,10 @@ public class BacktrackingParser extends Stacks
         //      configuration = configuration_stack.pop())
 //        {
 //System.out.println("    restart at position " + configuration.action_length +
-//		           " on action " + configuration.act +
-//		           " and token " + configuration.curtok +
-//		           " with kind " + tokStream.getKind(configuration.curtok)
-//		          );   	
+//                   " on action " + configuration.act +
+//                   " and token " + configuration.curtok +
+//                   " with kind " + tokStream.getKind(configuration.curtok)
+//                  );   
 //        }
 //
         // System.out.println("****Number of elements in stack tree: " + configuration_stack.numStateElements());

@@ -53,33 +53,6 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         return;
     }
 
-    public void reportError(int scope_index, int error_token)
-    {
-        String text = "\"";
-        for (int i = scopeSuffix(scope_index); scopeRhs(i) != 0; i++)
-        {
-            if (! isNullable(scopeRhs(i)))
-            {
-                int symbol_index = (scopeRhs(i) > NT_OFFSET
-                                        ? nonterminalIndex(scopeRhs(i) - NT_OFFSET)
-                                        : terminalIndex(scopeRhs(i)));
-                if (name(symbol_index).length() > 0)
-                {
-                    if (text.length() > 1) // Not just starting quote?
-                        text += " "; // add a space separator
-                    text += name(symbol_index);
-                }
-            }
-        }
-        text += "\"";
-
-        tokStream.reportError(SCOPE_CODE,
-                              error_token,
-                              error_token,
-                              new String [] { text });
-        return;        
-    }
-    
     public int recover(int marker_token, int error_token) throws BadParseException
     {
         if (stateStack == null)
@@ -280,7 +253,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                     if (scope_repair.distance >= MIN_DISTANCE)
                     {
 //TemporaryErrorDump();
-                    	tokens.add(start_token);
+                        tokens.add(start_token);
                         for (int token = first_stream_token; token != error_token; token = tokStream.getNext(token))
                             tokens.add(token);
                         acceptRecovery(error_token);
@@ -409,7 +382,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                                             error_token, scopeRhs(i)));
                         }
 
-                        reportError(scopeIndex[k], tokStream.getPrevious(error_token));
+                        parser.addRecoveryError(scopeIndex[k], tokStream.getPrevious(error_token));
 
                         break;
                     }
