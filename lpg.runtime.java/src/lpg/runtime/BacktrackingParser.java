@@ -491,8 +491,10 @@ public class BacktrackingParser extends Stacks
         {
             stateStackTop -= (prs.rhs(act) - 1);
             act = prs.ntAction(stateStack[stateStackTop], prs.lhs(act));
+//if(act <= NUM_RULES)
+//System.err.println("*Goto-reducing by rule " + act);
         } while(act <= NUM_RULES);
-
+//System.err.println("*Goto state " + prs.originalState(act));
         return act;
     }
 
@@ -550,12 +552,14 @@ public class BacktrackingParser extends Stacks
 
             if (act <= NUM_RULES)
             {
+//System.err.println("*reducing by rule " + act);              
                 action.add(act); // save this reduce action
                 stateStackTop--;
                 act = process_backtrack_reductions(act);
             }
             else if (act > ERROR_ACTION)
             {
+//System.err.println("*Shift-reducing by rule " + (act - ERROR_ACTION) + " on token " + tokStream.getName(curtok));
                 action.add(act);     // save this shift-reduce action
                 curtok = tokStream.getToken();
                 current_kind = tokStream.getKind(curtok);
@@ -563,6 +567,7 @@ public class BacktrackingParser extends Stacks
             }
             else if (act < ACCEPT_ACTION)
             {
+//System.err.println("*Shifting on token " + tokStream.getName(curtok) + " to state " + prs.originalState(act));
                 action.add(act);    // save this shift action
                 curtok = tokStream.getToken();
                 current_kind = tokStream.getKind(curtok);
@@ -585,6 +590,7 @@ public class BacktrackingParser extends Stacks
                                             : tokStream.getNext(curtok));
                     stateStackTop = configuration.stack_top;
                     configuration.retrieveStack(stateStack);
+//System.err.println("*Backtracking to state " + prs.originalState(stateStack[stateStackTop]) + " back on token (" + curtok + ") " + tokStream.getName(curtok));
                     continue;
                 }
                 break;

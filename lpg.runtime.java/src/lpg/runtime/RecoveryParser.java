@@ -159,6 +159,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
 
             if (act <= NUM_RULES)
             {
+//System.err.println("**reducing by rule " + act);              
                 action.add(act); // save this reduce action
                 stateStackTop--;
 
@@ -166,7 +167,10 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                 {
                     stateStackTop -= (rhs(act) - 1);
                     act = ntAction(stateStack[stateStackTop], lhs(act));
+//if(act <= NUM_RULES)
+//System.err.println("**Goto-reducing by rule " + act);
                 } while(act <= NUM_RULES);
+//System.err.println("**Goto state " + prs.originalState(act));
 
                 try
                 {
@@ -191,13 +195,14 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                         act = ERROR_ACTION;
                     else
                     {
-                        stateStackTop = configuration.stack_top;
-                        configuration.retrieveStack(stateStack);
+                        action.reset(configuration.action_length);
                         act = configuration.act;
                         curtok = configuration.curtok;
-                        action.reset(configuration.action_length);
                         current_kind = tokStream.getKind(curtok);
                         tokStream.reset(tokStream.getNext(curtok));
+                        stateStackTop = configuration.stack_top;
+                        configuration.retrieveStack(stateStack);
+//System.err.println("**Backtracking to state " + prs.originalState(stateStack[stateStackTop]) + " back on token (" + curtok + ") " + tokStream.getName(curtok));
                         continue;
                     }
                 }
@@ -219,12 +224,14 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
             {
                 if (act < ACCEPT_ACTION)
                 {
+//System.err.println("**Shifting on token " + tokStream.getName(curtok) + " to state " + prs.originalState(act));
                     action.add(act); // save this shift action
                     curtok = tokStream.getToken();
                     current_kind = tokStream.getKind(curtok);
                 }
                 else if (act > ERROR_ACTION)
                 {
+//System.err.println("**Shift-reducing by rule " + (act - ERROR_ACTION) + " on token " + tokStream.getName(curtok));
                     action.add(act); // save this shift-reduce action
                     curtok = tokStream.getToken();
                     current_kind = tokStream.getKind(curtok);
@@ -233,7 +240,10 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                     {
                         stateStackTop -= (rhs(act) - 1);
                         act = ntAction(stateStack[stateStackTop], lhs(act));
+//if(act <= NUM_RULES)
+//System.err.println("**Goto-reducing by rule " + act);
                     } while(act <= NUM_RULES);
+//System.err.println("**Goto state " + prs.originalState(act));
                 }
                 else break; // assert(act == ACCEPT_ACTION);  THIS IS NOT SUPPOSED TO HAPPEN!!!
 
@@ -278,6 +288,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
     //
     private void acceptRecovery(int error_token)
     {
+//System.err.println("**Accepting a RECOVERY");
         //
         //
         //
@@ -331,6 +342,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                 while (act <= NUM_RULES)
                 {
                     action.add(act); // save this reduce action
+//System.err.println("**reducing by rule " + act);              
                     //
                     // ... Process all goto-reduce actions following
                     // reduction, until a goto action is computed ...
@@ -342,7 +354,10 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                         act = (tempStackTop > max_pos ? tempStack[tempStackTop]
                                 : stateStack[tempStackTop]);
                         act = ntAction(act, lhs_symbol);
+//if(act <= NUM_RULES)
+//System.err.println("**Goto-reducing by rule " + act);              
                     } while (act <= NUM_RULES);
+//System.err.println("**Goto state " + prs.originalState(act));
                     if (tempStackTop + 1 >= stateStack.length)
                         reallocateStacks();
                     max_pos = max_pos < tempStackTop ? max_pos : tempStackTop;
@@ -401,6 +416,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
     //
     private boolean completeScope(IntSegmentedTuple action, int scope_rhs_index)
     {
+//System.err.println("**Completing a scope");
         int kind = scopeRhs(scope_rhs_index);
         if (kind == 0)
             return true;
@@ -428,8 +444,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
             }
             nextStackTop++;
             nextStack[nextStackTop] = act;
-//System.err.println("Shifting nonterminal " +
-//name(nonterminalIndex(lhs_symbol)));
+//System.err.println("***Shifting nonterminal " + name(nonterminalIndex(lhs_symbol)));
             return completeScope(action, scope_rhs_index + 1);
         }
 
@@ -437,17 +452,18 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
         // Processing a terminal
         //
         act = tAction(act, kind);
-        action.add(act); // save this terminal action
         // assert(act > NUM_RULES);
         if (act < ACCEPT_ACTION)
         {
+            action.add(act); // save this shift action
             nextStackTop++;
             nextStack[nextStackTop] = act;
-//System.err.println("Shifting terminal " + name(terminalIndex(kind)));
+//System.err.println("***Shifting terminal " + name(terminalIndex(kind)));
             return completeScope(action, scope_rhs_index + 1);
         }
         else if (act > ERROR_ACTION)
         {
+            action.add(act); // save this shift-reduce action
             act -= ERROR_ACTION;
             do
             {
@@ -456,25 +472,27 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
             } while(act <= NUM_RULES);
             nextStackTop++;
             nextStack[nextStackTop] = act;
-//System.err.println("Shift-reducing terminal " + name(terminalIndex(kind)));
+//System.err.println("***Shift-reducing terminal " + name(terminalIndex(kind)));
 //assert(scopeRhs(scope_rhs_index + 1) == 0);
             return true;
         }
         else if (act > ACCEPT_ACTION && act < ERROR_ACTION) // conflicting actions?
         {
-            int save_action_size = action.size();
+            int save_action_size = action.size(); // Save the current size of the action list
             for (int i = act; baseAction(i) != 0; i++) // consider only shift and shift-reduce actions
             {
                 action.reset(save_action_size);
                 act = baseAction(i);
                 action.add(act); // save this terminal action
-                if (act <= NUM_RULES) // Ignore reduce actions
+                if (act <= NUM_RULES) {// Ignore reduce actions
+//System.err.println("***(2)Ignoring a reduce action by rule " + act);                	
                     ;
+                }
                 else if (act < ACCEPT_ACTION)
                 {
                     nextStackTop++;
                     nextStack[nextStackTop] = act;
-//System.err.println("(2)Shifting terminal " + name(terminalIndex(kind)));
+//System.err.println("***(2)Shifting terminal " + name(terminalIndex(kind)));
                     if (completeScope(action, scope_rhs_index + 1))
                         return true;
                 }
@@ -488,7 +506,7 @@ public class RecoveryParser extends DiagnoseParser implements ParseErrorCodes
                     } while(act <= NUM_RULES);
                     nextStackTop++;
                     nextStack[nextStackTop] = act;
-//System.err.println("(2)Shift-reducing terminal " + name(terminalIndex(kind)));
+//System.err.println("***(2)Shift-reducing terminal " + name(terminalIndex(kind)));
 //assert(scopeRhs(scope_rhs_index + 1) == 0);
                    return true;
                 }
