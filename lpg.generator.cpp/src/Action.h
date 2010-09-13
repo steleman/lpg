@@ -185,6 +185,24 @@ protected:
         return undeclared_macro_table.FindName(str, length);
     }
 
+    //
+    // Remove the portion of the directory prefix that matches the filename.
+    //
+    const char *FileWithoutPrefix(const char *filename)
+    {
+        const char *file_without_prefix = filename;
+        for (const char *p = option -> directory_prefix; *file_without_prefix && *p; file_without_prefix++, p++)
+        {
+            if (*file_without_prefix != *p)
+                break;
+        }
+
+        if (file_without_prefix > filename && *file_without_prefix == '/')
+            file_without_prefix++;
+
+        return file_without_prefix;
+    }
+
     /**
      * The local functions below are language-independent functions that
      * can be shared by all output languages.

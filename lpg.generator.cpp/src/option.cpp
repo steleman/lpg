@@ -375,6 +375,7 @@ const char *Option::ClassifyC(const char *start, bool flag)
 // dcl_file
 // def_file
 // debug
+// directory_prefix
 //
 const char *Option::ClassifyD(const char *start, bool flag)
 {
@@ -389,14 +390,14 @@ const char *Option::ClassifyD(const char *start, bool flag)
             {
                 return (i > 0
                           ? ReportMissingValue(start, "DAT_DIRECTORY")
-                          : ReportAmbiguousOption(start, "DAT_DIRECTORY, DAT_FILE, DCL_FILE, DEF_FILE, DEBUG"));
+                          : ReportAmbiguousOption(start, "DAT_DIRECTORY, DAT_FILE, DCL_FILE, DEF_FILE, DEBUG, DIRECTORY_PREFIX"));
             }
             else p = GetStringValue(q, dat_directory);
 
             dat_directory_location = GetTokenLocation(start, p - start);
 
             return (i < 1
-                      ? ReportAmbiguousOption(start, "DAT_DIRECTORY, DAT_FILE, DCL_FILE, DEF_FILE")
+                      ? ReportAmbiguousOption(start, "DAT_DIRECTORY, DAT_FILE, DCL_FILE, DEF_FILE, DIRECTORY_PREFIX")
                       : i < 4
                           ? ReportAmbiguousOption(start, "DAT_DIRECTORY, DAT_FILE")
                           : p);
@@ -410,7 +411,7 @@ const char *Option::ClassifyD(const char *start, bool flag)
             if (q == NULL)
             {
                 if (i == 1 && (start[1] == 'f' || start[1] == 'F'))
-                     return ReportMissingValue(start, "DAT_FILE, DCL_FILE, DEF_FILE");
+                     return ReportMissingValue(start, "DAT_FILE, DCL_FILE, DEF_FILE, DIRECTORY_PREFIX");
                 else if (i > 0)
                      return ReportMissingValue(start, "DAT_FILE");
             }
@@ -418,7 +419,7 @@ const char *Option::ClassifyD(const char *start, bool flag)
             {
                 p = GetStringValue(q, dat_file);
                 return ((i == 1 && (start[1] == 'f' || start[1] == 'F'))
-                                ? ReportAmbiguousOption(start, "DAT_FILE, DCL_FILE, DEF_FILE")
+                                ? ReportAmbiguousOption(start, "DAT_FILE, DCL_FILE, DEF_FILE, DIRECTORY_PREFIX")
                                 : p);
             }
         }
@@ -450,6 +451,20 @@ const char *Option::ClassifyD(const char *start, bool flag)
             else
             {
                 p = GetStringValue(q, def_file);
+                return p;
+            }
+        }
+
+        i = OptionMatch(start, "directory", "prefix");
+        if (start[i + 1] == '=' || IsDelimiter(start[i + 1]))
+        {
+            const char *p = start + i + 1,
+                       *q = ValuedOption(p);
+            if (q == NULL) // Must have a value
+                return ReportMissingValue(start, "DIRECTORY_PREFIX");
+            else
+            {
+                p = GetStringValue(q, directory_prefix);
                 return p;
             }
         }
@@ -2884,6 +2899,17 @@ void Option::CompleteOptionProcessing()
     def_type = GetType(def_file);
 
     //
+    //
+    //
+    if (directory_prefix == NULL)
+    {
+        char *p = NewString(1);
+        *p = '\0';
+        directory_prefix = p;
+    }
+    else NormalizeSlashes((char *) directory_prefix);
+
+    //
     // Check export_terminals option.
     //
     if (exp_file == NULL)
@@ -3023,6 +3049,7 @@ void Option::PrintOptionsInEffect()
     opt_string.Next() = AllocateString("DCL-FILE", dcl_file);
     opt_string.Next() = AllocateString(debug ? "DEBUG" : "NODEBUG");
     opt_string.Next() = AllocateString("DEF-FILE", def_file);
+    opt_string.Next() = AllocateString("DIRECTORY-PREFIX", directory_prefix);
     opt_string.Next() = AllocateString(edit ? "EDIT" : "NOEDIT");
     opt_string.Next() = AllocateString(error_maps ? "ERROR-MAPS" : "NOERROR-MAPS");
     opt_string.Next() = AllocateString("ESCAPE", escape);
@@ -3202,6 +3229,7 @@ void Option::PrintOptionsList(void)
                "-dcl-file=string                                      " "\n"
                "-debug                                                " "\n"
                "-def-file=string                                      " "\n"
+               "-directory-prefix=string                              " "\n"
                "-edit                                                 " "\n"
                "-error-maps                                           " "\n"
                "-escape=character                                     " "\n"

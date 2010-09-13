@@ -143,6 +143,7 @@ public:
                *dat_file,
                *dcl_file,
                *def_file,
+               *directory_prefix,
                *prs_file,
                *sym_file,
                *imp_file,
@@ -221,6 +222,18 @@ public:
     void InvalidValueError(const char *, const char *, int);
     void InvalidTripletValueError(const char *, int, const char *, const char *);
 
+    //
+    // Turn all backslashes into forward slashes in filename.
+    //
+    void NormalizeSlashes(char *filename)
+    {
+        for (char *s = filename; *s != '\0'; s++)
+        {
+            if  (*s == '\\')
+                 *s = '/';
+        }
+    }
+
     Option(int argc_, const char **argv_) : argc(argc_),
                                             argv(argv_)
     {
@@ -286,6 +299,7 @@ public:
         dat_file = NULL;
         dcl_file = NULL;
         def_file = NULL;
+        directory_prefix = NULL;
         prs_file = NULL;
         sym_file = NULL;
         imp_file = NULL;
@@ -424,26 +438,21 @@ public:
             char *temp_file_prefix = NewString(length + 3);
             file_prefix = temp_file_prefix;
 
-            grm_file = NewString(length + 3);
-
             char *temp_lis_file = NewString(length + 3);
             lis_file = temp_lis_file;
 
             char *temp_tab_file = NewString(length + 3);
             tab_file = temp_tab_file;
 
-            //
-            // Turn all backslashes into forward slashes in filename.
-            //
-            char *p = (char *) grm_file;
-            for (const char *s = main_input_file; *s != '\0'; s++)
-                *p++ = (*s == '\\' ? '/' : *s);
-            *p = '\0'; // add terminating '\0'
+            char *grm_file_ptr = NewString(length + 3);
+            strcpy(grm_file_ptr, main_input_file);
+            NormalizeSlashes(grm_file_ptr); // Turn all (windows) backslashes into forward slashes in filename.
+            grm_file = grm_file_ptr;
 
             int slash_index,
                 dot_index = -1;
             for (slash_index = length - 1;
-                 slash_index >= 0 && grm_file[slash_index] != '\\' && grm_file[slash_index] != '/';
+                 slash_index >= 0 /* && grm_file[slash_index] != '\\' */ && grm_file[slash_index] != '/';
                  slash_index--)
             {
                 if (grm_file[slash_index] == '.')
