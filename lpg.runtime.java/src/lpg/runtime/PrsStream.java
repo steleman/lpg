@@ -10,8 +10,8 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 {
     private ILexStream iLexStream;
     private int kindMap[] = null;
-    private ArrayList tokens = new ArrayList();
-    private ArrayList adjuncts = new ArrayList();
+    private ArrayList<IToken> tokens = new ArrayList<IToken>();
+    private ArrayList<IToken> adjuncts = new ArrayList<IToken>();
     private int index = 0;
     private int len = 0;
 
@@ -43,12 +43,12 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
             throw new NullExportedSymbolsException();
         if (ordered_parser_symbols == null)
             throw new NullTerminalSymbolsException();
-        ArrayList unimplemented_symbols = new ArrayList();
+        ArrayList<Integer> unimplemented_symbols = new ArrayList<Integer>();
         if (ordered_lexer_symbols != ordered_parser_symbols)
         {
             kindMap = new int[ordered_lexer_symbols.length];
 
-            HashMap terminal_map = new HashMap();
+            HashMap<String, Integer> terminal_map = new HashMap<String, Integer>();
             for (int i = 0; i < ordered_lexer_symbols.length; i++)
                 terminal_map.put(ordered_lexer_symbols[i], new Integer(i));
             for (int i = 0; i < ordered_parser_symbols.length; i++)
@@ -73,10 +73,10 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public void resetTokenStream()
     {
-        tokens = new ArrayList();
+        tokens = new ArrayList<IToken>();
         index = 0;
 
-        adjuncts = new ArrayList();
+        adjuncts = new ArrayList<IToken>();
     }
 
     public void setLexStream(ILexStream lexStream) 
@@ -310,7 +310,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public IToken getIToken(int i)  { return (IToken)tokens.get(i); }
 
-    public ArrayList getTokens() { return tokens; }
+    public ArrayList<IToken> getTokens() { return tokens; }
 
     public int getStreamIndex() { return index; }
 
@@ -373,7 +373,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
         return getAdjuncts(getPrevious(i));
     }
 
-    public ArrayList getAdjuncts() { return adjuncts; }
+    public ArrayList<IToken> getAdjuncts() { return adjuncts; }
 
     //
     // Methods that implement the TokenStream Interface

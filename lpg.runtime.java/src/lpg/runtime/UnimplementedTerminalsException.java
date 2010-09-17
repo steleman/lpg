@@ -8,12 +8,12 @@ public class UnimplementedTerminalsException extends Exception
      */
     private static final long serialVersionUID = 1L;
     
-    ArrayList symbols;
+    ArrayList<Integer> symbols;
 
-    public UnimplementedTerminalsException(ArrayList symbols)
+    public UnimplementedTerminalsException(ArrayList<Integer> symbols)
     {
         this.symbols = symbols;
     }
 
-    public ArrayList getSymbols() { return symbols; }
+    public ArrayList<Integer> getSymbols() { return symbols; }
 }

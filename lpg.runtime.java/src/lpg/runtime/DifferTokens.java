@@ -74,7 +74,7 @@ public class DifferTokens extends Differ
     {
         int start_line = prs_stream.getLine(first_token),
             end_line = prs_stream.getLine(last_token);
-        ILexStream lex_stream = prs_stream.getLexStream();
+        ILexStream lex_stream = prs_stream.getILexStream();
 
         char char_buffer[] = null;
         byte byte_buffer[] = null;

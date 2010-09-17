@@ -8,8 +8,8 @@ public interface IAst
     public IToken getRightIToken();
     public IToken[] getPrecedingAdjuncts();
     public IToken[] getFollowingAdjuncts();
-    public java.util.ArrayList getChildren();
-    public java.util.ArrayList getAllChildren();
+    public java.util.ArrayList<IAst> getChildren();
+    public java.util.ArrayList<IAst> getAllChildren();
     public void accept(IAstVisitor v);
 }
 

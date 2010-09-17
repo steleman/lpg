@@ -63,9 +63,9 @@ public interface IPrsStream extends TokenStream
     
     String[] orderedExportedSymbols();
 
-    ArrayList getTokens();
+    ArrayList<IToken> getTokens();
     
-    ArrayList getAdjuncts();
+    ArrayList<IToken> getAdjuncts();
 
     IToken[] getFollowingAdjuncts(int i);
 

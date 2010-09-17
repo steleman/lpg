@@ -110,7 +110,7 @@ public abstract class Differ
     ILine newBuffer[],
           oldBuffer[];
 
-    HashMap newMap = new HashMap();
+    HashMap<ILine, Integer> newMap = new HashMap<ILine, Integer>();
     int newLink[];
 
     public abstract ILine[] getBuffer(IPrsStream stream);
@@ -218,7 +218,7 @@ public abstract class Differ
     // In this procedure,the section of text from a stream identified
     // by the indices start..end is removed from its hash map.
     //
-    void detach(ILine buffer[], HashMap map, int link[], int start, int end)
+    void detach(ILine buffer[], HashMap<ILine, Integer> map, int link[], int start, int end)
     {
         for (int k = start; k <= end; k++)
         {
@@ -534,7 +534,7 @@ public abstract class Differ
     //
     boolean similarSections(Change d_element, Change i_element)
     {
-        HashMap map = new HashMap();
+        HashMap<ILine, Integer> map = new HashMap<ILine, Integer>();
         int link[] = new int[newBuffer.length],
             tail[] = new int[newBuffer.length];
 
@@ -641,7 +641,7 @@ public abstract class Differ
     //
     boolean insertOverlap(Change d_element, Change i_element)
     {
-        HashMap map = new HashMap();
+        HashMap<ILine, Integer> map = new HashMap<ILine, Integer>();
         int link[] = new int[oldBuffer.length],
             tail[] = new int[oldBuffer.length];
 
@@ -708,7 +708,7 @@ public abstract class Differ
     //
     boolean deleteOverlap(Change d_element, Change i_element)
     {
-        HashMap map = new HashMap();
+        HashMap<ILine, Integer> map = new HashMap<ILine, Integer>();
         int link[] = new int[newBuffer.length],
             tail[] = new int[newBuffer.length];
 

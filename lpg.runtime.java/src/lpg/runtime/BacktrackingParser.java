@@ -194,7 +194,7 @@ public class BacktrackingParser extends Stacks
         public int scopeIndex,
                    errorToken;
     }
-    private ArrayList errors = null;
+    private ArrayList<ErrorPair> errors = null;
     private void reportErrors() {
         if (errors != null) {
             for (int k = 0; k < errors.size(); k++) {
@@ -232,7 +232,7 @@ public class BacktrackingParser extends Stacks
 
     public void addRecoveryError(int scope_index, int error_index) {
         if (errors == null)
-            errors = new ArrayList();
+            errors = new ArrayList<ErrorPair>();
         errors.add(new ErrorPair(scope_index, error_index));
     }
     

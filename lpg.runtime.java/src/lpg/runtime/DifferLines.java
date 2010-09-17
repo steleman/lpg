@@ -109,7 +109,7 @@ public class DifferLines extends Differ
 
     public ILine[] getBuffer(IPrsStream prsStream)
     {
-        ILexStream lex_stream = prsStream.getLexStream();
+        ILexStream lex_stream = prsStream.getILexStream();
         Line buffer[] = new Line[lex_stream.getLineCount() + 1];
 
         int token = 1;
@@ -130,9 +130,9 @@ public class DifferLines extends Differ
     //
     void printLines(IPrsStream prs_stream, int first_line, int last_line)
     {
-        if (prs_stream.getLexStream() instanceof LexStream)
+        if (prs_stream.getILexStream() instanceof LexStream)
         {
-            LexStream lex_stream = (LexStream) prs_stream.getLexStream();
+            LexStream lex_stream = (LexStream) prs_stream.getILexStream();
             char buffer[] = lex_stream.getInputChars();
 
             for (int line_no = first_line; line_no <= last_line; line_no++)
@@ -146,9 +146,9 @@ public class DifferLines extends Differ
                 System.out.println(line);
             }
         }
-        else if (prs_stream.getLexStream() instanceof Utf8LexStream)
+        else if (prs_stream.getILexStream() instanceof Utf8LexStream)
         {
-            Utf8LexStream lex_stream = (Utf8LexStream) prs_stream.getLexStream();
+            Utf8LexStream lex_stream = (Utf8LexStream) prs_stream.getILexStream();
             byte buffer[] = lex_stream.getInputBytes();
 
             for (int line_no = first_line; line_no <= last_line; line_no++)
@@ -163,7 +163,7 @@ public class DifferLines extends Differ
             }
         }
         else throw new UnknownStreamType("Unknown stream type " +
-                                         prs_stream.getLexStream().getClass().toString());
+                                         prs_stream.getILexStream().getClass().toString());
     }
 
     //
