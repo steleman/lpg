@@ -1682,6 +1682,11 @@ public class DiagnoseParser implements ParseErrorCodes
     //
     protected int getNtermIndex(int start, int sym, int buffer_position)
     {
+        //
+        // This code was initially written to handle deterministic grammars. To extend it to handle
+        // ambiguous grammars we need to keep track of rules that have been visited.
+        //
+        boolean rule_seen[] = new boolean[NUM_RULES + 1];
         int highest_symbol = sym - NT_OFFSET,
             tok = tokStream.getKind(buffer[buffer_position]);
         tokStream.reset(buffer[buffer_position + 1]);
@@ -1702,6 +1707,11 @@ public class DiagnoseParser implements ParseErrorCodes
 
         while(act <= NUM_RULES)
         {
+            if (rule_seen[act]) // if we've already seen this rule don't revisit it.
+                break;
+
+            rule_seen[act] = true; // indicate that we've seeen this rule already.
+
             //
             // Process all goto-reduce actions following reduction,
             // until a goto action is computed ...
@@ -2013,10 +2023,12 @@ public class DiagnoseParser implements ParseErrorCodes
                             // If no other recovery possibility is left (due to
                             // backtracking and we are at the end of the input,
                             // then we favor a scope recovery over all other kinds
-                            // of recovery.
+                            // of recovery unless the other recovery led to an
+                            // acceptance of the input
                             //
                             if ( // TODO: main_configuration_stack.size() == 0 && // no other bactracking possibilities left
                                 tokStream.getKind(buffer[repair.bufferPosition]) == EOFT_SYMBOL &&
+                                repair.distance <= MAX_DISTANCE && // previous recovery was not perfect (i.e., not INFINITY) !
                                 repair.distance == previous_distance)
                             {
                                 scopeStackTop = indx;
