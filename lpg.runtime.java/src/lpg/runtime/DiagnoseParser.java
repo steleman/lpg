@@ -1116,10 +1116,10 @@ public class DiagnoseParser implements ParseErrorCodes
         RepairCandidate candidate = new RepairCandidate();
         if (nextStackTop >= 0) // next_stack available
         {
-            if (secondaryCheck(nextStack, nextStackTop, 3, repair.distance))
+            if (secondaryCheck(nextStack, nextStackTop, 3, repair))
                 return candidate;
         }
-        else if (secondaryCheck(stateStack, stateStackTop, 2, repair.distance))
+        else if (secondaryCheck(stateStack, stateStackTop, 2, repair))
              return candidate;
 
         //
@@ -2067,7 +2067,7 @@ public class DiagnoseParser implements ParseErrorCodes
     // simple insertion or substitution of a nonterminal are tried
     // in CHECK_PRIMARY_DISTANCE as part of primary recovery.
     //
-    protected boolean secondaryCheck(int stack[], int stack_top, int buffer_position, int distance)
+    protected boolean secondaryCheck(int stack[], int stack_top, int buffer_position, PrimaryRepairInfo repair)
     {
         for (int top = stack_top - 1; top >= 0; top--)
         {
@@ -2075,17 +2075,17 @@ public class DiagnoseParser implements ParseErrorCodes
                                top,
                                tokStream.getKind(buffer[buffer_position]),
                                buffer_position + 1);
-            if (((j - buffer_position + 1) > MIN_DISTANCE) && (j > distance))
+            if (((j - buffer_position + 1) > MIN_DISTANCE) && (j > repair.distance))
                 return true;
         }
 
         PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
         scope_repair.bufferPosition = buffer_position + 1;
-        scope_repair.code = SCOPE_CODE; // The best primary recovery might have been a scope recovery... 
-        scope_repair.distance = distance;
+        scope_repair.code = repair.code;
+        scope_repair.distance = repair.distance; // distance to beat
         scopeTrial(scope_repair, stack, stack_top);
 
-        return ((scope_repair.distance - buffer_position) > MIN_DISTANCE && scope_repair.distance > distance);
+        return ((scope_repair.distance - buffer_position) > MIN_DISTANCE && scope_repair.distance > repair.distance);
     }
 
 
