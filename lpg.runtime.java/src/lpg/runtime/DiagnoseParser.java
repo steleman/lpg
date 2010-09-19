@@ -2028,7 +2028,8 @@ public class DiagnoseParser implements ParseErrorCodes
                             //
                             if ( // TODO: main_configuration_stack.size() == 0 && // no other bactracking possibilities left
                                 tokStream.getKind(buffer[repair.bufferPosition]) == EOFT_SYMBOL &&
-                                repair.distance <= MAX_DISTANCE && // previous recovery was not perfect (i.e., not INFINITY) !
+                                repair.code != SCOPE_CODE && // previous recovery was not a scope recovery
+                                repair.distance < MAX_DISTANCE && // previous recovery was not perfect!
                                 repair.distance == previous_distance)
                             {
                                 scopeStackTop = indx;
@@ -2080,6 +2081,7 @@ public class DiagnoseParser implements ParseErrorCodes
 
         PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
         scope_repair.bufferPosition = buffer_position + 1;
+        scope_repair.code = SCOPE_CODE; // The best primary recovery might have been a scope recovery... 
         scope_repair.distance = distance;
         scopeTrial(scope_repair, stack, stack_top);
 
