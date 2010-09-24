@@ -64,6 +64,7 @@
 
     $BeginActions
     /.
+        @SuppressWarnings("unchecked") // Casting Object to various generic types
         public void ruleAction(int ruleNumber)
         {
             switch (ruleNumber)
@@ -71,17 +72,17 @@
 
     $SplitActions
     /.
-	            default:
-	                ruleAction$rule_number(ruleNumber);
-	                break;
-	        }
-	        return;
-	    }
-	
-	    public void ruleAction$rule_number(int ruleNumber)
-	    {
-	        switch (ruleNumber)
-	        {
+                    default:
+                        ruleAction$rule_number(ruleNumber);
+                        break;
+                }
+                return;
+            }
+        
+            public void ruleAction$rule_number(int ruleNumber)
+            {
+                switch (ruleNumber)
+                {
                 //#line $next_line "$input_file$"./
 
     $EndActions
@@ -214,24 +215,24 @@
             {
                 prsStream.remapTerminalSymbols(orderedTerminalSymbols(), prsTable.getEoftSymbol());
             }
-            catch(NullExportedSymbolsException e) {
+            catch (NullExportedSymbolsException e) {
             }
-            catch(NullTerminalSymbolsException e) {
+            catch (NullTerminalSymbolsException e) {
             }
-            catch(UnimplementedTerminalsException e)
+            catch (UnimplementedTerminalsException e)
             {
                 if (unimplementedSymbolsWarning) {
-                    java.util.ArrayList unimplemented_symbols = e.getSymbols();
+                    java.util.ArrayList<Integer> unimplemented_symbols = e.getSymbols();
                     System.out.println("The Lexer will not scan the following token(s):");
                     for (int i = 0; i < unimplemented_symbols.size(); i++)
                     {
-                        Integer id = (Integer) unimplemented_symbols.get(i);
+                        Integer id = unimplemented_symbols.get(i);
                         System.out.println("    " + $sym_type.orderedTerminalSymbols[id.intValue()]);               
                     }
                     System.out.println();
                 }
             }
-            catch(UndefinedEofSymbolException e)
+            catch (UndefinedEofSymbolException e)
             {
                 throw new Error(new UndefinedEofSymbolException
                                     ("The Lexer does not implement the Eof symbol " +
