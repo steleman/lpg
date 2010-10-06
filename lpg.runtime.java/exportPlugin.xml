@@ -72,7 +72,7 @@
 
         <!-- compile the source code -->
         <javac destdir="${plugin.output.folder}" failonerror="${javacFailOnError}"
-               verbose="${javacVerbose}" debug="${javacDebugInfo}"
+               verbose="${javacVerbose}" debug="true"
                includeAntRuntime="no" bootclasspath="${bootclasspath}"
                source="${javacSource}" target="${javacTarget}">
             <compilerarg line="${compilerArg}"/>
