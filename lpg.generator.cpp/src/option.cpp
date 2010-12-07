@@ -2521,7 +2521,7 @@ void Option::ProcessPath(Tuple<const char *> &list, const char *path, const char
     if (str[length] != ';') // make sure that the path ends with a terminating semicolon
         str[++length] = ';';
     str[++length] = NULL_CHAR;
- 
+
     list.Reset();
     list.Next() = str;
     for (int i = 0; i < length; i++)
@@ -2907,7 +2907,19 @@ void Option::CompleteOptionProcessing()
         *p = '\0';
         directory_prefix = p;
     }
-    else NormalizeSlashes((char *) directory_prefix);
+    else
+    {
+        NormalizeSlashes((char *) directory_prefix); // turn all backward slashes into forward slashes.
+        //
+        // Remove all extraneous trailing slashes, if any.
+        //
+        for (char *tail = (char *) &(directory_prefix[strlen(directory_prefix) - 1]); tail > directory_prefix; tail--)
+        {
+            if (*tail == '/')
+               *tail = '\0';
+          else break;
+        }
+    }
 
     //
     // Check export_terminals option.

@@ -549,7 +549,7 @@ void Action::ProcessCodeActions(Tuple<ActionBlockElement> &actions, Array<const 
                     IntToString line(lex_stream -> Line(processed_rule_element.token_index));
                     strcat(str, line.String());
                     strcat(str, " \"");
-                    strcat(str, FileWithoutPrefix(lex_stream -> GetFileSymbol(processed_rule_element.token_index) -> Name()));
+                    strcat(str, FileWithoutPrefix(lex_stream -> GetFileSymbol(processed_rule_element.token_index) -> Name()).c_str());
                     strcat(str, "\"\n");
 
                     strcat(str, rule_type[position]);
@@ -2126,7 +2126,7 @@ void Action::ProcessActionLine(int location,
                 else if (simple_macro == rule_size_macro)
                      buffer -> Put(grammar -> RhsSize(rule_no));
                 else if (simple_macro == input_file_macro)
-                     buffer -> Put(FileWithoutPrefix(filename));
+                     buffer -> Put(FileWithoutPrefix(filename).c_str());
                 else if (simple_macro == current_line_macro)
                      buffer -> Put(line_no);
                 else if (simple_macro == next_line_macro)

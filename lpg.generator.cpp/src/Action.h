@@ -185,22 +185,96 @@ protected:
         return undeclared_macro_table.FindName(str, length);
     }
 
+    const char *getFileSuffix(const char *filename)
+    {
+        //
+        // First check whether or not the directory_prefix is an initial prefix of the filename in question.
+        //
+        int length = strlen(option -> directory_prefix);
+        if (strncmp(option -> directory_prefix, filename, length) == 0)
+            return  &(filename[length]);
+        //
+        // Next, check whether or not one of the template_search directories is an initial prefix of the filename in question.
+        //
+        for (int i = 0; i < option -> template_search_directory.Length(); i++)
+        {
+            length = strlen(option -> template_search_directory[i]);
+            if (strncmp(option -> template_search_directory[i], filename, length) == 0)
+                return  &(filename[length]);
+        }
+        //
+        // Next, check whether or not one of the include_search directories is an initial prefix of the filename in question.
+        //
+        for (int i = 0; i < option -> include_search_directory.Length(); i++)
+        {
+            length = strlen(option -> include_search_directory[i]);
+            if (strncmp(option -> include_search_directory[i], filename, length) == 0)
+                return  &(filename[length]);
+        }
+
+        return filename;
+    }
+
     //
     // Remove the portion of the directory prefix that matches the filename.
     //
-    const char *FileWithoutPrefix(const char *filename)
+    std::string FileWithoutPrefix(const char *filename)
     {
-        const char *file_without_prefix = filename;
-        for (const char *p = option -> directory_prefix; *file_without_prefix && *p; file_without_prefix++, p++)
+        std::string result;
+        const char *file_without_prefix = getFileSuffix(filename);
+
+        if (file_without_prefix == filename)
         {
-            if (*file_without_prefix != *p)
-                break;
+            //
+            // Make a last ditch effort to express the filename in terms of the directory_prefix;
+            //
+            int cutoff_index = 0;
+            for (const char *p = option -> directory_prefix, *q = filename; *q && *p; q++, p++)
+            {
+                if (*p != *q) // mismatched character.
+                    break;
+                if (*p == '/') // a slash?
+                    cutoff_index = p - option -> directory_prefix;
+            }
+            //
+            // Only match the prefix that corresponds to a complete directory name (partial name match of the final name is discarded...)
+            //
+            const char* p;
+            if (cutoff_index != 0) // if we are not still at the beginning, skip slash!
+            {
+                file_without_prefix = &(filename[cutoff_index + 1]);
+                p = &(option -> directory_prefix[cutoff_index + 1]);
+            }
+            else
+            {
+                file_without_prefix = filename;
+                p = option -> directory_prefix;
+            }
+
+            //
+            // Count how many subdirectories were not matched and replace each of them by "../"
+            // Recall that the directory_prefix contains no trailng slashes.
+            //
+            if (p != option -> directory_prefix)
+            {
+                while (*p)
+                {
+                    result += "../";
+                    while (*p && *p == '/') p++; // skip extraneous slashes, if any!
+                    while (*p && *p != '/') p++; // skip subdirectory name
+                    if (*p) p++; // skip the main slash
+                }
+            }
+        }
+        if (file_without_prefix > filename) 
+        {
+            while(*file_without_prefix == '/')
+                file_without_prefix++;
         }
 
-        if (file_without_prefix > filename && *file_without_prefix == '/')
-            file_without_prefix++;
+        result += std::string(file_without_prefix);
 
-        return file_without_prefix;
+        return result;
     }
 
     /**
