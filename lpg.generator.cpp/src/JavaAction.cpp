@@ -1194,7 +1194,18 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        return list;\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public void add(");
+    ast_buffer.Put(indentation); ast_buffer.Put("    /**\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("     * @deprecated replaced by {@link #addElement()}\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("     *\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("     */\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean add(");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" element)\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        addElement(element);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return true;\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void addElement(");
                                  ast_buffer.Put(option -> ast_type);
                                  ast_buffer.Put(" element)\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
@@ -1235,6 +1246,141 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
         ast_buffer.Put(indentation); ast_buffer.Put("        return (java.util.ArrayList) getArrayList().clone();\n");
         ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
     }
+
+    //
+    // Implementation for functions in java.util.List
+    //
+    ast_buffer.Put(indentation); ast_buffer.Put("    private class Itr implements java.util.Iterator<Ast> {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        java.util.Iterator<Ast> itr = list.iterator();\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public boolean hasNext() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            return itr.hasNext();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public Ast next() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            return itr.next();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public void remove() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("         }\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    private class ListItr extends Itr implements java.util.ListIterator<Ast> {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        java.util.ListIterator<Ast> list_itr;\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        ListItr(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            list_itr = list.listIterator(index);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public boolean hasPrevious() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.hasPrevious();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public Ast previous() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.previous();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public int nextIndex() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.nextIndex();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public int previousIndex() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.previousIndex();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public void set(Ast o) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("        public void add(Ast o) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean isEmpty() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return list.isEmpty();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+        
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean contains(Object o) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return list.contains(o);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+        
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.Iterator<Ast> iterator() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return new Itr();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public Object[] toArray() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getArrayList().toArray();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public <T> T[] toArray(T[] a) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return (T[]) getArrayList().toArray(a);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean remove(Object o) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean containsAll(java.util.Collection<?> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return list.containsAll(c);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean addAll(java.util.Collection<? extends Ast> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean addAll(int index, java.util.Collection<? extends Ast> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean removeAll(java.util.Collection<?> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean retainAll(java.util.Collection<?> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void clear() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public Ast get(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getElementAt(index);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public Ast set(int index, Ast element) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void add(int index, Ast element) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public Ast remove(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public int indexOf(Object o) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getArrayList().indexOf(o);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public int lastIndexOf(Object o) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getArrayList().lastIndexOf(o);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.ListIterator<Ast> listIterator() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return new ListItr(0);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.ListIterator<Ast> listIterator(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return new ListItr(index);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.List<Ast> subList(int fromIndex, int toIndex) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("        return getArrayList().subList(fromIndex, toIndex);\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("}\n\n");
 
@@ -1406,13 +1552,13 @@ void JavaAction::GenerateListMethods(CTC &ctc,
     // Generate ADD method
     //
     ast_buffer.Put(indentation); ast_buffer.Put("    public ");
-                                 ast_buffer.Put("void add(");
+                                 ast_buffer.Put("void addElement(");
                                  ast_buffer.Put(element_type);
                                  ast_buffer.Put(" _");
                                  ast_buffer.Put(element_name);
                                  ast_buffer.Put(")\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        super.add((");
+    ast_buffer.Put(indentation); ast_buffer.Put("        super.addElement((");
                                  ast_buffer.Put(option -> ast_type);
                                  ast_buffer.Put(") _");
                                  ast_buffer.Put(element_name);
@@ -2612,7 +2758,7 @@ void JavaAction::GenerateListAllocation(CTC &ctc,
             GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
             IntToString index(allocation_element.list_position);
             GenerateCode(&ast_buffer, index.String(), rule_no);
-            GenerateCode(&ast_buffer, ")).add(", rule_no);
+            GenerateCode(&ast_buffer, ")).addElement(", rule_no);
             if (grammar -> IsTerminal(allocation_element.element_symbol))
             {
                 GenerateCode(&ast_buffer, newkey, rule_no);
