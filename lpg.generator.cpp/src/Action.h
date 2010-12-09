@@ -191,7 +191,7 @@ protected:
         // First check whether or not the directory_prefix is an initial prefix of the filename in question.
         //
         int length = strlen(option -> directory_prefix);
-        if (strncmp(option -> directory_prefix, filename, length) == 0)
+        if (length > 0 && strncmp(option -> directory_prefix, filename, length) == 0)
             return  &(filename[length]);
         //
         // Next, check whether or not one of the template_search directories is an initial prefix of the filename in question.
@@ -199,7 +199,7 @@ protected:
         for (int i = 0; i < option -> template_search_directory.Length(); i++)
         {
             length = strlen(option -> template_search_directory[i]);
-            if (strncmp(option -> template_search_directory[i], filename, length) == 0)
+            if (length > 0 && strncmp(option -> template_search_directory[i], filename, length) == 0)
                 return  &(filename[length]);
         }
         //
@@ -208,7 +208,7 @@ protected:
         for (int i = 0; i < option -> include_search_directory.Length(); i++)
         {
             length = strlen(option -> include_search_directory[i]);
-            if (strncmp(option -> include_search_directory[i], filename, length) == 0)
+            if (length > 0 && strncmp(option -> include_search_directory[i], filename, length) == 0)
                 return  &(filename[length]);
         }
 
