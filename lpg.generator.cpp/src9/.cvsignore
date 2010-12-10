@@ -1,0 +1,12 @@
+vc70.pdb
+*.exe
+*.pdb
+*.ilk
+*.new
+*.l
+*.old*
+*.new*
+lpg-macosx_x86
+lpg-win32_x86
+lpg-linux_x86
+Prostheses.txt
