@@ -85,12 +85,121 @@ public class Main
             else System.out.println("    " + toString(start_index) + ".." + toString(k - 1));
         }
     }
+    
+    static void incrementalParserTest(JavaParser java_parser) {
+    	System.out.println("****Begin Reparsing: ");
+
+    	Ast ast = java_parser.parser(); // Parse the token stream to produce an AST
+
+        if (ast == null) 
+            System.out.println("****Failure");
+        else
+        {
+            System.out.println("****Begin visitor: ");
+            JavaResultVisitor v = new JavaResultVisitor(java_parser.getIPrsStream());
+            v.visit((CompilationUnit) ast);
+            System.out.println("****Success");
+        }
+    }
+
+    static void incrementalLexerTest(JavaLexer java_lexer, JavaParser java_parser) {
+    	System.out.println("****Begin Reparsing: ");
+
+    	char inputChars[] = java_lexer.getILexStream().getIPrsStream().getInputChars();
+        
+        System.out.println("\n****The input string is: \n\n");
+        System.out.println(inputChars);
+        
+        System.out.println("*********************\nInitial Tokens: \n");
+        java_parser.getIPrsStream().dumpTokens();
+        
+        char new_input[] = new char[inputChars.length - 2];
+        System.arraycopy(inputChars, 0, new_input, 0, 18);
+        System.arraycopy(inputChars, 20, new_input, 18, new_input.length - 18);
+
+        System.out.println("\n****The new input string (after deleting the initial \"*/\") is: \n\n");
+        System.out.println("\"" + (new String(new_input)) + "\"");
+        IPrsStream.Range range = java_lexer.incrementalLexer(new_input, 18, 18); // For deletion, end_offset == start_offset
+        
+        System.out.println("*********************\nThe new Tokens: \n");
+        java.util.ArrayList<IToken> list = range.getTokenList();
+        for (int i = 0; i < list.size(); i++) {
+        	System.out.println(i + ". " + list.get(i).toString());
+        }
+        System.out.println("*********************\nThe new Token list: \n");
+        java_parser.getIPrsStream().dumpTokens();
+        incrementalParserTest(java_parser);
+        
+        System.out.println("\n****The new input string (after reinserting the \"*/\") is: \n\n");
+        System.out.println("\"" + (new String(inputChars)) + "\"");
+        range = java_lexer.incrementalLexer(inputChars, 18, 20); // For addition, end_offset = start_offset + length(added string) 
+        
+        System.out.println("*********************\nThe new Tokens: \n");
+        list = range.getTokenList();
+        for (int i = 0; i < list.size(); i++) {
+        	System.out.println(i + ". " + list.get(i).toString());
+        }
+        System.out.println("*********************\nThe new Token list: \n");
+        java_parser.getIPrsStream().dumpTokens();
+        incrementalParserTest(java_parser);
+                
+        new_input = new char[inputChars.length];
+        System.arraycopy(inputChars, 0, new_input, 0, new_input.length);
+        new_input[18] = ' ';
+        new_input[19] = ' ';
+        System.out.println("\n****The new input string (after replacing the initial \"*/\" by \"  \") is: \n\n");
+        System.out.println("\"" + (new String(new_input)) + "\"");
+        range = java_lexer.incrementalLexer(new_input, 18, 20); // For replacement, end_offset = start_offset + length(replaced string) 
+        
+        System.out.println("*********************\nThe new Tokens: \n");
+        list = range.getTokenList();
+        for (int i = 0; i < list.size(); i++) {
+        	System.out.println(i + ". " + list.get(i).toString());
+        }
+        System.out.println("*********************\nThe new Token list: \n");
+        java_parser.getIPrsStream().dumpTokens();
+        incrementalParserTest(java_parser);
+
+        new_input = new char[inputChars.length];
+        System.arraycopy(inputChars, 0, new_input, 0, new_input.length);
+        new_input[18] = '*';
+        new_input[19] = '/';
+        System.out.println("\n****The new input string (after restoring the initial \"*/\") is: \n\n");
+        System.out.println("\"" + (new String(new_input)) + "\"");
+        range = java_lexer.incrementalLexer(new_input, 18, 20); // For replacement, end_offset = start_offset + length(replaced string) 
+        
+        System.out.println("*********************\nThe new Tokens: \n");
+        list = range.getTokenList();
+        for (int i = 0; i < list.size(); i++) {
+        	System.out.println(i + ". " + list.get(i).toString());
+        }
+        System.out.println("*********************\nThe new Token list: \n");
+        java_parser.getIPrsStream().dumpTokens();
+        incrementalParserTest(java_parser);
+        
+        new_input = new char[inputChars.length - 2];
+        System.arraycopy(inputChars, 0, new_input, 0, 36);
+        System.arraycopy(inputChars, 38, new_input, 36, new_input.length - 36);
+
+        System.out.println("\n****The new input string (after deleting two blank characters before the keyword \"public\') is: \n\n");
+        System.out.println("\"" + (new String(new_input)) + "\"");
+        range = java_lexer.incrementalLexer(new_input, 36, 36); // For deletion, end_offset = start_offset
+        
+        System.out.println("*********************\nThe new Tokens: \n");
+        list = range.getTokenList();
+        for (int i = 0; i < list.size(); i++) {
+        	System.out.println(i + ". " + list.get(i).toString());
+        }        
+        System.out.println("*********************\nThe new Token list: \n");
+        java_parser.getIPrsStream().dumpTokens();
+        incrementalParserTest(java_parser);
+    }
 
     public static void main(String[] args)
     {
         Option option;
-        JavaLexer java_lexer;
-        JavaParser java_parser;
+        JavaLexer java_lexer = null;
+        JavaParser java_parser = null;
         Ast ast;
 
         Runtime r = Runtime.getRuntime();
@@ -280,6 +389,8 @@ public class Main
             System.out.println("****After Parse Max Memory:\t " + r2 + ", used: " + (r2 - f2));
             System.out.println("****After GC Max Memory:\t " + r3 + ", used: " + (r3 - f3));
             System.out.println();
+
+// incrementalLexerTest(java_lexer, java_parser);
 
             return;
         }
