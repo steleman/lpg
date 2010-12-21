@@ -238,8 +238,12 @@
         public IPrsStream.Range incrementalLexer(char[] input_chars, int start_change_offset, int end_change_offset) {
             int offset_adjustment = input_chars.length - lexStream.getStreamLength();
 //*System.out.println("The offset adjustment is " + offset_adjustment);
-            assert(start_change_offset <= 0 && start_change_offset < input_chars.length);
-            assert(end_change_offset <= 0 && end_change_offset < input_chars.length);
+            if (start_change_offset <= 0 && start_change_offset < input_chars.length)
+                throw new IndexOutOfBoundsException("The start offset " + start_change_offset +
+                                                    " is out of bounds for range 0.." + (input_chars.length - 1));
+            if (end_change_offset <= 0 && end_change_offset < input_chars.length)
+                throw new IndexOutOfBoundsException("The end offset " + end_change_offset +
+                                                    " is out of bounds for range 0.." + (input_chars.length - 1));
             
             //
             // Get the potential list of tokens to be rescanned
@@ -288,10 +292,9 @@
 //*"\" starting at adjusted offset " + (affected_tokens.get(affected_index).getStartOffset() + offset_adjustment));                           
                     affected_index++;
 //*}
-            } while(next_offset <= end_change_offset ||                 // still in the damage region or ...
-                    (lexStream.peek() < lexStream.getStreamLength() && // not at the end of the input and ...
-                     (affected_index < affected_tokens.size() &&       // not resynchronized with a token in the list of affected tokens
-                      affected_tokens.get(affected_index).getStartOffset() + offset_adjustment != next_offset)));
+            } while(next_offset <= end_change_offset &&          // still in the damage region and ...
+                    (affected_index < affected_tokens.size() &&  // not resynchronized with a token in the list of affected tokens
+                     affected_tokens.get(affected_index).getStartOffset() + offset_adjustment != next_offset)));
 
             //
             // If any new tokens were added, compute the first and the last one.
