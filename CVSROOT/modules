@@ -24,3 +24,17 @@
 # character to interpose another module into the current module.  This
 # can be useful for creating a module that consists of many directories
 # spread out over the entire source repository.
+lpg.runtime		lpg.runtime
+lpg.runtime.java	lpg.runtime.java
+lpg.runtime.feature	lpg.runtime.feature
+lpg.generator		lpg.generator
+lpg.generator.cpp	lpg.generator.cpp
+lpg.generator.feature	lpg.generator.feature
+lpg.update		lpg.update
+lpg.examples.java	lpg.examples.java
+#
+lpg.generator.linux_x86		lpg.generator.linux_x86
+lpg.generator.linux_x86_64	lpg.generator.linux_x86_64
+lpg.generator.macosx_x86	lpg.generator.macosx_x86
+lpg.generator.macosx_x86_64	lpg.generator.macosx_x86_64
+lpg.generator.win32_x86		lpg.generator.win32_x86
