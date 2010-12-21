@@ -304,7 +304,34 @@ public class Utf8LexStream implements ILexStream, ParseErrorCodes
 
     public void setLineOffset(int i) { lineOffsets.add(i); }
 
+    /**
+     * @deprecated Use function getLineOffsetOfLine()
+     * 
+     * This function was deprecated because it exposes an implementation detail that
+     * should be hidden. I.e., lines are numbered from 1..MAX_LINE_NUMBER, whereas
+     * the line offset table is indexed from 0..MAX_LINE_NUMBER-1.
+     * 
+     * Thus, if a user has a call that reads:
+     * 
+     *     ... getLineOffset(line_number - 1) ...
+     *     
+     *  it should replaced by:
+     * 
+     *     ... getLineOffsetofLine(line_number) ...
+     *     
+     */
     public int getLineOffset(int i) { return lineOffsets.get(i); }
+
+    /**
+     * 
+     * @param i
+     * @return
+     * 
+     * Note that 1 is subtracted from the line number before indexing the lineOffsets array.
+     * That is because lines are numbered from 1..MAX_LINE_NUMBER, whereas the lineOffsets
+     * table is indexed from 0..MAX_LINE_NUMBER-1.
+     */
+    public int getLineOffsetOfLine(int line_number) { return lineOffsets.get(line_number - 1); }
 
     public void setPrsStream(IPrsStream iPrsStream) { this.iPrsStream = iPrsStream; }
     
