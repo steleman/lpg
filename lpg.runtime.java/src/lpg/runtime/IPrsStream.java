@@ -4,6 +4,35 @@ import java.util.ArrayList;
 
 public interface IPrsStream extends TokenStream
 {
+    /**
+     * 
+     * @author pcharles
+     *
+     */
+    class Range {
+        public Range(IPrsStream iprs_stream, IToken start_token, IToken end_token) {
+        	this.iprsStream = iprs_stream;
+            this.startToken = start_token;
+            this.endToken = end_token;
+        }
+
+        private IPrsStream iprsStream;
+        private IToken startToken;
+        private IToken endToken;
+        private ArrayList<IToken> list = null;
+
+        public IToken getStartToken() { return startToken; }
+        public IToken getEndToken() { return endToken; }
+        
+        public ArrayList<IToken> getTokenList() {
+        	if (list == null) {
+        		list = new ArrayList<IToken>();
+        		iprsStream.addTokensInRangeToList(list, startToken, endToken);
+        	}
+        	return list;
+        }
+    }
+
     IMessageHandler getMessageHandler();
     void setMessageHandler(IMessageHandler errMsg);
 
@@ -30,9 +59,15 @@ public interface IPrsStream extends TokenStream
 
     void makeToken(int startLoc, int endLoc, int kind);
 
+    void makeToken(IToken token, int offset_adjustment);
+
     void makeAdjunct(int startLoc, int endLoc, int kind);
     
+    void makeAdjunct(IToken token, int offset_adjustment);
+
     void removeLastToken();
+
+    void addTokensInRangeToList(ArrayList<IToken> list, IToken start_token, IToken end_token);
 
     int getLineCount();
 
@@ -63,9 +98,9 @@ public interface IPrsStream extends TokenStream
     
     String[] orderedExportedSymbols();
 
-    ArrayList<IToken> getTokens();
+    java.util.List<IToken> getTokens();
     
-    ArrayList<IToken> getAdjuncts();
+    java.util.List<IToken> getAdjuncts();
 
     IToken[] getFollowingAdjuncts(int i);
 
@@ -79,7 +114,34 @@ public interface IPrsStream extends TokenStream
     
     int getEndOffset(int i);
     
+    /**
+     * @deprecated Use function getLineOffsetOfLine()
+     * 
+     * This function was deprecated because it exposes an implementation detail that
+     * should be hidden. I.e., lines are numbered from 1..MAX_LINE_NUMBER, whereas
+     * the line offset table is indexed from 0..MAX_LINE_NUMBER-1.
+     * 
+     * Thus, if a user has a call that reads:
+     * 
+     *     ... getLineOffset(line_number - 1) ...
+     *     
+     *  it should be replaced by:
+     * 
+     *     ... getLineOffsetofLine(line_number) ...
+     *     
+     */
     int getLineOffset(int i);
+    
+    /**
+     * 
+     * @param i
+     * @return
+     * 
+     * Note that 1 is subtracted from the line number before indexing the lineOffsets array.
+     * That is because lines are numbered from 1..MAX_LINE_NUMBER, whereas the lineOffsets
+     * table is indexed from 0..MAX_LINE_NUMBER-1.
+     */
+    public int getLineOffsetOfLine(int line_number);
     
     int getLineNumberOfCharAt(int i);
 
@@ -95,6 +157,8 @@ public interface IPrsStream extends TokenStream
 
     int getEndColumnOfTokenAt(int i);
 
+    ArrayList<IToken> incrementalResetAtCharacterOffset(int damage_offset);
+
     char [] getInputChars();
 
     byte [] getInputBytes();
@@ -108,6 +172,8 @@ public interface IPrsStream extends TokenStream
     IToken getTokenAtCharacter(int offset);
     
     IToken getTokenAt(int i);
+    
+    IToken getAdjunctAt(int i);
     
     void dumpTokens();
     

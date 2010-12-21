@@ -42,6 +42,7 @@
     $additional_interfaces /../
     $super_stream_class /.$file_prefix$Utf8LpgLexStream./
     $prs_stream_class /.IPrsStream./
+    $super_class /.Object./
 
     --
     -- Macros useful for specifying actions
@@ -109,7 +110,7 @@
 
 %Headers
     /.
-    public class $action_type implements RuleAction$additional_interfaces
+    public class $action_type extends $super_class implements RuleAction$additional_interfaces
     {
         private $super_stream_class utf8LexStream;
         

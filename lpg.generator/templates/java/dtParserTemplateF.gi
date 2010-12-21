@@ -131,6 +131,7 @@
         
     $additional_interfaces /../
     $ast_class /.$ast_type./
+    $super_class /.Object./
     $unimplemented_symbols_warning /.false./
     
     $setSym1 /. // macro setSym1 is deprecated. Use function setResult
@@ -156,7 +157,7 @@
 
 %Headers
     /.
-    public class $action_type implements RuleAction$additional_interfaces
+    public class $action_type extends $super_class implements RuleAction$additional_interfaces
     {
         private PrsStream prsStream = null;
         

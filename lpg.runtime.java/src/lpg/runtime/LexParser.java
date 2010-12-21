@@ -161,6 +161,16 @@ public class LexParser
             lexNextToken(end_offset);
         }
     }
+
+    //
+    //
+    //
+    public int incrementalParseCharacters()
+    {
+        scanNextToken();
+
+    	return curtok;
+    }
     
     //
     // Parse the input and create a stream of tokens.

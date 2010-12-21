@@ -15,8 +15,35 @@ public interface ILexStream extends TokenStream
 
     String[] orderedExportedSymbols();
 
+    /**
+     * @deprecated Use function getLineOffsetOfLine()
+     * 
+     * This function was deprecated because it exposes an implementation detail that
+     * should be hidden. I.e., lines are numbered from 1..MAX_LINE_NUMBER, whereas
+     * the line offset table is indexed from 0..MAX_LINE_NUMBER-1.
+     * 
+     * Thus, if a user has a call that reads:
+     * 
+     *     ... getLineOffset(line_number - 1) ...
+     *     
+     *  it should be replaced by:
+     * 
+     *     ... getLineOffsetofLine(line_number) ...
+     *     
+     */
     int getLineOffset(int i);
     
+    /**
+     * 
+     * @param i
+     * @return
+     * 
+     * Note that 1 is subtracted from the line number before indexing the lineOffsets array.
+     * That is because lines are numbered from 1..MAX_LINE_NUMBER, whereas the lineOffsets
+     * table is indexed from 0..MAX_LINE_NUMBER-1.
+     */
+    public int getLineOffsetOfLine(int line_number);
+
     int getLineNumberOfCharAt(int i);
 
     int getColumnOfCharAt(int i);

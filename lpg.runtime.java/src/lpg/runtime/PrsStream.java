@@ -10,8 +10,8 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 {
     private ILexStream iLexStream;
     private int kindMap[] = null;
-    private ArrayList<IToken> tokens = new ArrayList<IToken>();
-    private ArrayList<IToken> adjuncts = new ArrayList<IToken>();
+    private SegmentedTuple<IToken> tokens = new SegmentedTuple<IToken>();
+    private SegmentedTuple<IToken> adjuncts = new SegmentedTuple<IToken>();
     private int index = 0;
     private int len = 0;
 
@@ -32,12 +32,11 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
                        NullTerminalSymbolsException,
                        UnimplementedTerminalsException
     {
-    	// SMS 12 Feb 2008
-    	// lexStream might be null, maybe only erroneously, but it has happened
-    	if (iLexStream == null)
-    		throw new NullPointerException(
-    			"lpg.runtime.PrsStream.remapTerminalSymbols(..):  lexStream is null");
-    	
+        // SMS 12 Feb 2008
+        // lexStream might be null, maybe only erroneously, but it has happened
+        if (iLexStream == null)
+            throw new NullPointerException("lpg.runtime.PrsStream.remapTerminalSymbols(..):  lexStream is null");
+   
         String[] ordered_lexer_symbols = iLexStream.orderedExportedSymbols();
         if (ordered_lexer_symbols == null)
             throw new NullExportedSymbolsException();
@@ -73,10 +72,10 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public void resetTokenStream()
     {
-        tokens = new ArrayList<IToken>();
+        tokens = new SegmentedTuple<IToken>();
         index = 0;
 
-        adjuncts = new ArrayList<IToken>();
+        adjuncts = new SegmentedTuple<IToken>();
     }
 
     public void setLexStream(ILexStream lexStream) 
@@ -101,15 +100,42 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
         tokens.add(token);
         token.setAdjunctIndex(adjuncts.size());
     }
+
+    /**
+     * 
+     * @param token
+     * @param offset_adjustment
+     */
+    public void makeToken(IToken token, int offset_adjustment)
+    {
+        token.setStartOffset(token.getStartOffset() + offset_adjustment);
+        token.setEndOffset(token.getEndOffset() + offset_adjustment);
+        
+        token.setTokenIndex(tokens.size());
+        
+        tokens.add(token);
+        token.setAdjunctIndex(adjuncts.size());
+    }
     
     public void removeLastToken()
     {
+        /**
+         * ArrayList implementation
         int last_index = tokens.size() - 1;
         Token token = (Token) tokens.get(last_index);
         int adjuncts_size = adjuncts.size();
         while(adjuncts_size > token.getAdjunctIndex())
             adjuncts.remove(--adjuncts_size);
         tokens.remove(last_index);
+         */
+    
+        /**
+         * SegmentedTuple implementation
+         */ 
+        int last_index = tokens.size() - 1;
+        Token token = (Token) tokens.get(last_index);
+        adjuncts.reset(token.getAdjunctIndex());
+        tokens.reset(last_index);        
     }
     
     public int makeErrorToken(int firsttok, int lasttok, int errortok, int kind)
@@ -150,7 +176,23 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
         adjunct.setTokenIndex(token_index);
         adjuncts.add(adjunct);
     }
+
+    /**
+     * 
+     * @param adjunct
+     * @param offset_adjustment
+     */
+    public void makeAdjunct(IToken adjunct, int offset_adjustment)
+    {
+        int token_index = tokens.size() - 1; // index of last token processed
+        adjunct.setStartOffset(adjunct.getStartOffset() + offset_adjustment);
+        adjunct.setEndOffset(adjunct.getEndOffset() + offset_adjustment);
     
+        adjunct.setAdjunctIndex(adjuncts.size());
+        adjunct.setAdjunctIndex(token_index);
+        adjuncts.add(adjunct);
+    }
+
     public void addAdjunct(IToken adjunct)
     {
         int token_index = tokens.size() - 1; // index of last token processed
@@ -209,7 +251,25 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public String[] orderedTerminalSymbols() { return null; }
 
+    /**
+     * @deprecated Use function getLineOffsetOfLine()
+     * 
+     * This function was deprecated because it exposes an implementation detail that
+     * should be hidden. I.e., lines are numbered from 1..MAX_LINE_NUMBER, whereas
+     * the line offset table is indexed from 0..MAX_LINE_NUMBER-1.
+     * 
+     * Thus, if a user has a call that reads:
+     * 
+     *     ... getLineOffset(line_number - 1) ...
+     *     
+     *  it should be replaced by:
+     * 
+     *     ... getLineOffsetofLine(line_number) ...
+     *     
+     */
     public int getLineOffset(int i) { return iLexStream.getLineOffset(i); }
+    
+    public int getLineOffsetOfLine(int i) { return iLexStream.getLineOffsetOfLine(i); }
 
     public int getLineCount() { return iLexStream.getLineCount(); }
 
@@ -241,6 +301,54 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
         return i;
     }
 
+    public void addTokensInRangeToList(ArrayList<IToken> list, IToken start_token, IToken end_token) {
+    	assert(list != null);
+    	
+    	if (start_token == null || end_token == null)
+    		return;
+    	
+        //
+        // If the list of tokens start with an adjunct, starting with the adjunct in question,
+        // add it all subsequent adjuncts associated with the same token to the list and adjust
+    	// the token index.
+        //
+        int token_index = start_token.getTokenIndex();
+        if (start_token instanceof Adjunct) {
+            for (int i = start_token.getAdjunctIndex(); i < adjuncts.size(); i++) {
+                IToken adjunct = adjuncts.get(i);
+                if (adjunct.getTokenIndex() != token_index)
+                    break;
+                list.add(adjunct);
+                if (adjunct == end_token)
+                    return;
+            }
+            token_index++; 
+        }
+        
+        //
+        // Starting with the token identified by token_index, add all tokens and their
+        // associated adjuncts to the lis, until the end_token is reached or we reach 
+        // the end of the token list.
+        //
+        for (; token_index < tokens.size(); token_index++) {
+        	IToken token = tokens.get(token_index);
+            list.add(token);
+            if (token == end_token)
+                return;
+
+            for (int i = token.getAdjunctIndex(); i < adjuncts.size(); i++) {
+                IToken adjunct = adjuncts.get(i);
+                if (adjunct.getTokenIndex() != token_index)
+                    break;
+                list.add(adjunct);
+                if (adjunct == end_token)
+                    return;
+            }
+        }
+        
+        return;
+    }
+
     // TODO: should this function throw an exception instead of returning null?
     public char [] getInputChars()
     {
@@ -264,7 +372,7 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
 
     public String toString(IToken t1, IToken t2)
     {
-    	return iLexStream.toString(t1.getStartOffset(), t2.getEndOffset());
+        return iLexStream.toString(t1.getStartOffset(), t2.getEndOffset());
     }
 
     public int getSize() { return tokens.size(); }
@@ -308,9 +416,12 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
     
     public IToken getTokenAt(int i) { return (IToken)tokens.get(i); }
 
+    /**
+     * @deprecated replaced by {@link #getTokenAt()}
+     */
     public IToken getIToken(int i)  { return (IToken)tokens.get(i); }
 
-    public ArrayList<IToken> getTokens() { return tokens; }
+    public java.util.List<IToken> getTokens() { return tokens; }
 
     public int getStreamIndex() { return index; }
 
@@ -347,6 +458,82 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
         System.out.println();
     }
 
+    /**
+     * 
+     * @param damage_offset
+     * @return
+     * 
+     * If an update occurred in the input stream, calculate the token (or adjunct)
+     * where to start rescanning. Reset the stream accordingly and return the list
+     * of starting offset of the tokens that were removed from the stream.
+     */
+    public ArrayList<IToken> incrementalResetAtCharacterOffset(int damage_offset)
+    {
+        int token_index = getTokenIndexAtCharacter(damage_offset),
+            adjunct_index = -1;
+        //
+        // A negative token_index indicates that the damage_offset did not fall directly on a token 
+        // and -token_index is the index of the token preceding the damage offset.
+        //
+        token_index = (token_index < 0 ? -token_index : token_index);
+
+        //
+        // If the damage is away from token? look for an adjunct that is closer
+        //
+        if (getTokenAt(token_index).getEndOffset() + 1 < damage_offset)
+        {
+            for (int i = tokens.get(token_index).getAdjunctIndex();
+                     i < adjuncts.size() && adjuncts.get(i).getTokenIndex() == token_index;
+                     i++)
+            {
+                if (adjuncts.get(i).getStartOffset() < damage_offset) // damage on or after this adjunct?
+                    adjunct_index = i;
+                else break;
+            }
+        }
+
+        ArrayList<IToken> affected_tokens = new ArrayList<IToken>();
+         
+        //
+        // Start rescanning on an adjunct (indicated by adjunct_index) following the token at token_index;
+        //
+int count = (adjunct_index >= 0
+                            ? (adjuncts.size() - adjunct_index)
+                            : (adjuncts.size() - tokens.get(token_index).getAdjunctIndex()))
+            +
+            (tokens.size() - token_index);
+
+        if (adjunct_index >= 0)
+        {
+            assert(token_index < tokens.size());
+
+            token_index++; // next token following adjunct...
+            for (int i = adjunct_index; i < tokens.get(token_index).getAdjunctIndex(); i++)
+                affected_tokens.add(adjuncts.get(i));
+            adjuncts.reset(adjunct_index); // remove all adjuncts from adjunct_index on from the adjunct list
+        }
+        else adjuncts.reset(tokens.get(token_index).getAdjunctIndex()); // remove all adjuncts associated with token index
+                                                                        // and all adjuncts following those from the adjunct list.
+
+        //
+        // Add all remaining tokens and their adjuncts to the list of affected tokens.
+        //
+        for (int i = token_index; i < tokens.size() - 1; i++) {
+            affected_tokens.add(tokens.get(i));
+            for (int k = tokens.get(i).getAdjunctIndex(); k < tokens.get(i + 1).getAdjunctIndex(); k ++) {
+                affected_tokens.add(adjuncts.get(k));
+            }
+        }
+        affected_tokens.add(tokens.get(tokens.size() - 1));
+
+        tokens.reset(token_index); // remove all tokens from token_index on from the token list
+
+//^System.out.println("***The number of affected tokens is " + count +
+//*                   "; The size of the array list is " + affected_tokens.size());
+
+        return affected_tokens;
+    }
+    
     private IToken[] getAdjuncts(int i)
     {
         int start_index = ((IToken)tokens.get(i)).getAdjunctIndex(),
@@ -373,7 +560,9 @@ public class PrsStream implements IPrsStream, ParseErrorCodes
         return getAdjuncts(getPrevious(i));
     }
 
-    public ArrayList<IToken> getAdjuncts() { return adjuncts; }
+    public IToken getAdjunctAt(int i) { return (IToken) adjuncts.get(i); }
+
+    public java.util.List<IToken> getAdjuncts() { return adjuncts; }
 
     //
     // Methods that implement the TokenStream Interface

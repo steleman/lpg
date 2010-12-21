@@ -83,7 +83,7 @@
             {
                 switch (ruleNumber)
                 {
-                //#line $next_line "$input_file$"./
+                    //#line $next_line "$input_file$"./
 
     $EndActions
     /.
@@ -135,6 +135,7 @@
     --
     $additional_interfaces /../
     $ast_class /.$ast_type./
+    $super_class /.Object./   
     $unimplemented_symbols_warning /.false./
 
     --
@@ -163,7 +164,7 @@
 
 %Headers
     /.
-    public class $action_type implements RuleAction$additional_interfaces
+    public class $action_type extends $super_class implements RuleAction$additional_interfaces
     {
         private PrsStream prsStream = null;
         

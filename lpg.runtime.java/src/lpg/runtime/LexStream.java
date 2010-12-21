@@ -113,6 +113,22 @@ public class LexStream implements ILexStream, ParseErrorCodes
             if (inputChars[i] == 0x0A) setLineOffset(i);
     }
 
+    /**
+     * 
+     * @param offset
+     * 
+     *  update of lineOffsets starting at offset. 
+     * 
+     */
+    public void computeLineOffsets(int offset)
+    {
+    	int line = getLineNumberOfCharAt(offset), // The line containing the offset character
+    	    line_offset = lineOffsets.get(line); // the beginnning character of the line containing the offset character
+        lineOffsets.reset(line + 1);
+        for (int i = line_offset + 1; i < inputChars.length; i++)
+            if (inputChars[i] == 0x0A) setLineOffset(i);
+    }
+
     public void setInputChars(char[] inputChars)
     {
         this.inputChars = inputChars;
@@ -146,8 +162,35 @@ public class LexStream implements ILexStream, ParseErrorCodes
         lineOffsets.add(i);
     }
 
+    /**
+     * @deprecated Use function getLineOffsetOfLine()
+     * 
+     * This function was deprecated because it exposes an implementation detail that
+     * should be hidden. I.e., lines are numbered from 1..MAX_LINE_NUMBER, whereas
+     * the line offset table is indexed from 0..MAX_LINE_NUMBER-1.
+     * 
+     * Thus, if a user has a call that reads:
+     * 
+     *     ... getLineOffset(line_number - 1) ...
+     *     
+     *  it should replaced by:
+     * 
+     *     ... getLineOffsetofLine(line_number) ...
+     *     
+     */
     public int getLineOffset(int i) { return lineOffsets.get(i); }
 
+    /**
+     * 
+     * @param i
+     * @return
+     * 
+     * Note that 1 is subtracted from the line number before indexing the lineOffsets array.
+     * That is because lines are numbered from 1..MAX_LINE_NUMBER, whereas the lineOffsets
+     * table is indexed from 0..MAX_LINE_NUMBER-1.
+     */
+    public int getLineOffsetOfLine(int line_number) { return lineOffsets.get(line_number - 1); }
+    
     public void setPrsStream(IPrsStream prsStream)
     {
         prsStream.setLexStream(this);
@@ -175,7 +218,7 @@ public class LexStream implements ILexStream, ParseErrorCodes
      *
      */
     public int getLine() { return getLineCount(); }
-    public int getLineCount() { return lineOffsets.size() - 1; }
+    public int getLineCount() { return lineOffsets.size(); }
 
     public int getLineNumberOfCharAt(int i)
     {
@@ -237,12 +280,24 @@ public class LexStream implements ILexStream, ParseErrorCodes
 
     public int badToken() { return 0; }
 
+    /**
+     * @deprecated replaced by {@link #getLineNumberOfCharAt()}
+     */
     public int getLine(int i) { return getLineNumberOfCharAt(i); }
 
+    /**
+     * @deprecated replaced by {@link #getColumnOfCharAt()}
+     */
     public int getColumn(int i) { return getColumnOfCharAt(i); }
 
-    public int getEndLine(int i) { return getLine(i); }
+    /**
+     * @deprecated replaced by {@link #getLineNumberOfCharAt()}
+     */
+    public int getEndLine(int i) { return getLineNumberOfCharAt(i); }
 
+    /**
+     * @deprecated replaced by {@link #getColumnOfCharAt()}
+     */
     public int getEndColumn(int i) { return getColumnOfCharAt(i); }
 
     public boolean afterEol(int i) { return (i < 1 ? true : getLineNumberOfCharAt(i - 1) < getLineNumberOfCharAt(i)); }
