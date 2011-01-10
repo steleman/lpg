@@ -294,7 +294,7 @@
 //*}
             } while(next_offset <= end_change_offset &&          // still in the damage region and ...
                     (affected_index < affected_tokens.size() &&  // not resynchronized with a token in the list of affected tokens
-                     affected_tokens.get(affected_index).getStartOffset() + offset_adjustment != next_offset)));
+                     affected_tokens.get(affected_index).getStartOffset() + offset_adjustment != next_offset));
 
             //
             // If any new tokens were added, compute the first and the last one.
