@@ -261,15 +261,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
         {
             if (beginjava_macro != NULL)
             {
-                ProcessActionLine(action.location,
-                                  buffer,
-                                  lex_stream -> FileName(action.block_token),
-                                  beginjava,
-                                  &beginjava[strlen(beginjava)],
-                                  line_no,
-                                  rule_number,
-                                  head - block -> BlockBeginLength(),
-                                  head);
+                ProcessMacroBlock(action.location, beginjava_macro, buffer, rule_number, lex_stream -> FileName(action.block_token), line_no);
             }
             else if (FindUndeclaredMacro(beginjava, strlen(beginjava)) == NULL)
             {
@@ -289,15 +281,7 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
         {
             if (endjava_macro != NULL)
             {
-                ProcessActionLine(action.location,
-                                  buffer,
-                                  lex_stream -> FileName(action.block_token),
-                                  endjava,
-                                  &endjava[strlen(endjava)],
-                                  lex_stream -> EndLine(action.block_token),
-                                  rule_number,
-                                  tail,
-                                  tail + block -> BlockEndLength());
+                ProcessMacroBlock(action.location, endjava_macro, buffer, rule_number, lex_stream -> FileName(action.block_token), lex_stream -> EndLine(action.block_token));
             }
             else if (FindUndeclaredMacro(endjava, strlen(endjava)) == NULL)
             {
@@ -1680,8 +1664,9 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
                               lex_stream -> FileName(separator_token),
                               rule_info,
                               &rule_info[strlen(rule_info)],
-                              line_no,
                               rule_no,
+                              lex_stream -> FileName(separator_token),
+                              line_no,
                               start_cursor_location,
                               end_cursor_location);
         }
@@ -1712,8 +1697,9 @@ void JavaAction::GenerateCommentHeader(TextBuffer &ast_buffer,
                           lex_stream -> FileName(separator_token), // option -> DefaultBlock() -> ActionfileSymbol() -> Name(),
                           rule_info,
                           &rule_info[strlen(rule_info)],
-                          line_no,
                           rule_no,
+                          lex_stream -> FileName(separator_token),
+                          line_no,
                           start_cursor_location,
                           end_cursor_location);
     }
@@ -2750,8 +2736,13 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
         }
         GenerateCode(&ast_buffer, space, rule_no);
         GenerateCode(&ast_buffer, "setResult(", rule_no);
+
         GenerateCode(&ast_buffer, space, rule_no);
         GenerateCode(&ast_buffer, space4, rule_no);
+        GenerateCode(&ast_buffer, "//#line $current_line $input_file$", rule_no);
+        GenerateCode(&ast_buffer, space, rule_no);
+        GenerateCode(&ast_buffer, space4, rule_no);
+
         GenerateCode(&ast_buffer, newkey, rule_no);
         GenerateCode(&ast_buffer, classname, rule_no);
         GenerateCode(&ast_buffer, lparen, rule_no);
@@ -2783,6 +2774,8 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
             if (position.Length() > 0)
             {
                 GenerateCode(&ast_buffer, comma, rule_no);
+                GenerateCode(&ast_buffer, extra_space, rule_no);
+                GenerateCode(&ast_buffer, "//#line $current_line $input_file$", rule_no);
                 GenerateCode(&ast_buffer, extra_space, rule_no);
     
                 int offset = grammar -> FirstRhsIndex(rule_no) - 1;
@@ -2834,12 +2827,16 @@ void JavaAction::GenerateAstAllocation(CTC &ctc,
                     {
                         GenerateCode(&ast_buffer, comma, rule_no);
                         GenerateCode(&ast_buffer, extra_space, rule_no);
+                        GenerateCode(&ast_buffer, "//#line $current_line $input_file$", rule_no);
+                        GenerateCode(&ast_buffer, extra_space, rule_no);
                     }
                 }
             }
         }
 
         GenerateCode(&ast_buffer, rparen, rule_no);
+        GenerateCode(&ast_buffer, space, rule_no);
+        GenerateCode(&ast_buffer, "//#line $current_line $input_file$", rule_no);
         GenerateCode(&ast_buffer, space, rule_no);
         GenerateCode(&ast_buffer, trailer, rule_no);
     }
@@ -2863,150 +2860,146 @@ void JavaAction::GenerateListAllocation(CTC &ctc,
                *comma = ",",
                *rparen = ")",
                *trailer = ");";
-    int extra_space_length = strlen(space) + strlen(space4) + strlen(newkey) + strlen(allocation_element.name) + 1;
-    char *extra_space = new char[extra_space_length + 1];
+
+    if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_EMPTY ||
+        allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_EMPTY ||
+        allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_SINGLETON ||
+        allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_SINGLETON)
     {
-        extra_space[0] = '\n';
-        for (int i = 1; i < extra_space_length; i++)
-            extra_space[i] = ' ';
-        extra_space[extra_space_length] = '\0';
+        GenerateCode(&ast_buffer, space, rule_no);
+        GenerateCode(&ast_buffer, "setResult(", rule_no);
+        GenerateCode(&ast_buffer, space, rule_no);
+        GenerateCode(&ast_buffer, space4, rule_no);
+        GenerateCode(&ast_buffer, "//#line $current_line $input_file$", rule_no);
+        GenerateCode(&ast_buffer, space, rule_no);
+        GenerateCode(&ast_buffer, space4, rule_no);
 
-        if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_EMPTY ||
-            allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_EMPTY ||
-            allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_SINGLETON ||
-            allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_SINGLETON)
+        GenerateCode(&ast_buffer, newkey, rule_no);
+        GenerateCode(&ast_buffer, allocation_element.name, rule_no);
+        GenerateCode(&ast_buffer, lparen, rule_no);
+        if (allocation_element.needs_environment)
         {
-            GenerateCode(&ast_buffer, space, rule_no);
-            GenerateCode(&ast_buffer, "setResult(", rule_no);
-            GenerateCode(&ast_buffer, space, rule_no);
-            GenerateCode(&ast_buffer, space4, rule_no);
-
-            GenerateCode(&ast_buffer, newkey, rule_no);
-            GenerateCode(&ast_buffer, allocation_element.name, rule_no);
-            GenerateCode(&ast_buffer, lparen, rule_no);
-            if (allocation_element.needs_environment)
-            {
-                GenerateCode(&ast_buffer, option -> action_type, rule_no);
-                GenerateCode(&ast_buffer, ".this, ", rule_no);
-            }
-            if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_EMPTY ||
-                allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_EMPTY)
-            {
-                GenerateCode(&ast_buffer, "getLeftIToken()", rule_no);
-                GenerateCode(&ast_buffer, ", ", rule_no);
-                GenerateCode(&ast_buffer, "getRightIToken()", rule_no);
-                GenerateCode(&ast_buffer, comma, rule_no);
-                if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_EMPTY)
-                     GenerateCode(&ast_buffer, " true /* left recursive */", rule_no);
-                else GenerateCode(&ast_buffer, " false /* not left recursive */", rule_no);
-            }
-            else
-            {
-                assert(allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_SINGLETON ||
-                       allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_SINGLETON);
-
-                if (grammar -> IsTerminal(allocation_element.element_symbol))
-                {
-                    GenerateCode(&ast_buffer, newkey, rule_no);
-                    GenerateCode(&ast_buffer, grammar -> Get_ast_token_classname(), rule_no);
-                    GenerateCode(&ast_buffer, lparen, rule_no);
-                    GenerateCode(&ast_buffer, "getRhsIToken(", rule_no);
-                    IntToString index(allocation_element.element_position);
-                    GenerateCode(&ast_buffer, index.String(), rule_no);
-                    GenerateCode(&ast_buffer, rparen, rule_no);
-                }
-                else
-                {
-                    GenerateCode(&ast_buffer, lparen, rule_no);
-                    GenerateCode(&ast_buffer, ctc.FindBestTypeFor(allocation_element.element_type_symbol_index), rule_no);
-                    GenerateCode(&ast_buffer, rparen, rule_no);
-                    GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
-                    IntToString index(allocation_element.element_position);
-                    GenerateCode(&ast_buffer, index.String(), rule_no);
-                }
-    
-                GenerateCode(&ast_buffer, rparen, rule_no);
-                GenerateCode(&ast_buffer, comma, rule_no);
-                if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_SINGLETON)
-                     GenerateCode(&ast_buffer, " true /* left recursive */", rule_no);
-                else GenerateCode(&ast_buffer, " false /* not left recursive */", rule_no);
-            }
-
-            GenerateCode(&ast_buffer, rparen, rule_no);
-            GenerateCode(&ast_buffer, space, rule_no);
+            GenerateCode(&ast_buffer, option -> action_type, rule_no);
+            GenerateCode(&ast_buffer, ".this, ", rule_no);
+        }
+        if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_EMPTY ||
+            allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_EMPTY)
+        {
+            GenerateCode(&ast_buffer, "getLeftIToken()", rule_no);
+            GenerateCode(&ast_buffer, ", ", rule_no);
+            GenerateCode(&ast_buffer, "getRightIToken()", rule_no);
+            GenerateCode(&ast_buffer, comma, rule_no);
+            if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_EMPTY)
+                 GenerateCode(&ast_buffer, " true /* left recursive */", rule_no);
+            else GenerateCode(&ast_buffer, " false /* not left recursive */", rule_no);
         }
         else
         {
-            //
-            // Add new element to list
-            //
-            if (allocation_element.list_kind == RuleAllocationElement::ADD_ELEMENT)
+            assert(allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_SINGLETON ||
+                   allocation_element.list_kind == RuleAllocationElement::RIGHT_RECURSIVE_SINGLETON);
+
+            if (grammar -> IsTerminal(allocation_element.element_symbol))
             {
-                GenerateCode(&ast_buffer, space, rule_no);
+                GenerateCode(&ast_buffer, newkey, rule_no);
+                GenerateCode(&ast_buffer, grammar -> Get_ast_token_classname(), rule_no);
                 GenerateCode(&ast_buffer, lparen, rule_no);
-                GenerateCode(&ast_buffer, lparen, rule_no);
-                GenerateCode(&ast_buffer, allocation_element.name, rule_no);
-                GenerateCode(&ast_buffer, rparen, rule_no);
-                GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
-                IntToString index(allocation_element.list_position);
+                GenerateCode(&ast_buffer, "getRhsIToken(", rule_no);
+                IntToString index(allocation_element.element_position);
                 GenerateCode(&ast_buffer, index.String(), rule_no);
-                GenerateCode(&ast_buffer, ")).addElement(", rule_no);
-                if (grammar -> IsTerminal(allocation_element.element_symbol))
-                {
-                    GenerateCode(&ast_buffer, newkey, rule_no);
-                    GenerateCode(&ast_buffer, grammar -> Get_ast_token_classname(), rule_no);
-                    GenerateCode(&ast_buffer, lparen, rule_no);
-                    GenerateCode(&ast_buffer, "getRhsIToken(", rule_no);
-                    IntToString index(allocation_element.element_position);
-                    GenerateCode(&ast_buffer, index.String(), rule_no);
-                    GenerateCode(&ast_buffer, rparen, rule_no);
-                }
-                else
-                {
-                    GenerateCode(&ast_buffer, lparen, rule_no);
-                    GenerateCode(&ast_buffer, ctc.FindBestTypeFor(allocation_element.element_type_symbol_index), rule_no);
-                    GenerateCode(&ast_buffer, rparen, rule_no);
-                    GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
-                    IntToString index(allocation_element.element_position);
-                    GenerateCode(&ast_buffer, index.String(), rule_no);
-                }
-
-                if (allocation_element.list_position != 1) // a right-recursive rule? set the list as result
-                {
-                    GenerateCode(&ast_buffer, rparen, rule_no);
-                    GenerateCode(&ast_buffer, trailer, rule_no);
-
-                    GenerateCode(&ast_buffer, space, rule_no);
-                    GenerateCode(&ast_buffer, "setResult(", rule_no);
-                    GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
-                    IntToString index(allocation_element.list_position);
-                    GenerateCode(&ast_buffer, index.String(), rule_no);
-                }
+                GenerateCode(&ast_buffer, rparen, rule_no);
             }
-
-            //
-            // Copy a list that is not the first element on the right-hand side of the rule
-            //
             else
             {
-                assert(allocation_element.list_kind == RuleAllocationElement::COPY_LIST);
+                GenerateCode(&ast_buffer, lparen, rule_no);
+                GenerateCode(&ast_buffer, ctc.FindBestTypeFor(allocation_element.element_type_symbol_index), rule_no);
+                GenerateCode(&ast_buffer, rparen, rule_no);
+                GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
+                IntToString index(allocation_element.element_position);
+                GenerateCode(&ast_buffer, index.String(), rule_no);
+            }
+    
+            GenerateCode(&ast_buffer, rparen, rule_no);
+            GenerateCode(&ast_buffer, comma, rule_no);
+            if (allocation_element.list_kind == RuleAllocationElement::LEFT_RECURSIVE_SINGLETON)
+                 GenerateCode(&ast_buffer, " true /* left recursive */", rule_no);
+            else GenerateCode(&ast_buffer, " false /* not left recursive */", rule_no);
+        }
+
+        GenerateCode(&ast_buffer, rparen, rule_no);
+        GenerateCode(&ast_buffer, space, rule_no);
+        GenerateCode(&ast_buffer, "//#line $current_line $input_file$", rule_no);
+        GenerateCode(&ast_buffer, space, rule_no);
+    }
+    else
+    {
+        //
+        // Add new element to list
+        //
+        if (allocation_element.list_kind == RuleAllocationElement::ADD_ELEMENT)
+        {
+            GenerateCode(&ast_buffer, space, rule_no);
+            GenerateCode(&ast_buffer, lparen, rule_no);
+            GenerateCode(&ast_buffer, lparen, rule_no);
+            GenerateCode(&ast_buffer, allocation_element.name, rule_no);
+            GenerateCode(&ast_buffer, rparen, rule_no);
+            GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
+            IntToString index(allocation_element.list_position);
+            GenerateCode(&ast_buffer, index.String(), rule_no);
+            GenerateCode(&ast_buffer, ")).addElement(", rule_no);
+            if (grammar -> IsTerminal(allocation_element.element_symbol))
+            {
+                GenerateCode(&ast_buffer, newkey, rule_no);
+                GenerateCode(&ast_buffer, grammar -> Get_ast_token_classname(), rule_no);
+                GenerateCode(&ast_buffer, lparen, rule_no);
+                GenerateCode(&ast_buffer, "getRhsIToken(", rule_no);
+                IntToString index(allocation_element.element_position);
+                GenerateCode(&ast_buffer, index.String(), rule_no);
+                GenerateCode(&ast_buffer, rparen, rule_no);
+            }
+            else
+            {
+                GenerateCode(&ast_buffer, lparen, rule_no);
+                GenerateCode(&ast_buffer, ctc.FindBestTypeFor(allocation_element.element_type_symbol_index), rule_no);
+                GenerateCode(&ast_buffer, rparen, rule_no);
+                GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
+                IntToString index(allocation_element.element_position);
+                GenerateCode(&ast_buffer, index.String(), rule_no);
+            }
+
+            if (allocation_element.list_position != 1) // a right-recursive rule? set the list as result
+            {
+                GenerateCode(&ast_buffer, rparen, rule_no);
+                GenerateCode(&ast_buffer, trailer, rule_no);
 
                 GenerateCode(&ast_buffer, space, rule_no);
                 GenerateCode(&ast_buffer, "setResult(", rule_no);
-                GenerateCode(&ast_buffer, lparen, rule_no);
-                GenerateCode(&ast_buffer, allocation_element.name, rule_no);
-                GenerateCode(&ast_buffer, rparen, rule_no);
                 GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
                 IntToString index(allocation_element.list_position);
                 GenerateCode(&ast_buffer, index.String(), rule_no);
             }
-
-            GenerateCode(&ast_buffer, rparen, rule_no);
         }
 
-        GenerateCode(&ast_buffer, trailer, rule_no);
+        //
+        // Copy a list that is not the first element on the right-hand side of the rule
+        //
+        else
+        {
+            assert(allocation_element.list_kind == RuleAllocationElement::COPY_LIST);
+
+            GenerateCode(&ast_buffer, space, rule_no);
+            GenerateCode(&ast_buffer, "setResult(", rule_no);
+            GenerateCode(&ast_buffer, lparen, rule_no);
+            GenerateCode(&ast_buffer, allocation_element.name, rule_no);
+            GenerateCode(&ast_buffer, rparen, rule_no);
+            GenerateCode(&ast_buffer, "getRhsSym(", rule_no);
+            IntToString index(allocation_element.list_position);
+            GenerateCode(&ast_buffer, index.String(), rule_no);
+        }
+
+        GenerateCode(&ast_buffer, rparen, rule_no);
     }
-    delete [] extra_space;
+
+    GenerateCode(&ast_buffer, trailer, rule_no);
 
     return;
 }

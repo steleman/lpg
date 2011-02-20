@@ -1575,17 +1575,93 @@ void Action::ProcessActionBlock(ActionBlockElement &action)
                               lex_stream -> FileName(action.block_token),
                               head,
                               cursor,
-                              line_no,
-                              rule_number);
+                              rule_number,
+                              lex_stream -> FileName(action.block_token),
+                              line_no);
         head = cursor;
     }
 
     //
-    // If the macro spanned only a single line, add a
-    // line break to the output.
+    // If the action block spanned only a single line, add a line break to the output.
     //
     if (lex_stream -> Line(action.block_token) == lex_stream -> EndLine(action.block_token))
         buffer -> Put("\n");
+
+    return;
+}
+
+
+//
+//
+//
+void Action::ProcessMacroBlock(int location, MacroSymbol *macro, TextBuffer *default_buffer, int rule_number, const char *source_filename, int source_line_no)
+{
+    int block_token = macro -> Block();
+    BlockSymbol *block = lex_stream -> GetBlockSymbol(block_token);
+    assert(block);
+
+    TextBuffer *buffer = (block == option -> DefaultBlock()
+                                 ? default_buffer
+                                 : block -> Buffer()
+                                          ? block -> Buffer()
+                                          : location == ActionBlockElement::INITIALIZE
+                                                      ? block -> ActionfileSymbol() -> InitialHeadersBuffer()
+                                                      : location == ActionBlockElement::BODY
+                                                                  ? block -> ActionfileSymbol() -> BodyBuffer()
+                                                                  : block -> ActionfileSymbol() -> FinalTrailersBuffer());
+
+    int line_no = lex_stream -> Line(block_token),
+        start = lex_stream -> StartLocation(block_token) + block -> BlockBeginLength(),
+        end   = lex_stream -> EndLocation(block_token) - block -> BlockEndLength() + 1;
+    const char *head = &(lex_stream -> InputBuffer(block_token)[start]),
+               *tail = &(lex_stream -> InputBuffer(block_token)[end]);
+
+    //
+    //
+    //
+    while (head < tail)
+    {
+        const char *cursor;
+
+        //
+        // When we encounter the sequence \r\n we only consider \n as end-of-line.
+        //
+        // for (cursor = head; Code::IsNewline(*cursor); cursor++)
+        //
+        for (cursor = head; *cursor == '\n'; cursor++)
+        {
+            buffer -> PutChar(*cursor);
+            line_no++;
+        }
+
+        if (cursor > head) // any '\n' processed?
+            cursor = SkipMargin(buffer, cursor, tail);
+
+        //
+        // When we encounter the sequence \r\n we only consider \n as end-of-line.
+        //
+        // for (head = cursor; cursor < tail && (! Code::IsNewline(*cursor)); cursor++)
+        //
+        for (head = cursor; (cursor < tail) && (*cursor != '\n'); cursor++)
+            ;
+        if (cursor > head)
+        {
+            //
+            // Note that when processing the last line in a macro block, if it contains a reference to one
+            // of the macros $next_line or $input_file, then the macro should be expanded as if they were
+            // specified in the containing Action block.
+            //
+            ProcessActionLine(location,
+                              buffer,
+                              lex_stream -> FileName(block_token),
+                              head,
+                              cursor,
+                              rule_number,
+                              source_filename,
+                              source_line_no);
+        }
+        head = cursor;
+    }
 
     return;
 }
@@ -1618,8 +1694,9 @@ void Action::ProcessMacro(TextBuffer *buffer, const char *name, int rule_no)
                               filename,
                               macroname,
                               &macroname[length],
-                              line_offset,
-                              rule_no);
+                              rule_no,
+                              filename,
+                              line_offset);
         }
         else if (! FindUndeclaredMacro(macroname, length))
         {
@@ -1820,8 +1897,9 @@ void Action::ProcessActionLine(int location,
                                const char *filename,
                                const char *cursor,
                                const char *tail,
-                               int line_no,
                                int rule_no,
+                               const char *source_filename,
+                               int source_line_no,
                                const char *start_cursor_location,
                                const char *end_cursor_location)
 {
@@ -1892,9 +1970,9 @@ void Action::ProcessActionLine(int location,
                                               filename,
                                               p,
                                               q,
-                                              line_no,
-                                              rule_no);
-
+                                              rule_no,
+                                              source_filename,
+                                              source_line_no);
                             p = q;
                             if (*p != '\0') // if more info to process, add offset
                             {
@@ -1965,11 +2043,11 @@ void Action::ProcessActionLine(int location,
                 else if (simple_macro == rule_size_macro)
                      buffer -> Put(grammar -> RhsSize(rule_no));
                 else if (simple_macro == input_file_macro)
-                     buffer -> Put(FileWithoutPrefix(filename).c_str());
+                     buffer -> Put(FileWithoutPrefix(source_filename).c_str());
                 else if (simple_macro == current_line_macro)
-                     buffer -> Put(line_no);
+                     buffer -> Put(source_line_no);
                 else if (simple_macro == next_line_macro)
-                     buffer -> Put(line_no + 1);
+                     buffer -> Put(source_line_no + 1);
                 else if (simple_macro == identifier_macro)
                 {
                     buffer -> Put("IDENTIFIER");
@@ -2035,8 +2113,9 @@ void Action::ProcessActionLine(int location,
                                           filename,
                                           symbol -> Name(),
                                           &(symbol -> Name()[symbol -> NameLength()]),
-                                          line_no,
-                                          rule_no);
+                                          rule_no,
+                                          source_filename,
+                                          source_line_no);
                         cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
                     }
                 }
@@ -2075,42 +2154,14 @@ void Action::ProcessActionLine(int location,
                                 assert(InsertLocalMacro("entry_marker", str));
                             delete [] str;
 
-                            ProcessActionLine(location,
-                                              (block == option -> DefaultBlock()
-                                                     ? buffer
-                                                     : block -> Buffer()
-                                                              ? block -> Buffer()
-                                                              : location == ActionBlockElement::INITIALIZE
-                                                                         ? block -> ActionfileSymbol() -> InitialHeadersBuffer()
-                                                                         : location == ActionBlockElement::BODY
-                                                                                    ? block -> ActionfileSymbol() -> BodyBuffer()
-                                                                                    : block -> ActionfileSymbol() -> FinalTrailersBuffer()),
-                                              lex_stream -> GetFileSymbol(block_token) -> Name(), // filename,
-                                              &(lex_stream -> InputBuffer(block_token)[start]),
-                                              &(lex_stream -> InputBuffer(block_token)[end]),
-                                              line_no,
-                                              rule_no);
+                            ProcessMacroBlock(location, macro, buffer, rule_no, source_filename, source_line_no);
 
                             local_macro_table.Pop(); // Leaving this environment
                         }
                     }
                     else
                     {
-                        ProcessActionLine(location,
-                                          (block == option -> DefaultBlock()
-                                                 ? buffer
-                                                 : block -> Buffer()
-                                                          ? block -> Buffer()
-                                                          : location == ActionBlockElement::INITIALIZE
-                                                                     ? block -> ActionfileSymbol() -> InitialHeadersBuffer()
-                                                                     : location == ActionBlockElement::BODY
-                                                                                ? block -> ActionfileSymbol() -> BodyBuffer()
-                                                                                : block -> ActionfileSymbol() -> FinalTrailersBuffer()),
-                                          lex_stream -> GetFileSymbol(block_token) -> Name(), // filename,
-                                          &(lex_stream -> InputBuffer(block_token)[start]),
-                                          &(lex_stream -> InputBuffer(block_token)[end]),
-                                          line_no,
-                                          rule_no);
+                        ProcessMacroBlock(location, macro, buffer, rule_no, source_filename, source_line_no);
                     }
 
                     macro -> MarkNotInUse();
@@ -2141,8 +2192,9 @@ void Action::ProcessActionLine(int location,
                                       filename,
                                       symbol -> Name(),
                                       &(symbol -> Name()[symbol -> NameLength()]),
-                                      line_no,
-                                      rule_no);
+                                      rule_no,
+                                      source_filename,
+                                      source_line_no);
                     cursor = end_cursor + (*end_cursor == option -> escape ? 1 : 0);
                 }
             }
@@ -2167,8 +2219,9 @@ void Action::GenerateCode(TextBuffer *ast_buffer, const char *code, int rule_no)
                       lex_stream -> FileName(separator_token),
                       code,
                       &code[strlen(code)],
-                      line_no,
                       rule_no,
+                      lex_stream -> FileName(separator_token),
+                      line_no,
                       start_cursor_location,
                       end_cursor_location);
 }

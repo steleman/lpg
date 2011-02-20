@@ -314,13 +314,14 @@ public:
                            SymbolLookupTable &,
                            Tuple<ClassnameElement> &);
     void ProcessActionBlock(ActionBlockElement &);
+    void ProcessMacroBlock(int, MacroSymbol *, TextBuffer *, int, const char *, int);
     void ProcessMacro(TextBuffer *, const char *, int);
     void GetCallingMacroLocations(Tuple<Token *> &);
     Token *GetMacroErrorToken(const char *, const char *, const char *);
     void EmitMacroError(const char *, const char *, const char *, Tuple<const char *> &);
     void EmitMacroWarning(const char *, const char *, const char *, Tuple<const char *> &);
     Symbol *FindClosestMatchForMacro(const char *, const char *, const char *, const char *, const char *);
-    void ProcessActionLine(int, TextBuffer *, const char *, const char *, const char *, int, int, const char * = NULL, const char * = NULL);
+    void ProcessActionLine(int, TextBuffer *, const char *, const char *, const char *, int, const char *, int, const char * = NULL, const char * = NULL);
     void GenerateCode(TextBuffer *, const char *, int);
 
 protected:
