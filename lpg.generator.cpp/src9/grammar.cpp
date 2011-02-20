@@ -504,12 +504,13 @@ void Grammar::ProcessActions(Action *action, Base *base, Produce *produce)
             //
             // Process rules that are explicitly associated with a non-null classname
             // or are not empty rules or are not single productions with a nonterminal
-            // on the right-hand side.
+            // on the right-hand side and no semantic actions.
             //
             int rule_size = RhsSize(rule_index); // rhs_sym.Length() - FirstRhsIndex(rule_index);
             if (rule_size > 1 ||
                 (classname[index].specified_name != classname[index].real_name) ||
-                (rule_size == 1 && IsTerminal(rhs_sym[FirstRhsIndex(rule_index)])))
+                (rule_size == 1 && (IsTerminal(rhs_sym[FirstRhsIndex(rule_index)]) ||
+                                    lex_stream -> Kind(lex_stream -> Previous(parser.rules[rules[rule_index].source_index].end_rhs_index)) == TK_BLOCK)))
                  classname[index].rule.Next() = rule_index;
             else classname[index].ungenerated_rule.Next() = rule_index;
         }
