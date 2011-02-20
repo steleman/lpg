@@ -33,15 +33,17 @@
                 ./
 
     $BeginAction
-    /.$Header$case $rule_number: {./
+    /.$Header$case $rule_number: {
+                    //#line $next_line "$input_file$"./
 
     $EndAction
-    /.                break;
+    /.            break;
                 }./
 
     $BeginJava
-    /.$BeginAction
-                    $symbol_declarations./
+    /.$Header$case $rule_number: {
+                    $symbol_declarations
+                    //#line $next_line "$input_file$"./
 
     $EndJava /.$EndAction./
 
@@ -63,7 +65,8 @@
         public void ruleAction(int ruleNumber)
         {
             switch (ruleNumber)
-            {./
+            {
+                //#line $next_line "$input_file$"./
 
     $SplitActions
     /.

@@ -39,11 +39,11 @@
                    //#line $next_line "$input_file$"./
 
     $EndAction
-    /.                break;
+    /.            break;
                 }./
 
     $BeginJava
-    /.$BeginAction
+    /.$Header$case $rule_number: {
                     $symbol_declarations
                     //#line $next_line "$input_file$"./
 
