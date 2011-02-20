@@ -655,7 +655,7 @@ public class LexParser
                 curtok = tokStream.getNext(curtok);
                 if (currentAction > ERROR_ACTION) // a shift-reduce action?
                 {
-                    current_kind = tokStream.getKind(curtok);
+                    // REMOVE ME: current_kind = tokStream.getKind(curtok);
                     currentAction -= ERROR_ACTION;
                     do
                     {
