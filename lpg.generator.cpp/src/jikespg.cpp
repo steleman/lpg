@@ -24,6 +24,14 @@ int main(int argc, char *argv[])
         return 4;
     }
 
+    if (strcmp(argv[1],"-version") == 0) {
+        cout << "\n"
+             << Control::HEADER_INFO
+             << " Version " << Control::VERSION
+             << "\n(C) Copyright IBM Corp. 1984, 2006.\n\n";
+        exit(0);
+    }
+
     //
     // We declare these objects first and initialize them to NULL in case
     // an exceptional condition occurs and they have to be deleted.
@@ -36,6 +44,7 @@ int main(int argc, char *argv[])
     try
     {
         Option option(argc, (const char **) argv);
+
         LexStream lex_stream(&option);
         VariableLookupTable variable_table;
 
