@@ -3295,6 +3295,7 @@ void Option::PrintOptionsList(void)
                "-trailers=(string,string,string)                      " "\n"
                "-variables[=<none|both|terminals|nt|nonterminals>]    " "\n"
                "-verbose                                              " "\n"
+               "-version                                              " "\n"
                "-visitor[=<none|default|preorder>]                    " "\n"
                "-visitor-type[=string]                                " "\n"
                "-warnings                                             " "\n"
