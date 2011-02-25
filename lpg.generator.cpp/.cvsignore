@@ -2,6 +2,7 @@
 *.pdb
 *.exe
 Debug
+build
 lpg.generator.cpp.ncb
 BisonToLPG.zip
 lpg-*
