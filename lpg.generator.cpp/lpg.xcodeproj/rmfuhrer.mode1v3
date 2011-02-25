@@ -359,8 +359,6 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>45</integer>
-									<integer>44</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -402,7 +400,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>resolve.cpp</string>
+								<string>produce.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -410,11 +408,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>resolve.cpp</string>
+										<string>produce.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>55792E611318568900D81C5D</string>
+										<string>55792E99131860A600D81C5D</string>
 										<key>history</key>
 										<array>
 											<string>55DD6C5712FA467200FABFA6</string>
@@ -438,7 +436,9 @@
 											<string>55792E491318557A00D81C5D</string>
 											<string>55792E4A1318557A00D81C5D</string>
 											<string>55792E5C131855B900D81C5D</string>
-											<string>55792E5A1318559D00D81C5D</string>
+											<string>55792E6D13185E8A00D81C5D</string>
+											<string>55792E7F13185F3200D81C5D</string>
+											<string>55792E8013185F3200D81C5D</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -619,7 +619,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>320362121.31078398</real>
+	<real>320364710.99760401</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>
@@ -638,10 +638,10 @@
 	<array>
 		<string>55792E571318557A00D81C5D</string>
 		<string>55792E581318557A00D81C5D</string>
-		<string>55D1DEC912F65C76003658F8</string>
-		<string>/Users/rmfuhrer/lpg/head/lpg.generator.cpp/lpg.xcodeproj</string>
 		<string>1C78EAAD065D492600B07095</string>
 		<string>1CD10A99069EF8BA00B06720</string>
+		<string>55D1DEC912F65C76003658F8</string>
+		<string>/Users/rmfuhrer/lpg/head/lpg.generator.cpp/lpg.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>518 77 1333 1081 0 0 1920 1178 </string>
@@ -674,7 +674,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {954, 383}}</string>
 								<key>RubberWindowFrame</key>
-								<string>587 336 954 665 0 0 1920 1178 </string>
+								<string>613 306 954 665 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -700,7 +700,7 @@
 								<key>Frame</key>
 								<string>{{0, 388}, {954, 236}}</string>
 								<key>RubberWindowFrame</key>
-								<string>587 336 954 665 0 0 1920 1178 </string>
+								<string>613 306 954 665 0 0 1920 1178 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXBuildResultsModule</string>
@@ -732,7 +732,7 @@
 			<key>WindowContentMinSize</key>
 			<string>486 300</string>
 			<key>WindowString</key>
-			<string>587 336 954 665 0 0 1920 1178 </string>
+			<string>613 306 954 665 0 0 1920 1178 </string>
 			<key>WindowToolGUID</key>
 			<string>55D1DEC912F65C76003658F8</string>
 			<key>WindowToolIsVisible</key>
@@ -860,7 +860,7 @@
 			<key>WindowToolGUID</key>
 			<string>1CD10A99069EF8BA00B06720</string>
 			<key>WindowToolIsVisible</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>FirstTimeWindowDisplayed</key>
@@ -1017,7 +1017,7 @@
 			<key>WindowToolGUID</key>
 			<string>1C78EAAD065D492600B07095</string>
 			<key>WindowToolIsVisible</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>Identifier</key>

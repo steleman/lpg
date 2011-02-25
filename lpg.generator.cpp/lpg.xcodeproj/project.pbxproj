@@ -518,7 +518,7 @@
 			};
 			name = Debug;
 		};
-		1DEB923308733DC60010E9CD /* Release */ = {
+		1DEB923308733DC60010E9CD /* Release-64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -527,7 +527,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = lpg;
 			};
-			name = Release;
+			name = "Release-64";
 		};
 		1DEB923608733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -543,17 +543,45 @@
 			};
 			name = Debug;
 		};
-		1DEB923708733DC60010E9CD /* Release */ = {
+		1DEB923708733DC60010E9CD /* Release-64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
-			name = Release;
+			name = "Release-64";
+		};
+		55792E8713185FD400D81C5D /* Release-32 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = i386;
+			};
+			name = "Release-32";
+		};
+		55792E8813185FD400D81C5D /* Release-32 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = lpg;
+			};
+			name = "Release-32";
 		};
 /* End XCBuildConfiguration section */
 
@@ -562,19 +590,21 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
-				1DEB923308733DC60010E9CD /* Release */,
+				1DEB923308733DC60010E9CD /* Release-64 */,
+				55792E8813185FD400D81C5D /* Release-32 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Release-64";
 		};
 		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "lpg" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
-				1DEB923708733DC60010E9CD /* Release */,
+				1DEB923708733DC60010E9CD /* Release-64 */,
+				55792E8713185FD400D81C5D /* Release-32 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Release-64";
 		};
 /* End XCConfigurationList section */
 	};
