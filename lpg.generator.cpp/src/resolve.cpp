@@ -650,12 +650,12 @@ void Resolve::process_conflicts(int state_no)
         int ruleTokenStart  = thisRule.first_token_index;
         int ruleTokenEnd    = thisRule.last_token_index;
         int otherTokenStart = otherRule.first_token_index;
-        int otherTokenEnd   = otherRule.last_token_index;
+        // int otherTokenEnd   = otherRule.last_token_index;
 	LexStream *ls = grammar -> GetLexStream();
 	Token *startToken      = ls -> GetTokenReference(ruleTokenStart);
         Token *endToken        = ls -> GetTokenReference(ruleTokenEnd);
         Token *otherStartToken = ls -> GetTokenReference(otherTokenStart);
-        Token *otherEndToken   = ls -> GetTokenReference(otherTokenEnd);
+        // Token *otherEndToken   = ls -> GetTokenReference(otherTokenEnd);
 
 	Tuple<const char *> msg;
 	IntToString state_no_str(state_no);
