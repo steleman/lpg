@@ -2,7 +2,7 @@
 <feature
       id="lpg.runtime"
       label="%featureName"
-      version="2.0.20"
+      version="2.0.21"
       provider-name="%providerName">
 
    <description url="http://www.sourceforge.net/projects/lpg">
@@ -17,14 +17,14 @@
          id="lpg.runtime"
          download-size="0"
          install-size="0"
-         version="2.0.20"
+         version="2.0.21"
          unpack="false"/>
 
    <plugin
          id="lpg.runtime.java"
          download-size="0"
          install-size="0"
-         version="2.0.20"
+         version="2.0.21"
          unpack="false"/>
 
 </feature>
