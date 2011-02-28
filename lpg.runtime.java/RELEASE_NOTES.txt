@@ -1,0 +1,33 @@
+This file describes changes made to the LPG Java runtime.
+For changes to other parts of the LPG distribution, see the relevant project.
+
+2.0.21:
+    - Removed a line from LexParser.parseActions() that caused a problem for incremental
+      lexing via calls to LexParser.parseCharacters(Monitor, int, int).
+    - Added new class SegmentedTuple for use in the implementation of the recently-introduced
+      List-based API on certain auto-generated AST classes.
+    - Fixed LexStream.getLineNumberOfCharAt() and LexStream.getLineOffset(): the invariant
+      getLineOffset(getLineNumberOfCharAt(0)) == 0 didn't used to hold; now it does.
+
+2.0.20:
+    - Fixed problems in the DiagnoseParser that caused infinite loops and crashes for ambiguous
+      grammars.
+    - Support for incremental lexing was added to the IPrsStream API.
+    - Fixed a number of generic type and deprecation warnings.
+    - Fixed a bug causing the RecoveryParser to crash when recovery took place on a terminal
+      symbol for which there is a conflicting action.
+    - Fixed a bug causing the fuzzy parser (RecoveryParser) to issue the same error message twice.
+    - Added support for the new -directory-prefix option, whose purpose is to trim the file paths cited
+      in #line comments. This makes it possible for different people to produce identical generated
+      Java parser/lexer source classes, even if the absolute locations of the template or grammar
+      files are different.
+    - Added new option rule_classnames={SEQUENTIAL | STABLE} to control whether class
+      names generated for non-terminals are given sequential names that can change as
+      other production rules are added or deleted (the original generator behavior in 2.0.17 and
+      earlier), or stable names that incorporate the right-hand-side symbol names.
+
+2.0.17:
+    - Fixed infinite loop in DiagnoseParser for case where EOF is reached, but the parser was not
+      able to recover.
+    - Added method getMessageHandler() to the IPrsStream interface.
+
