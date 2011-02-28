@@ -313,7 +313,7 @@ public:
                            Tuple< Tuple<ProcessedRuleElement> > &,
                            SymbolLookupTable &,
                            Tuple<ClassnameElement> &);
-    void ProcessActionBlock(ActionBlockElement &);
+    void ProcessActionBlock(ActionBlockElement &, bool add_location_directive = false);
     void ProcessMacroBlock(int, MacroSymbol *, TextBuffer *, int, const char *, int);
     void ProcessMacro(TextBuffer *, const char *, int);
     void GetCallingMacroLocations(Tuple<Token *> &);

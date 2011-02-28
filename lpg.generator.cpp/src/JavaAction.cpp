@@ -12,7 +12,9 @@ void JavaAction::ProcessRuleActionBlock(ActionBlockElement &action)
     int rule_number = action.rule_number;
 
     if (option -> automatic_ast || rule_number == 0)
-        ProcessActionBlock(action);
+    {
+        ProcessActionBlock(action, /* add_location_directive = */ true);
+    }
     else
     {
         int line_no = lex_stream -> Line(action.block_token),

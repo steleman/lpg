@@ -1693,7 +1693,7 @@ const char *Action::SkipMargin(TextBuffer *buffer, const char *cursor, const cha
 //
 //
 //
-void Action::ProcessActionBlock(ActionBlockElement &action)
+void Action::ProcessActionBlock(ActionBlockElement &action, bool add_location_directive)
 {
     BlockSymbol *block = lex_stream -> GetBlockSymbol(action.block_token);
     TextBuffer *buffer = action.buffer;
@@ -1721,6 +1721,24 @@ void Action::ProcessActionBlock(ActionBlockElement &action)
     //
     // if (Code::IsNewline(*(tail - 1)))
     //     tail--;
+
+    //
+    // If a location directive should be emitted, do so here
+    //
+    if (add_location_directive)
+    {
+        const char *line_header = "    //#line $current_line \"$input_file$\"";
+        buffer -> PutChar('\n');
+        ProcessActionLine(action.location,
+                          buffer,
+                          lex_stream -> FileName(action.block_token),
+                          &(line_header[0]),
+                          &(line_header[strlen(line_header) - 1]),
+                          rule_number,
+                          lex_stream -> FileName(action.block_token),
+                          line_no);
+        buffer -> PutChar('\n');
+    }
 
     //
     //
