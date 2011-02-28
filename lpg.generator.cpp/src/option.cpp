@@ -3258,7 +3258,7 @@ void Option::PrintOptionsList(void)
                "-ignore-block=string                                  " "\n"
                "-imp-file=string                                      " "\n"
                "-import-terminals=string                              " "\n"
-               "-include-directory=string                             " "\n"
+               "-include-directory=semicolon-separated-strings        " "\n"
                "-lalr[=integer]                                       " "\n"
                "-legacy                                               " "\n"
                "-list                                                 " "\n"
