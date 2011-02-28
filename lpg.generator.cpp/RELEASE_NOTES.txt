@@ -1,0 +1,32 @@
+This file describes changes made to the LPG parser generator tool itself.
+For changes to other parts of the LPG distribution, see the relevant project.
+
+2.0.21:
+    - Now expands the file name and line number macros relative to the source file
+      where they're being interpolated, so that #line comments cite the correct file.
+    - In generated code, when printing a file path (say, for a use of the file name
+      macro), trim the file path if its prefix matches one of the include-directory
+      arguments, or the directory-prefix. If a perfect prefix match could not be found,
+      then the file name is expressed relative to the directory-prefix.
+    - Generated AbstractAstList's now implement java.util.List, which has a richer API
+      than those classes previously had. As a result, they can now be passed to other
+      clients that need a List/Collection, and can be used with the Java 5 "foreach"
+      construct.
+    - The generator now provides a "-version" option for tools to automatically detect
+      the LPG generator version at runtime.
+
+2.0.20:
+    - Now properly closes all opened files before end of execution.
+    - Fix to prevent mis-classification of the grammar's LR(k)-ness when encountering a conflict
+      involving a rule that has no shift or reduce actions.
+
+2.0.19: [Not publicly released]
+    - Class names generated for non-terminals are now given stable names that incorporate
+      the right-hand-side symbol names, rather than sequential names that can change as
+      other production rules are added or deleted (the old generator behavior).
+
+2.0.17:
+    - The generated AbstractAstList now implements IAbstractArrayList, so that clients can be
+      written against an interface, rather than continually having to test for the various concrete
+      rule classes.
+    - Fixed a number of compile-time warnings from gcc/g++.
