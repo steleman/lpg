@@ -23,4 +23,4 @@ fi
 
 projects="lpg.generator lpg.generator.cpp lpg.generator.feature lpg.runtime lpg.runtime.java lpg.runtime.feature lpg.update"
 
-echo cvs rtag -r HEAD $tag $projects
+cvs rtag -r HEAD $tag $projects
