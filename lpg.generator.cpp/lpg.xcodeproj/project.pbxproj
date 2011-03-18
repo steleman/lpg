@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		551D7AE1132D70D100748B79 /* options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 551D7AE0132D70D100748B79 /* options.cpp */; };
 		55D1DEF712F6F167003658F8 /* Action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D1DECF12F6F167003658F8 /* Action.cpp */; };
 		55D1DEF812F6F167003658F8 /* base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D1DED012F6F167003658F8 /* base.cpp */; };
 		55D1DEF912F6F167003658F8 /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D1DED112F6F167003658F8 /* buffer.cpp */; };
@@ -81,6 +82,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		551D7ADF132D70D100748B79 /* options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = options.h; path = src/options.h; sourceTree = "<group>"; };
+		551D7AE0132D70D100748B79 /* options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = options.cpp; path = src/options.cpp; sourceTree = "<group>"; };
+		55792EAA1318820800D81C5D /* change-notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "change-notes.txt"; path = "../change-notes.txt"; sourceTree = SOURCE_ROOT; };
+		55792EAD131BEDC000D81C5D /* RELEASE_NOTES.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RELEASE_NOTES.txt; sourceTree = "<group>"; };
+		558DF03D1325AC2700519329 /* JikesPGLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JikesPGLexer.cpp; path = bootstrap/JikesPGLexer.cpp; sourceTree = SOURCE_ROOT; };
+		558DF0401325AD8E00519329 /* JikesPGLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexer.h; path = bootstrap/JikesPGLexer.h; sourceTree = "<group>"; };
+		558DF0411325AD8E00519329 /* JikesPGLexerexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexerexp.h; path = bootstrap/JikesPGLexerexp.h; sourceTree = "<group>"; };
+		558DF0421325AD8E00519329 /* JikesPGLexerprs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexerprs.h; path = bootstrap/JikesPGLexerprs.h; sourceTree = "<group>"; };
+		558DF0431325AD8E00519329 /* JikesPGLexersym.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexersym.h; path = bootstrap/JikesPGLexersym.h; sourceTree = "<group>"; };
 		55D1DECF12F6F167003658F8 /* Action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Action.cpp; path = src/Action.cpp; sourceTree = "<group>"; };
 		55D1DED012F6F167003658F8 /* base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base.cpp; path = src/base.cpp; sourceTree = "<group>"; };
 		55D1DED112F6F167003658F8 /* buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = buffer.cpp; path = src/buffer.cpp; sourceTree = "<group>"; };
@@ -216,6 +226,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		558DF03F1325AC4D00519329 /* bootstrapped */ = {
+			isa = PBXGroup;
+			children = (
+				558DF0401325AD8E00519329 /* JikesPGLexer.h */,
+				558DF0411325AD8E00519329 /* JikesPGLexerexp.h */,
+				558DF0421325AD8E00519329 /* JikesPGLexerprs.h */,
+				558DF0431325AD8E00519329 /* JikesPGLexersym.h */,
+				558DF03D1325AC2700519329 /* JikesPGLexer.cpp */,
+			);
+			name = bootstrapped;
+			sourceTree = "<group>";
+		};
 		55D1DF5212F6F1A3003658F8 /* C++ */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,6 +332,7 @@
 		55D1DF5A12F6F277003658F8 /* Grammar */ = {
 			isa = PBXGroup;
 			children = (
+				558DF03F1325AC4D00519329 /* bootstrapped */,
 				55D1DF5C12F6F2B3003658F8 /* jikespg.g */,
 				55D1DFC012F8F340003658F8 /* JikesPGLexer.gi */,
 				55D1DF5B12F6F28E003658F8 /* Generated */,
@@ -350,6 +373,7 @@
 				55D1DF3912F6F185003658F8 /* node.h */,
 				55D1DF3A12F6F185003658F8 /* NTC.h */,
 				55D1DF3B12F6F185003658F8 /* option.h */,
+				551D7ADF132D70D100748B79 /* options.h */,
 				55D1DF3C12F6F185003658F8 /* parser.h */,
 				55D1DF3D12F6F185003658F8 /* partition.h */,
 				55D1DF3E12F6F185003658F8 /* pda.h */,
@@ -373,6 +397,7 @@
 		55D1DF5E12F6F2FA003658F8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				55792EAA1318820800D81C5D /* change-notes.txt */,
 				55D1DECF12F6F167003658F8 /* Action.cpp */,
 				55D1DED012F6F167003658F8 /* base.cpp */,
 				55D1DED112F6F167003658F8 /* buffer.cpp */,
@@ -386,6 +411,7 @@
 				55D1DEE212F6F167003658F8 /* jikespg.cpp */,
 				55D1DEE312F6F167003658F8 /* LexStream.cpp */,
 				55D1DEE612F6F167003658F8 /* option.cpp */,
+				551D7AE0132D70D100748B79 /* options.cpp */,
 				55D1DEE712F6F167003658F8 /* parser.cpp */,
 				55D1DEE812F6F167003658F8 /* pda.cpp */,
 				55D1DEED12F6F167003658F8 /* produce.cpp */,
@@ -403,6 +429,7 @@
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
+				55792EAD131BEDC000D81C5D /* RELEASE_NOTES.txt */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";
@@ -498,6 +525,7 @@
 				55D1DF1C12F6F167003658F8 /* util.cpp in Sources */,
 				55D1DF1D12F6F167003658F8 /* XmlAction.cpp in Sources */,
 				55D1DF1E12F6F167003658F8 /* XmlTable.cpp in Sources */,
+				551D7AE1132D70D100748B79 /* options.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
