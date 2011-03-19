@@ -19,7 +19,8 @@ public:
                    *include_header = "-include=",
                    *package_header = "-package=",
                    *ast_directory_header = "-ast_directory=",
-                   *directory_prefix_header = "-directory-prefix=";
+                   *directory_prefix_header = "-directory-prefix=",
+                   *out_directory_header = "-out-directory=";
         char *quiet_arg = NewString(strlen(noquiet_header) + 1),
              *export_arg = NewString(strlen(export_header) +
                                      strlen(exp_file) +
@@ -28,7 +29,8 @@ public:
              *include_arg = NewString(strlen(include_header) + strlen(option -> include_directory) + 1),
              *package_arg = NewString(strlen(package_header) + strlen(option -> package) + 1),
              *ast_directory_arg = NewString(strlen(ast_directory_header) + strlen(option -> ast_directory) + 1),
-             *directory_prefix_arg = NewString(strlen(directory_prefix_header) + strlen(option -> directory_prefix) + 1);
+             *directory_prefix_arg = NewString(strlen(directory_prefix_header) + strlen(option -> directory_prefix) + 1),
+             *out_directory_arg = NewString(strlen(out_directory_header) + strlen(option->out_directory) + 1);
 
         strcpy(quiet_arg, option -> quiet ? quiet_header : noquiet_header);
 
@@ -52,6 +54,9 @@ public:
         strcpy(directory_prefix_arg, directory_prefix_header);
         strcat(directory_prefix_arg, option -> directory_prefix);
 
+        strcpy(out_directory_arg, out_directory_header);
+        strcat(out_directory_arg, option -> out_directory);
+        
         //
         // Initialize argc and argv.
         //
