@@ -52,12 +52,31 @@ public abstract class LpgLexStream extends LexStream
     }
 
     /**
+     * @param inputChars
+     * @param inputLength
+     * @param fileName
+     */
+    public LpgLexStream(char[] inputChars, int inputLength, String fileName) {
+        super(inputChars, inputLength, fileName);
+    }
+
+    /**
      * @param lineOffsets
      * @param inputChars
      * @param fileName
      */
     public LpgLexStream(IntSegmentedTuple lineOffsets, char[] inputChars, String fileName) {
         super(lineOffsets, inputChars, fileName);
+    }
+
+    /**
+     * @param lineOffsets
+     * @param inputChars
+     * @param inputLength
+     * @param fileName
+     */
+    public LpgLexStream(IntSegmentedTuple lineOffsets, char[] inputChars, int inputLength, String fileName) {
+        super(lineOffsets, inputChars, inputLength, fileName);
     }
 
     /**

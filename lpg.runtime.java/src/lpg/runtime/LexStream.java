@@ -47,25 +47,46 @@ public class LexStream implements ILexStream, ParseErrorCodes
 
     public LexStream(char[] inputChars, String fileName)
     {
+        this(inputChars, inputChars.length, fileName);
+    }
+
+    public LexStream(char[] inputChars, int inputLength, String fileName)
+    {
         this();
-        initialize(inputChars, fileName);
+        initialize(inputChars, inputLength, fileName);
     }
 
     public LexStream(IntSegmentedTuple lineOffsets, char[] inputChars, String fileName)
     {
-        initialize(lineOffsets, inputChars, fileName);
+        this(lineOffsets, inputChars, inputChars.length, fileName);
+    }
+
+    public LexStream(IntSegmentedTuple lineOffsets, char[] inputChars, int inputLength, String fileName)
+    {
+        this();
+        initialize(lineOffsets, inputChars, inputLength, fileName);
     }
 
     public LexStream(char[] inputChars, String fileName, int tab)
     {
+        this(inputChars, inputChars.length, fileName, tab);
+    }
+
+    public LexStream(char[] inputChars, int inputLength, String fileName, int tab)
+    {
         this(tab);
-        initialize(inputChars, fileName);
+        initialize(inputChars, inputLength, fileName);
     }
 
     public LexStream(IntSegmentedTuple lineOffsets, char[] inputChars, String fileName, int tab)
     {
-        this.tab = tab;
-        initialize(lineOffsets, inputChars, fileName);
+        this(lineOffsets, inputChars, inputChars.length, fileName, tab);
+    }
+
+    public LexStream(IntSegmentedTuple lineOffsets, char[] inputChars, int inputLength, String fileName, int tab)
+    {
+        this(tab);
+        initialize(lineOffsets, inputChars, inputLength, fileName);
     }
 
     public void initialize(String fileName) throws IOException
@@ -77,8 +98,8 @@ public class LexStream implements ILexStream, ParseErrorCodes
 
             char[] buffer = new char[(int) f.length()];
 
-            in.read(buffer, 0, buffer.length);
-            initialize(buffer, fileName);
+            int res = in.read(buffer, 0, buffer.length);
+            initialize(buffer, res, fileName);
         }
         catch (Exception e)
         {
@@ -91,17 +112,27 @@ public class LexStream implements ILexStream, ParseErrorCodes
     
     public void initialize(char[] inputChars, String fileName)
     {
+        initialize(inputChars, inputChars.length, fileName);
+    }
+
+    public void initialize(char[] inputChars, int inputLength, String fileName)
+    {
         setInputChars(inputChars);
-        setStreamLength(inputChars.length);
+        setStreamLength(inputLength);
         setFileName(fileName);
-        computeLineOffsets();        
+        computeLineOffsets();
     }
 
     public void initialize(IntSegmentedTuple lineOffsets, char[] inputChars, String fileName)
     {
+        initialize(lineOffsets, inputChars, inputChars.length, fileName);
+    }
+
+    public void initialize(IntSegmentedTuple lineOffsets, char[] inputChars, int inputLength, String fileName)
+    {
         this.lineOffsets = lineOffsets;
         setInputChars(inputChars);
-        setStreamLength(inputChars.length);
+        setStreamLength(inputLength);
         setFileName(fileName);
     }
 
