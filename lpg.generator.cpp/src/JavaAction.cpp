@@ -2,6 +2,8 @@
 #include "NTC.h"
 #include "JavaAction.h"
 
+#include <map>
+
 //
 //
 //
@@ -1135,6 +1137,51 @@ void JavaAction::GenerateAstType(TextBuffer &ast_buffer,
     return;
 }
 
+static std::string replaceAll(const std::string& s, const std::string& var, const std::string& subst)
+{
+    std::string result;
+    int pos = 0;
+    int varLen = var.length();
+
+    do {
+        int idx = s.find(var, pos);
+        if (idx == string::npos) {
+            result += s.substr(pos);
+            break;
+        } else {
+            result += s.substr(pos, idx - pos);
+            result += subst;
+            pos = idx + varLen;
+        }
+    } while (true);
+    return result;
+}
+
+typedef std::map<std::string, std::string> Substitutions;
+
+static std::string doReplacements(const std::string& s, const Substitutions& replacements)
+{
+    std::string result= s;
+
+    for (Substitutions::const_iterator i = replacements.begin(); i != replacements.end(); i++) {
+        std::string k = (*i).first;
+        std::string v = (*i).second;
+        result = replaceAll(result, k, v);
+    }
+    return result;
+}
+
+static void PutWithIndentation(TextBuffer& buffer, const std::string& s, const char *indentation)
+{
+    for (int pos=0; pos < s.length(); ) {
+        int idx = s.find('\n', pos);
+        int end = (idx == string::npos) ? s.length() : idx + 1;
+
+        buffer.Put(indentation);
+        buffer.Put(s.c_str() + pos, end - pos);
+        pos = end;
+    }
+}
 
 //
 // Generate the the Ast list class
@@ -1236,53 +1283,122 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     //
     // Implementation for functions in java.util.List
     //
-    ast_buffer.Put(indentation); ast_buffer.Put("    private class Itr implements java.util.Iterator<Ast> {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        java.util.Iterator<Ast> itr = list.iterator();\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("        public boolean hasNext() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            return itr.hasNext();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+    Substitutions subs;
+    subs["%%AstType%%"] = option->ast_type;
+    subs["%%ListClassName%%"] = classname;
+    
+    const char *iterDeclTemplate =
+    "    private class Itr implements java.util.Iterator<%%AstType%%> {\n"
+    "        java.util.Iterator<%%AstType%%> itr = list.iterator();\n"
+    "        public boolean hasNext() {\n"
+    "            return itr.hasNext();\n"
+    "        }\n"
+    "        public %%AstType%% next() {\n"
+    "            return itr.next();\n"
+    "        }\n"
+    "        public void remove() {\n"
+    "            throw new UnsupportedOperationException();\n"
+    "        }\n"
+    "    }\n";
 
-    ast_buffer.Put(indentation); ast_buffer.Put("        public Ast next() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            return itr.next();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+    std::string iterDecl = doReplacements(iterDeclTemplate, subs);
 
-    ast_buffer.Put(indentation); ast_buffer.Put("        public void remove() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("         }\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
+    PutWithIndentation(ast_buffer, iterDecl, indentation);
+    
+//    ast_buffer.Put(indentation); ast_buffer.Put("    private class Itr implements java.util.Iterator<");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put("> {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        java.util.Iterator<");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put("> itr = list.iterator();\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public boolean hasNext() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            return itr.hasNext();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public ");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put(" next() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            return itr.next();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public void remove() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("         }\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("    }\n\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    private class ListItr extends Itr implements java.util.ListIterator<Ast> {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        java.util.ListIterator<Ast> list_itr;\n");
+    const char *listIterDeclTemplate =
+    "    private class ListItr extends Itr implements java.util.ListIterator<%%AstType%%> {\n"
+    "        java.util.ListIterator<%%AstType%%> list_itr;\n"
+    "        ListItr(int index) {\n"
+    "            list_itr = list.listIterator(index);\n"
+    "        }\n"
+    "        public boolean hasPrevious() {\n"
+    "            return list_itr.hasPrevious();\n"
+    "        }\n"
+    "        public %%AstType%% previous() {\n"
+    "            return list_itr.previous();\n"
+    "        }\n"
+    "        public int nextIndex() {\n"
+    "            return list_itr.nextIndex();\n"
+    "        }\n"
+    "        public int previousIndex() {\n"
+    "            return list_itr.previousIndex();\n"
+    "        }\n"
+    "        public void set(%%AstType%% o) {\n"
+    "            throw new UnsupportedOperationException();\n"
+    "        }\n"
+    "        public void add(%%AstType%% o) {\n"
+    "            throw new UnsupportedOperationException();\n"
+    "        }\n"
+    "    }\n";
 
-    ast_buffer.Put(indentation); ast_buffer.Put("        ListItr(int index) {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            list_itr = list.listIterator(index);\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+    std::string listIterDecl = doReplacements(listIterDeclTemplate, subs);
 
-    ast_buffer.Put(indentation); ast_buffer.Put("        public boolean hasPrevious() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.hasPrevious();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-
-    ast_buffer.Put(indentation); ast_buffer.Put("        public Ast previous() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.previous();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-
-    ast_buffer.Put(indentation); ast_buffer.Put("        public int nextIndex() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.nextIndex();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n\n");
-
-    ast_buffer.Put(indentation); ast_buffer.Put("        public int previousIndex() {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.previousIndex();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-
-    ast_buffer.Put(indentation); ast_buffer.Put("        public void set(Ast o) {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-
-    ast_buffer.Put(indentation); ast_buffer.Put("        public void add(Ast o) {\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
-    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
+    PutWithIndentation(ast_buffer, listIterDecl, indentation);
+    
+//    ast_buffer.Put(indentation); ast_buffer.Put("    private class ListItr extends Itr implements java.util.ListIterator<");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put("> {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        java.util.ListIterator<");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put("> list_itr;\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        ListItr(int index) {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            list_itr = list.listIterator(index);\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public boolean hasPrevious() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.hasPrevious();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public ");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put(" previous() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.previous();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public int nextIndex() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.nextIndex();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public int previousIndex() {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            return list_itr.previousIndex();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public void set(");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put(" o) {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//
+//    ast_buffer.Put(indentation); ast_buffer.Put("        public void add(");
+//                                 ast_buffer.Put(option -> ast_type);
+//                                 ast_buffer.Put(" o) {\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("            throw new UnsupportedOperationException();\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("        }\n");
+//    ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
     ast_buffer.Put(indentation); ast_buffer.Put("    public boolean isEmpty() {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return list.isEmpty();\n");
@@ -1292,7 +1408,9 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        return list.contains(o);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
         
-    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.Iterator<Ast> iterator() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.Iterator<");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put("> iterator() {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return new Itr();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
@@ -1312,11 +1430,15 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        return list.containsAll(c);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean addAll(java.util.Collection<? extends Ast> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean addAll(java.util.Collection<? extends ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put("> c) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean addAll(int index, java.util.Collection<? extends Ast> c) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public boolean addAll(int index, java.util.Collection<? extends ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put("> c) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
@@ -1332,19 +1454,29 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public Ast get(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" get(int index) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return getElementAt(index);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public Ast set(int index, Ast element) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" set(int index, ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" element) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public void add(int index, Ast element) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public void add(int index, ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" element) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public Ast remove(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public ");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put(" remove(int index) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        throw new UnsupportedOperationException();\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
@@ -1356,15 +1488,21 @@ void JavaAction::GenerateAbstractAstListType(TextBuffer &ast_buffer,
     ast_buffer.Put(indentation); ast_buffer.Put("        return getArrayList().lastIndexOf(o);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.ListIterator<Ast> listIterator() {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.ListIterator<");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put("> listIterator() {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return new ListItr(0);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.ListIterator<Ast> listIterator(int index) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.ListIterator<");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put("> listIterator(int index) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return new ListItr(index);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
-    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.List<Ast> subList(int fromIndex, int toIndex) {\n");
+    ast_buffer.Put(indentation); ast_buffer.Put("    public java.util.List<");
+                                 ast_buffer.Put(option -> ast_type);
+                                 ast_buffer.Put("> subList(int fromIndex, int toIndex) {\n");
     ast_buffer.Put(indentation); ast_buffer.Put("        return getArrayList().subList(fromIndex, toIndex);\n");
     ast_buffer.Put(indentation); ast_buffer.Put("    }\n");
 
@@ -2055,22 +2193,40 @@ void JavaAction::GenerateRuleClass(CTC &ctc,
             {
                 for (int i = 0; i < symbol_set.Size(); i++)
                 {
+                    const char *symbolName = symbol_set[i] -> Name();
+                    const char *bestType = ctc.FindBestTypeFor(rhs_type_index[i]);
+
                     if (ntc.CanProduceNullAst(rhs_type_index[i]))
                     {
                         ast_buffer.Put(indentation); ast_buffer.Put("    /**\n");
                         ast_buffer.Put(indentation); ast_buffer.Put("     * The value returned by <b>get");
-                                                     ast_buffer.Put(symbol_set[i] -> Name());
+                                                     ast_buffer.Put(symbolName);
                                                      ast_buffer.Put("</b> may be <b>null</b>\n");
                         ast_buffer.Put(indentation); ast_buffer.Put("     */\n");
                     }
 
+                    // Generate getter method
                     ast_buffer.Put(indentation); ast_buffer.Put("    public ");
-                                                 ast_buffer.Put(ctc.FindBestTypeFor(rhs_type_index[i]));
+                                                 ast_buffer.Put(bestType);
                                                  ast_buffer.Put(" get");
-                                                 ast_buffer.Put(symbol_set[i] -> Name());
+                                                 ast_buffer.Put(symbolName);
                                                  ast_buffer.Put("() { return _");
-                                                 ast_buffer.Put(symbol_set[i] -> Name());
+                                                 ast_buffer.Put(symbolName);
                                                  ast_buffer.Put("; }\n");
+
+                    // Generate setter method
+                    ast_buffer.Put(indentation); ast_buffer.Put("    public void set");
+                    ast_buffer.Put(symbolName);
+                    ast_buffer.Put("(");
+                    ast_buffer.Put(bestType);
+                    ast_buffer.Put(" _"); // add "_" prefix to arg name in case symbol happens to be a Java keyword
+                    ast_buffer.Put(symbolName);
+                    ast_buffer.Put(")");
+                    ast_buffer.Put(" { this._");
+                    ast_buffer.Put(symbolName);
+                    ast_buffer.Put(" = _");
+                    ast_buffer.Put(symbolName);
+                    ast_buffer.Put("; }\n");
                 }
             }
             ast_buffer.Put("\n");
