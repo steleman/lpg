@@ -8,18 +8,30 @@
  */
 
 #include "options.h"
+#include "option.h"
+
+#include <limits.h>
 
 std::list<OptionDescriptor*> OptionDescriptor::allOptionDescriptors;
 
 OptionDescriptor::OptionDescriptor(OptionType t, const char *wd1, OptionProcessor::ValueHandler handler, bool valueOpt)
-: type(t), word1(wd1), word2(NULL), valueOptional(valueOpt), valueHandler(handler)
+: type(t), word1(wd1), word2(NULL), description(NULL), valueOptional(valueOpt), valueHandler(handler)
 {
     setupName();
     allOptionDescriptors.push_back(this);
 }
 
-OptionDescriptor::OptionDescriptor(OptionType t, const char *wd1, const char *wd2, OptionProcessor::ValueHandler handler, bool valueOpt)
-: type(t), word1(wd1), word2(wd2), valueOptional(valueOpt), valueHandler(handler)
+OptionDescriptor::OptionDescriptor(OptionType t, const char *wd1, const char *wd2,
+                                   OptionProcessor::ValueHandler handler, bool valueOpt)
+: type(t), word1(wd1), word2(wd2), description(NULL), valueOptional(valueOpt), valueHandler(handler)
+{
+    setupName();
+    allOptionDescriptors.push_back(this);
+}
+
+OptionDescriptor::OptionDescriptor(OptionType t, const char *wd1, const char *wd2, const char *descrip,
+                                   OptionProcessor::ValueHandler handler, bool valueOpt)
+: type(t), word1(wd1), word2(wd2), description(descrip), valueOptional(valueOpt), valueHandler(handler)
 {
     setupName();
     allOptionDescriptors.push_back(this);
@@ -29,7 +41,7 @@ void
 OptionDescriptor::setupName()
 {
     name = word1;
-    if (word2 != NULL) {
+    if (word2 != NULL && strlen(word2) > 0) {
         name.append("-");
         name.append(word2);
     }
@@ -41,51 +53,74 @@ OptionDescriptor::getAllDescriptors()
     return allOptionDescriptors;
 }
 
-EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *enumValues, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(ENUM, wd1, handler, false)
+std::string
+OptionDescriptor::getTypeDescriptor() const
 {
-    setupName();
-    setupEnumValues(enumValues);
-}
+    OptionType type = getType();
+    std::string result;
 
-EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *wd2, const char *enumValues, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(ENUM, wd1, wd2, handler, false)
-{
-    setupName();
-    setupEnumValues(enumValues);
-}
-
-void
-EnumOptionDescriptor::setupEnumValues(const char *enumValues)
-{
-    char *copy = new char[strlen(enumValues)+1];
-    strcpy(copy, enumValues);
-    char *pStart = copy;
-    do {
-        char *pEnd = strchr(pStart, '|');
-        std::string *val;
-        
-        if (pEnd == NULL) {
-            val = new std::string(pStart);
-            pStart = pEnd;
-        } else {
-            val = new std::string(pStart, pEnd - pStart);
-            pStart = pEnd+1;
+    switch (type) {
+        case BOOLEAN: {
+            result += "boolean";
+            break;
         }
-        
-        legalValues.push_back(*val);
-        delete val;
-    } while (pStart != NULL);
-    delete[] copy;
+        case STRING: {
+            result += "string";
+            break;
+        }
+        case STRING_LIST: {
+            result += "string_list";
+            break;
+        }
+        case PATH: {
+            result += "path";
+            break;
+        }
+        case PATH_LIST: {
+            result += "path_list";
+            break;
+        }
+        default: {
+            result += "invalid type";
+            break;
+        }
+    }
+    return result;
+}
+
+std::string
+OptionDescriptor::describeAllOptions()
+{
+    std::string result;
+
+    for (std::list<OptionDescriptor*>::iterator i= allOptionDescriptors.begin(); i != allOptionDescriptors.end(); i++) {
+        OptionDescriptor *od = *i;
+        result += "  ";
+        result += od->getName();
+        if (od->isValueOptional()) {
+            result += "{";
+        }
+        result += "=";
+        result += od->getTypeDescriptor();
+        if (od->isValueOptional()) {
+            result += "}";
+        }
+        if (od->getDescription() != NULL) {
+            result += "\n    ";
+            result += od->getDescription();
+        }
+        result += '\n';
+    }
+    return result;
 }
 
 void
 OptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
 {
     OptionDescriptor *od = v->getOptionDescriptor();
-
+    
     cerr << "Setting option '" << od->getName() << "' to value " << *v->toString() << endl;
-
+    
     (processor->*valueHandler)(v);
 }
 
@@ -124,6 +159,113 @@ OptionDescriptor::createValue()
         default:
             return NULL; // shouldn't happen
     }
+}
+
+EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *enumValues, OptionProcessor::ValueHandler handler)
+: OptionDescriptor(ENUM, wd1, handler, false)
+{
+    setupName();
+    setupEnumValues(enumValues);
+}
+
+EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *wd2, const char *enumValues, OptionProcessor::ValueHandler handler)
+: OptionDescriptor(ENUM, wd1, wd2, handler, false)
+{
+    setupName();
+    setupEnumValues(enumValues);
+}
+
+EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *wd2, const char *enumValues,
+                                           const char *descrip, OptionProcessor::ValueHandler handler)
+: OptionDescriptor(ENUM, wd1, wd2, descrip, handler, false)
+{
+    setupName();
+    setupEnumValues(enumValues);
+}
+
+void
+EnumOptionDescriptor::setupEnumValues(const char *enumValues)
+{
+    char *copy = new char[strlen(enumValues)+1];
+    strcpy(copy, enumValues);
+    char *pStart = copy;
+    do {
+        char *pEnd = strchr(pStart, '|');
+        std::string *val;
+        
+        if (pEnd == NULL) {
+            val = new std::string(pStart);
+            pStart = pEnd;
+        } else {
+            val = new std::string(pStart, pEnd - pStart);
+            pStart = pEnd+1;
+        }
+        
+        legalValues.push_back(*val);
+        delete val;
+    } while (pStart != NULL);
+    delete[] copy;
+}
+
+std::string
+EnumOptionDescriptor::getTypeDescriptor() const
+{
+    std::string result;
+    const std::list<std::string>& legalValues = getLegalValues();
+    
+    for (std::list<std::string>::const_iterator i= legalValues.begin(); i != legalValues.end(); i++) {
+        if (i != legalValues.begin()) {
+            result += " | ";
+        }
+        result += *i;
+    }
+    return result;
+}
+
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, int min, int max, OptionProcessor::ValueHandler handler)
+: OptionDescriptor(INTEGER, wd1, NULL, handler, false), minValue(min), maxValue(max)
+{
+}
+
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int min, int max, OptionProcessor::ValueHandler handler)
+: OptionDescriptor(INTEGER, wd1, wd2, handler, false), minValue(min), maxValue(max)
+{
+}
+
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int min, int max,
+                                                 const char *descrip, OptionProcessor::ValueHandler handler)
+: OptionDescriptor(INTEGER, wd1, wd2, descrip, handler, false), minValue(min), maxValue(max)
+{
+}
+
+std::string
+IntegerOptionDescriptor::getTypeDescriptor() const
+{
+    std::string result;
+
+    result += "int";
+
+    if (this->minValue != INT_MIN && this->maxValue == INT_MAX) {
+        IntToString minStr(this->minValue);
+        result += "[ >= ";
+        result += minStr.String();
+        result += "]";
+    } else if (this->minValue == INT_MIN && this->maxValue != INT_MAX) {
+        IntToString maxStr(this->maxValue);
+        result += "[ <= ";
+        result += maxStr.String();
+        result += "]";
+    } else {
+        IntToString minStr(this->minValue);
+        IntToString maxStr(this->maxValue);
+        result += "[";
+        result += minStr.String();
+        result += "..";
+        result += maxStr.String();
+        result += "]";
+    }
+
+    return result;
 }
 
 OptionProcessor::OptionProcessor(Option *option)
@@ -175,7 +317,9 @@ OptionProcessor::processActionBlock(OptionValue *v)
     actionBlock.Set(NULL, strdup(fileName.c_str()), strdup(blockBegin.c_str()), strdup(blockEnd.c_str()));
 }
 
-OptionDescriptor *astDirectory = new OptionDescriptor(PATH, "ast", "directory", &OptionProcessor::processASTdirectory, true);
+OptionDescriptor *astDirectory = new OptionDescriptor(PATH, "ast", "directory",
+                                                      "the directory in which generated AST classes will be placed, if automatic-ast is 'toplevel'",
+                                                      &OptionProcessor::processASTdirectory, true);
 
 void
 OptionProcessor::processASTdirectory(OptionValue *v)
@@ -184,7 +328,7 @@ OptionProcessor::processASTdirectory(OptionValue *v)
     options->ast_directory = strdup(sv->getValue().c_str());
 }
 
-OptionDescriptor *astType = new OptionDescriptor(STRING, "ast", "type", &OptionProcessor::processASTtype);
+OptionDescriptor *astType = new OptionDescriptor(STRING, "ast", "type", "the name of the AST root class", &OptionProcessor::processASTtype);
 
 void
 OptionProcessor::processASTtype(OptionValue *v)
@@ -203,7 +347,9 @@ OptionProcessor::processAttributes(OptionValue *v)
     options->attributes = bv->getValue();
 }
 
-OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast", "none|nested|toplevel", &OptionProcessor::processAutomaticAST);
+OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast", "none|nested|toplevel",
+                                                          "determines where generated AST classes will be placed",
+                                                          &OptionProcessor::processAutomaticAST);
 
 void
 OptionProcessor::processAutomaticAST(OptionValue *v)
@@ -228,7 +374,9 @@ OptionProcessor::processDebug(OptionValue *v)
     options->debug = bv->getValue();
 }
 
-OptionDescriptor *includeDirs = new OptionDescriptor(PATH_LIST, "include", "directory", &OptionProcessor::processIncludeDir, false);
+OptionDescriptor *includeDirs = new OptionDescriptor(PATH_LIST, "include", "directory",
+                                                     "a semi-colon separated list of directories to search when processing include directives",
+                                                     &OptionProcessor::processIncludeDir, false);
 
 void
 OptionProcessor::processIncludeDir(OptionValue *v)
@@ -244,7 +392,9 @@ OptionProcessor::processIncludeDir(OptionValue *v)
     }
 }
 
-OptionDescriptor *lalr = new OptionDescriptor(INTEGER, "lalr", &OptionProcessor::processLALR, false);
+OptionDescriptor *lalr = new IntegerOptionDescriptor("lalr", "", 1, INT_MAX,
+                                                     "determines how many tokens of look-ahead can be used to disambiguate",
+                                                     &OptionProcessor::processLALR);
 
 void
 OptionProcessor::processLALR(OptionValue *v)
@@ -270,7 +420,9 @@ OptionProcessor::processNames(OptionValue *v)
     }
 }
 
-OptionDescriptor *softKeywords = new OptionDescriptor(BOOLEAN, "soft", "keywords", &OptionProcessor::processSoftKeywords, true);
+OptionDescriptor *softKeywords = new OptionDescriptor(BOOLEAN, "soft", "keywords",
+                                                      "if true, try treating keywords as identifiers if parsing fails otherwise",
+                                                      &OptionProcessor::processSoftKeywords, true);
 
 void
 OptionProcessor::processSoftKeywords(OptionValue *v)
@@ -279,7 +431,9 @@ OptionProcessor::processSoftKeywords(OptionValue *v)
     options->soft_keywords = bv->getValue();
 }
 
-OptionDescriptor *variables = new EnumOptionDescriptor("variables", "none|both|terminals|nt|nonterminals", &OptionProcessor::processVariables);
+OptionDescriptor *variables = new EnumOptionDescriptor("variables", "", "none|both|terminals|nt|nonterminals",
+                                                       "determines the set of right-hand side symbols for which local variables will be defined within action blocks",
+                                                       &OptionProcessor::processVariables);
 
 void
 OptionProcessor::processVariables(OptionValue *v)
@@ -405,12 +559,17 @@ IntegerOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(Value
         }
     }
     
+    const IntegerOptionDescriptor *id = static_cast<const IntegerOptionDescriptor*> (od);
     const char *vs = v->c_str();
     
     if (!verify(vs)) {
         throw ValueFormatException("Invalid integer value", *v, od);
     } else {
-        value = atoi(vs);
+        int iv = atoi(vs);
+        if (iv < id->getMinValue() || iv > id->getMaxValue()) {
+            throw ValueFormatException("Integer value outside allowable range", *v, od);
+        }
+        value = iv;
     }
 }
 
@@ -609,7 +768,7 @@ OptionValue *
 OptionParser::parse(const char *&start) throw(ValueFormatException)
 {
     OptionDescriptor *od = findOption(start);
-    
+
     if (od != NULL) {
         // This option is a match
         std::string *optValueStr = getOptionValue(start);

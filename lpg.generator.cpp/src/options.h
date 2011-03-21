@@ -9,7 +9,12 @@
  *  Copyright 2011 . All rights reserved.
  */
 
-#include "option.h"
+#include "code.h"
+#include "util.h"
+
+#include <string>
+#include <list>
+#include <iostream>
 
 enum OptionType {
     BOOLEAN,
@@ -21,6 +26,7 @@ enum OptionType {
     PATH_LIST
 };
 
+class Option;
 class OptionValue;
 
 class OptionProcessor {
@@ -51,11 +57,14 @@ class OptionDescriptor {
 public:
     OptionDescriptor(OptionType type, const char *word1, OptionProcessor::ValueHandler handler, bool valueOptional = false);
     OptionDescriptor(OptionType type, const char *word1, const char *word2, OptionProcessor::ValueHandler handler, bool valueOptional = false);
-    
+    OptionDescriptor(OptionType type, const char *word1, const char *word2, const char *descrip, OptionProcessor::ValueHandler handler, bool valueOptional = false);
+
     const char *getWord1() const { return word1; }
     const char *getWord2() const { return (word2 != NULL) ? word2 : ""; }
     const std::string& getName() const { return name; }
+    const char *getDescription() const { return description; }
     OptionType getType() const { return type; }
+    virtual std::string getTypeDescriptor() const;
     bool isValueOptional() const { return valueOptional; }
     
     OptionValue *createValue();
@@ -73,6 +82,7 @@ protected:
     const char *word1;
     const char *word2; // may be null
     std::string name;
+    const char *description;
     const bool valueOptional;
     OptionProcessor::ValueHandler valueHandler;
 
@@ -83,13 +93,33 @@ class EnumOptionDescriptor : public OptionDescriptor {
 public:
     EnumOptionDescriptor(const char *word1, const char *enumValues, OptionProcessor::ValueHandler handler);
     EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues, OptionProcessor::ValueHandler handler);
+    EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues,
+                         const char *descrip, OptionProcessor::ValueHandler handler);
     
     const std::list<std::string>& getLegalValues() const { return legalValues; }
     
+    std::string getTypeDescriptor() const;
+
 private:
     void setupEnumValues(const char *);
     
     std::list<std::string> legalValues;
+};
+
+class IntegerOptionDescriptor : public OptionDescriptor {
+public:
+    IntegerOptionDescriptor(const char *word1, int min, int max, OptionProcessor::ValueHandler handler);
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, OptionProcessor::ValueHandler handler);
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
+                            OptionProcessor::ValueHandler handler);
+
+    int getMinValue() const { return minValue; }
+    int getMaxValue() const { return maxValue; }
+
+    std::string getTypeDescriptor() const;
+
+private:
+    int minValue, maxValue;
 };
 
 class ValueFormatException {
