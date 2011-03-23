@@ -1,4 +1,4 @@
-$Headers
+%Headers
     --
     -- Additional methods for the action class not provided in the template
     --
@@ -163,4 +163,4 @@ $Headers
             Char_EOF              // for '\uffff' or 65535 
         };
     ./
-$End
+%End
