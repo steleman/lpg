@@ -1,5 +1,6 @@
 #include "control.h"
 #include "option.h"
+#include "options.h"
 #include "LexStream.h"
 
 #include <errno.h>
@@ -2678,8 +2679,21 @@ void Option::ProcessOptions(const char *parm)
         if (! flag)
             parm += 2; // skip the "NO" prefix
 
-        unsigned char c = (unsigned char) (*parm);
-        parm = (this ->* classify_option[c < 128 ? c : 0])(parm, flag);
+        try {
+            OptionValue *value = NULL;
+
+//          Comment out the following line for the original options-processing behavior
+//          value = optionParser->parse(parm);
+            
+            if (value != NULL) {
+                value->getOptionDescriptor()->processSetting(optionProcessor, value);
+            } else {
+                unsigned char c = (unsigned char) (*parm);
+                parm = (this ->* classify_option[c < 128 ? c : 0])(parm, flag);
+            }
+        } catch (ValueFormatException& vfe) {
+            cerr << "Improper value '" << vfe.value() << "' for option '" << vfe.optionDescriptor()->getName() << "': " << vfe.message() << endl;
+        }
     }
 
     return;
