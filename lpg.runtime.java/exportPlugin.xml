@@ -103,6 +103,9 @@
             <fileset dir="${plugin.src.path}">
                 <include name="**/*.properties"/>
             </fileset>
+        	<fileset dir=".">
+        		<include name="RELEASE_NOTES.txt"/>
+        	</fileset>
         </jar>
     </target>
 </project>

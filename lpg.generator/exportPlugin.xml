@@ -54,9 +54,12 @@
         <delete dir="${temp.folder}/bin"/>
         <mkdir dir="${temp.folder}/bin"/>
 
-        <!-- Copy necessary resources -->
+		<copy file="../lpg.generator.cpp/RELEASE_NOTES.txt"
+			  tofile="${basedir}/GENERATOR_RELEASE_NOTES.txt"/>
+
+		<!-- Copy necessary resources -->
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${basedir}"
 			 manifest="META-INF/MANIFEST.MF"
-			includes="include/**/*,templates/**/*"/>
+			 includes="include/**/*,templates/**/*,RELEASE_NOTES.txt,GENERATOR_RELEASE_NOTES.txt"/>
 	</target>
 </project>
