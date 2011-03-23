@@ -1,10 +1,11 @@
-$Globals
-    /!
-      struct $kw_lexer_class;
-    !/
-$end
+%Globals
+    -- This used to be enclosed in a /! !/ pair, but LPG said "Only default blocks in Globals/Titles"...
+    -- /.
+    --   class $kw_lexer_class;
+    --  ./
+%end
 
-$Headers
+%Headers
     --
     -- Additional methods for the action class not provided in the template
     --
@@ -12,7 +13,7 @@ $Headers
         private:
             static const int tokenKind[];
             $kw_lexer_class* kwLexer_;
-            enum { ECLIPSE_TAB_VALUE = 4 };
+            enum { TAB_VALUE = 4 };
 
         public:
             explicit $action_class(const char* fileName);
@@ -26,9 +27,9 @@ $Headers
             static int getKind(int _c);
 
             void checkForKeyWord();
+            void checkForKeyWord(int defaultKind);
     !/
     /.
-        #include "$kw_lexer_class.h"
         $action_class::$action_class(const char* fileName)
            : LexStream(fileName), lp_(this),
              kwLexer_(new $kw_lexer_class(inputChars_, $exp_class::$_IDENTIFIER))
@@ -39,6 +40,16 @@ $Headers
             int startOffset = getLeftSpan();
             int endOffset   = getRightSpan();
             int kwKind      = kwLexer_->lexer(startOffset, endOffset);
+            makeToken(startOffset, endOffset, kwKind);
+        }        
+
+        void $action_class::checkForKeyWord(int defaultKind)
+        {
+            int startOffset = getLeftSpan();
+            int endOffset   = getRightSpan();
+            int kwKind      = kwLexer_->lexer(startOffset, endOffset);
+            if (kwKind == $exp_class::$_IDENTIFIER)
+                kwKind = defaultKind;
             makeToken(startOffset, endOffset, kwKind);
         }        
 
@@ -183,4 +194,4 @@ $Headers
             Char_EOF              // for '\uffff' or 65535 
         };
     ./
-$End
+%End
