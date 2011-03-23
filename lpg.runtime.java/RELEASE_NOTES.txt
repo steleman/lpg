@@ -1,6 +1,21 @@
 This file describes changes made to the LPG Java runtime.
 For changes to other parts of the LPG distribution, see the relevant project.
 
+2.0.22:
+    - Added constructor and initialize() flavors to LexStream and LpgLexStream that take
+      an explicit character-length argument. Before this change, attempting to scan files
+      that contain multi-byte (e.g. UTF-8) characters using certain entry points, e.g.
+
+        LexStream(String fileName)
+
+      would internally create a character array with more entries than characters in the
+      input stream. [This was so, because only after the file is read is it possible to
+      identify any multi-byte characters and thus determine how many characters are
+      actually in the input stream.] Without a separate indication of the stream's
+      length in characters, the scanner would use the length of the array. The extra
+      entries at the array's end were uninitialized, and would contain NUL characters,
+      which would most likely cause spurious lexical errors.
+
 2.0.21:
     - Removed a line from LexParser.parseActions() that caused a problem for incremental
       lexing via calls to LexParser.parseCharacters(Monitor, int, int).
