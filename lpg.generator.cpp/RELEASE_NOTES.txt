@@ -1,6 +1,22 @@
 This file describes changes made to the LPG parser generator tool itself.
 For changes to other parts of the LPG distribution, see the relevant project.
 
+2.0.22:
+    - Fixed a bug in automatically-generated Java ASTs, for which the generated
+      AbstractAstList class contained references to the root AST type "AST",
+      ignoring any "ast-type" option that was specified in the grammar.
+    - The Java back-end now generates setter methods for production rule class
+      members that correspond to RHS rule symbols, so that AST nodes created by
+      the parser can be mutated.
+    - Now properly emits #line comments for AST class members that were specified
+      via grammar rule action blocks.
+    - The C++ back-end no longer inserts a bogus "class." prefix when expanding
+      macro references.
+    - The description of the -include-directory option now says what the path
+      separator character is.
+    - The out-directory setting is now respected for files generated on behalf of
+      included files (like lexer or keyword-lexer files).
+
 2.0.21:
     - Now expands the file name and line number macros relative to the source file
       where they're being interpolated, so that #line comments cite the correct file.
