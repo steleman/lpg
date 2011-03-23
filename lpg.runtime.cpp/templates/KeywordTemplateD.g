@@ -4,15 +4,15 @@
 %Options action=("*.h","/!","!/")
 %Options esc=$,em,scopes
 
-$Eof
+%Eof
     EOF
-$End
+%End
 
-$Error
+%Error
     EOF
-$End
+%End
 
-$Define
+%Define
     $eof_char /.Char_EOF./
     $setResult /.keywordKind_[$rule_number] = ./
     $Header
@@ -22,9 +22,9 @@ $Define
             //./
     $BeginAction /.$Header./
     $EndAction /../
-$End
+%End
 
-$Headers
+%Headers
     /!  #ifndef $action_type$_INCLUDED
         #define $action_type$_INCLUDED
         #line $next_line "$input_file$"
@@ -77,9 +77,9 @@ $Headers
             return keywordKind_[act == ERROR_ACTION  || curtok <= lasttok ? 0 : act];
         }
     ./
-$End
+%End
 
-$Rules
+%Rules
     /.
         #line $next_line "$input_file$"
         $action_type::$action_type(char* inputChars, int identifierKind)
@@ -92,9 +92,9 @@ $Rules
                 keywordKind_ = new int[length + 1];
                 keywordKind_[0] = identifierKind;
     ./
-$End
+%End
 
-$Trailers
+%Trailers
     /!
         #line $next_line "$input_file$"
         };
@@ -110,7 +110,7 @@ $Trailers
             }
         }
     ./
-$End
+%End
 
 --
 -- E N D   O F   T E M P L A T E
