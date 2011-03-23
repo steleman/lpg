@@ -6,7 +6,7 @@ CSRCS = CAction.cpp CTable.cpp CppAction.cpp CppTable.cpp JavaAction.cpp \
         Action.cpp base.cpp buffer.cpp code.cpp control.cpp \
         dfa.cpp diagnose.cpp dump.cpp generator.cpp grammar.cpp jikespg.cpp \
         jikespg_act.cpp jikespg_init.cpp jikespg_prs.cpp \
-        option.cpp parser.cpp pda.cpp produce.cpp resolve.cpp scanner.cpp \
+        option.cpp options.cpp parser.cpp pda.cpp produce.cpp resolve.cpp scanner.cpp \
         sp.cpp symbol.cpp tab.cpp table.cpp util.cpp
 
 COBJS = $(CSRCS:.cpp=.o)
