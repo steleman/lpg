@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: LPG Generator for 64-bit Mac OS X
 Bundle-SymbolicName: lpg.generator.macosx_x86_64
-Bundle-Version: 2.0.21
+Bundle-Version: 2.0.22
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Fragment-Host: lpg.generator;bundle-version="2.0.21"
+Fragment-Host: lpg.generator;bundle-version="2.0.22"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
