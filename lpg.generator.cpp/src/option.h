@@ -1,6 +1,9 @@
 #ifndef option_INCLUDED
 #define option_INCLUDED
 
+#include <list>
+#include <string>
+
 #include "util.h"
 #include "code.h"
 #include "tuple.h"
@@ -10,6 +13,8 @@
 class LexStream;
 class Token;
 class VariableSymbol;
+class OptionParser;
+class OptionProcessor;
 
 class Option : public Code, public Util
 {
@@ -252,9 +257,14 @@ public:
 
     const char *GetFilename(const char *);
 
+    friend class OptionProcessor;
+
 private:
     int argc;
     const char **argv;
+
+    OptionParser *optionParser;
+    OptionProcessor *optionProcessor;
 
     class BlockInfo
     {
