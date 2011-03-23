@@ -4,15 +4,15 @@
 %Options action=("*.h","/!","!/")
 -- %Options esc=$,em,scopes
 
-$Eof
+%Eof
     EOF
-$End
+%End
 
-$Export
+%Export
     EOF_TOKEN
-$End
+%End
 
-$Define
+%Define
     $eof_token /.$_EOF_TOKEN./
     $action_class /.$action_type./
     $exp_class /.ENUM_$exp_type./
@@ -35,10 +35,12 @@ $Define
 
     $BeginAction
     /.$Header
-                case $rule_number: {./
+                case $rule_number: {
+     ./
 
     $EndAction
-    /.          break;
+    /.
+          break;
                 }./
 
     $NoAction
@@ -53,9 +55,9 @@ $Define
             }
             return;
         }./
-$End
+%End
 
-$Headers
+%Headers
 
     /!  #ifndef $action_class$_INCLUDED
         #define $action_class$_INCLUDED
@@ -63,9 +65,11 @@ $Headers
 
         #include "lpg/runtime/tuple.h"
         #include "lpg/runtime/LexStream.h"
+        #include "lpg/runtime/LexParser.h"
         #include "$prs_type.h"
 
-        struct PrsStream;
+        class PrsStream;
+
         class $action_class : public LexStream
         {
             LexParser<$prs_type, $action_class> lp_;
@@ -86,20 +90,36 @@ $Headers
             {
                 prsStream_->makeToken(inputChars_, startOffset, endOffset, kind);
             }
+
+            inline int makeComment(int kind)
+            {
+                prsStream_->makeAdjunct(inputChars_, getLeftSpan(), getRightSpan(), kind);
+            }
+
+            inline int getRhsFirstTokenIndex(int i) {
+                return lp_.getFirstToken(i);
+            }
+
+            inline int getRhsLastTokenIndex(int i) {
+                return lp_.getLastToken(i);
+            }
     !/
 
     /.  #line $next_line "$input_file$"
         #include <limits.h>
+
         using namespace std;
+
         #include "$sym_type.h"
+        #include "$kw_lexer_class.h"
         #include "$action_class.h"
 
         namespace $exp_class
         {
-        #include "$exp_type.h"
+          #include "$exp_type.h"
         };
 
-        $action_class::~$action_class() {};
+        $action_class::~$action_class() { }
 
         int $action_class::lexer(PrsStream* prsStream)
         {
@@ -110,13 +130,13 @@ $Headers
             return 0;
         }        
     ./
-$End
+%End
 
-$Rules
+%Rules
     /.$BeginActions./
-$End
+%End
 
-$Trailers
+%Trailers
     /!  #line $next_line "$input_file"
         };
         #endif
@@ -125,4 +145,4 @@ $Trailers
     /.  #line $next_line "$input_file"
         $EndActions
     ./
-$End
+%End
