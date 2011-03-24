@@ -95,15 +95,19 @@ public:
     EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues, OptionProcessor::ValueHandler handler);
     EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues,
                          const char *descrip, OptionProcessor::ValueHandler handler);
+    EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues,
+                         const char *defValue, const char *descrip, OptionProcessor::ValueHandler handler);
     
     const std::list<std::string>& getLegalValues() const { return legalValues; }
+    const char *getDefaultValue() const { return defaultValue; }
     
     std::string getTypeDescriptor() const;
 
 private:
     void setupEnumValues(const char *);
-    
+
     std::list<std::string> legalValues;
+    const char *defaultValue;
 };
 
 class IntegerOptionDescriptor : public OptionDescriptor {
@@ -148,7 +152,7 @@ private:
 
 class OptionValue : public Code, public Util {
 public:
-    OptionDescriptor *getOptionDescriptor();
+    OptionDescriptor *getOptionDescriptor() const { return optionDesc; }
     
     virtual void parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException) = 0;
     virtual const std::string *toString() = 0;
