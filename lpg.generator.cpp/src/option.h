@@ -1,9 +1,6 @@
 #ifndef option_INCLUDED
 #define option_INCLUDED
 
-#include <list>
-#include <string>
-
 #include "util.h"
 #include "code.h"
 #include "tuple.h"
@@ -257,9 +254,9 @@ public:
 
     const char *GetFilename(const char *);
 
+private:
     friend class OptionProcessor;
 
-private:
     int argc;
     const char **argv;
 
