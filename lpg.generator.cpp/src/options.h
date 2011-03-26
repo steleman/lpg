@@ -6,7 +6,7 @@
  *  lpg
  *
  *  Created by Robert M. Fuhrer on 3/13/11.
- *  Copyright 2011 . All rights reserved.
+ *  Copyright 2011 IBM. All rights reserved.
  */
 
 #include "code.h"
@@ -14,10 +14,10 @@
 
 #include <string>
 #include <list>
-#include <iostream>
 
 enum OptionType {
     BOOLEAN,
+    CHAR,
     ENUM,
     INTEGER,
     STRING,
@@ -31,24 +31,32 @@ class OptionValue;
 
 class OptionProcessor {
 public:
+    typedef bool Option::*BooleanValueField;
+    typedef int Option::*IntegerValueField;
+    typedef const char *Option::*StringValueField;
+    typedef char Option::*CharValueField;
+
     typedef void (OptionProcessor::*ValueHandler)(OptionValue *);
-    
+
     OptionProcessor(Option *);
     
-    void processAnyOption(OptionValue *v);
-
     void processActionBlock(OptionValue *v);
-    void processASTdirectory(OptionValue *v);
-    void processASTtype(OptionValue *v);
-    void processAttributes(OptionValue *v);
     void processAutomaticAST(OptionValue *v);
-    void processDebug(OptionValue *v);
+    void processExportTerminals(OptionValue *v);
+    void processFilter(OptionValue *v);
+    void processIgnoreBlock(OptionValue *v);
+    void processImportTerminals(OptionValue *v);
     void processIncludeDir(OptionValue *v);
-    void processLALR(OptionValue *v);
     void processNames(OptionValue *v);
-    void processSoftKeywords(OptionValue *v);
+    void processProgrammingLanguage(OptionValue *v);
+    void processRuleClassNames(OptionValue *v);
+    void processTrace(OptionValue *v);
+    void processTrailers(OptionValue *v);
     void processVariables(OptionValue *v);
-    
+    void processVisitor(OptionValue *v);
+
+    Option *getOptions() const { return options; }
+
 private:
     Option *options;
 };
@@ -69,13 +77,14 @@ public:
     
     OptionValue *createValue();
     
-    void processSetting(OptionProcessor *processor, OptionValue *value);
+    virtual void processSetting(OptionProcessor *processor, OptionValue *value);
 
     static const std::list<OptionDescriptor*>& getAllDescriptors();
 
     static std::string describeAllOptions();
 
 protected:
+    OptionDescriptor(OptionType type, const char *word1, const char *word2, const char *descrip, bool valueOptional);
     void setupName();
     
     const OptionType type;
@@ -87,6 +96,62 @@ protected:
     OptionProcessor::ValueHandler valueHandler;
 
     static std::list<OptionDescriptor*> allOptionDescriptors;
+};
+
+class BooleanOptionDescriptor : public OptionDescriptor {
+public:
+    BooleanOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::BooleanValueField, bool valueOptional=true);
+
+    void processSetting(OptionProcessor *, OptionValue *);
+
+private:
+    OptionProcessor::BooleanValueField boolField;
+};
+
+class IntegerOptionDescriptor : public OptionDescriptor {
+public:
+    IntegerOptionDescriptor(const char *word1, int min, int max, OptionProcessor::ValueHandler handler);
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, OptionProcessor::ValueHandler handler);
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
+                            OptionProcessor::ValueHandler handler);
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
+                            OptionProcessor::IntegerValueField, bool valueOpt=false);
+    
+    int getMinValue() const { return minValue; }
+    int getMaxValue() const { return maxValue; }
+    
+    std::string getTypeDescriptor() const;
+    
+    void processSetting(OptionProcessor *, OptionValue *);
+    
+private:
+    int minValue, maxValue;
+    OptionProcessor::IntegerValueField intField;
+};
+
+class StringOptionDescriptor : public OptionDescriptor {
+public:
+    StringOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+                           OptionProcessor::StringValueField, bool emptyOk=false);
+
+    void processSetting(OptionProcessor *, OptionValue *);
+
+protected:
+    StringOptionDescriptor(OptionType type, const char *word1, const char *word2, const char *descrip,
+                           OptionProcessor::StringValueField, bool emptyOk=false);
+    bool emptyOk;
+    OptionProcessor::StringValueField stringField;
+};
+
+class CharOptionDescriptor : public StringOptionDescriptor {
+public:
+    CharOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+                         OptionProcessor::CharValueField);
+
+    void processSetting(OptionProcessor *, OptionValue *);
+
+private:
+    OptionProcessor::CharValueField charField;
 };
 
 class EnumOptionDescriptor : public OptionDescriptor {
@@ -110,20 +175,12 @@ private:
     const char *defaultValue;
 };
 
-class IntegerOptionDescriptor : public OptionDescriptor {
+class PathOptionDescriptor : public StringOptionDescriptor {
 public:
-    IntegerOptionDescriptor(const char *word1, int min, int max, OptionProcessor::ValueHandler handler);
-    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, OptionProcessor::ValueHandler handler);
-    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
-                            OptionProcessor::ValueHandler handler);
+    PathOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+                         OptionProcessor::StringValueField, bool emptyOk=false);
 
-    int getMinValue() const { return minValue; }
-    int getMaxValue() const { return maxValue; }
-
-    std::string getTypeDescriptor() const;
-
-private:
-    int minValue, maxValue;
+    void processSetting(OptionProcessor *, OptionValue *);
 };
 
 class ValueFormatException {
@@ -132,11 +189,11 @@ public:
     : msg(msg), valueStr(NULL), optDesc(od)
     { }
     
-    ValueFormatException(const char *msg, std::string& s, OptionDescriptor *od)
+    ValueFormatException(const char *msg, const std::string& s, OptionDescriptor *od)
     : msg(msg), valueStr(s), optDesc(od)
     { }
     
-    ValueFormatException(std::string& msg, std::string& s, OptionDescriptor *od)
+    ValueFormatException(const std::string& msg, const std::string& s, OptionDescriptor *od)
     : msg(msg), valueStr(s), optDesc(od)
     { }
     
@@ -248,7 +305,7 @@ public:
     OptionValue *parse(const char *&start) throw(ValueFormatException);
 
 private:
-    OptionDescriptor *findOption(const char *&start);
+    OptionDescriptor *findOption(const char *&start, bool& flag);
     bool IsDelimiter(char c);
     std::string *getOptionValue(const char *&p);
     

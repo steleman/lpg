@@ -15,12 +15,6 @@ OptionProcessor::OptionProcessor(Option *option)
 : options(option)
 { }
 
-void
-OptionProcessor::processAnyOption(OptionValue *v)
-{
-    // no-op
-}
-
 std::string
 trimQuotes(std::string& s)
 {
