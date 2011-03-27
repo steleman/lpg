@@ -50,6 +50,7 @@ public:
     void processNames(OptionValue *v);
     void processProgrammingLanguage(OptionValue *v);
     void processRuleClassNames(OptionValue *v);
+    void processTable(OptionValue *v);
     void processTrace(OptionValue *v);
     void processTrailers(OptionValue *v);
     void processVariables(OptionValue *v);
