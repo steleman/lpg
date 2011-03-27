@@ -1,5 +1,6 @@
 %Options programming_language=c++,table=c++, margin=8
 %Options prefix=Char_
+%Options table=cpp
 %Options action=("*.cpp", "/.", "./")
 %Options action=("*.h","/!","!/")
 -- %Options esc=$,em,scopes
