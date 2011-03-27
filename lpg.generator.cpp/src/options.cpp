@@ -274,7 +274,7 @@ OptionDescriptor *prefix = new StringOptionDescriptor("prefix", NULL, "???",
 OptionDescriptor *priority = new BooleanOptionDescriptor("priority", NULL, "???",
                                                          &Option::priority);
 
-OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "language", "c|cpp|java|ml|plx|plxasm|xml",
+OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "language", "c|cpp|c++|java|ml|plx|plxasm|xml",
                                                              "identifies the desired parser implementation language",
                                                              &OptionProcessor::processProgrammingLanguage);
 void
@@ -285,7 +285,7 @@ OptionProcessor::processProgrammingLanguage(OptionValue *v)
     
     if (!value.compare("c")) {
         options->programming_language = Option::C;
-    } else if (!value.compare("cpp")) {
+    } else if (!value.compare("cpp") || !value.compare("c++")) {
         options->programming_language = Option::CPP;
     } else if (!value.compare("java")) {
         options->programming_language = Option::JAVA;
@@ -368,9 +368,34 @@ OptionDescriptor *symFile = new StringOptionDescriptor("sym", "file", "???",
 OptionDescriptor *tabFile = new StringOptionDescriptor("tab", "file", "???",
                                                        &Option::tab_file, false);
 
-OptionDescriptor *table = new BooleanOptionDescriptor("table", NULL,
+OptionDescriptor *table = new EnumOptionDescriptor("table", NULL, "c|cpp|c++|java|ml|plx|plxasm|xml",
                                                       "???",
-                                                      &Option::table);
+                                                      &OptionProcessor::processTable);
+void
+OptionProcessor::processTable(OptionValue *v)
+{
+    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
+    std::string value = ev->getValue();
+
+    if (!value.compare("none")) {
+        options->table = false;
+        options->programming_language = Option::XML;
+    } else if (!value.compare("c")) {
+        options->programming_language = Option::C;
+    } else if (!value.compare("cpp") || !value.compare("c++")) {
+        options->programming_language = Option::CPP;
+    } else if (!value.compare("java")) {
+        options->programming_language = Option::JAVA;
+    } else if (!value.compare("ml")) {
+        options->programming_language = Option::ML;
+    } else if (!value.compare("plx")) {
+        options->programming_language = Option::PLX;
+    } else if (!value.compare("plxasm")) {
+        options->programming_language = Option::PLXASM;
+    } else if (!value.compare("xml")) {
+        options->programming_language = Option::XML;
+    }
+}
 
 OptionDescriptor *template_ = new StringOptionDescriptor("template", NULL, "???",
                                                          &Option::template_name, false);
