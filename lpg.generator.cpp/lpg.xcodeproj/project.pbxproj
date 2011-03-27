@@ -8,6 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		551D7AE1132D70D100748B79 /* options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 551D7AE0132D70D100748B79 /* options.cpp */; };
+		55CA8AC4133E3F3900958C2A /* optionDesc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8AC1133E3F3900958C2A /* optionDesc.cpp */; };
+		55CA8AC5133E3F3900958C2A /* optionParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8AC2133E3F3900958C2A /* optionParser.cpp */; };
+		55CA8AC6133E3F3900958C2A /* optionValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8AC3133E3F3900958C2A /* optionValues.cpp */; };
+		55CA8D4F133EBAD700958C2A /* testDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8D44133EBA8500958C2A /* testDriver.cpp */; };
+		55CA8DAA133EC2FB00958C2A /* LPGKWLexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8D9F133EC2FB00958C2A /* LPGKWLexer.cpp */; };
+		55CA8DAB133EC2FB00958C2A /* LPGKWLexerprs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8DA1133EC2FB00958C2A /* LPGKWLexerprs.cpp */; };
+		55CA8DAC133EC2FB00958C2A /* LPGLexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8DA4133EC2FB00958C2A /* LPGLexer.cpp */; };
+		55CA8DAD133EC2FB00958C2A /* LPGLexerprs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55CA8DA7133EC2FB00958C2A /* LPGLexerprs.cpp */; };
 		55D1DEF712F6F167003658F8 /* Action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D1DECF12F6F167003658F8 /* Action.cpp */; };
 		55D1DEF812F6F167003658F8 /* base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D1DED012F6F167003658F8 /* base.cpp */; };
 		55D1DEF912F6F167003658F8 /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D1DED112F6F167003658F8 /* buffer.cpp */; };
@@ -86,11 +94,24 @@
 		551D7AE0132D70D100748B79 /* options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = options.cpp; path = src/options.cpp; sourceTree = "<group>"; };
 		55792EAA1318820800D81C5D /* change-notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "change-notes.txt"; path = "../change-notes.txt"; sourceTree = SOURCE_ROOT; };
 		55792EAD131BEDC000D81C5D /* RELEASE_NOTES.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RELEASE_NOTES.txt; sourceTree = "<group>"; };
-		558DF03D1325AC2700519329 /* JikesPGLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JikesPGLexer.cpp; path = bootstrap/JikesPGLexer.cpp; sourceTree = SOURCE_ROOT; };
-		558DF0401325AD8E00519329 /* JikesPGLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexer.h; path = bootstrap/JikesPGLexer.h; sourceTree = "<group>"; };
-		558DF0411325AD8E00519329 /* JikesPGLexerexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexerexp.h; path = bootstrap/JikesPGLexerexp.h; sourceTree = "<group>"; };
-		558DF0421325AD8E00519329 /* JikesPGLexerprs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexerprs.h; path = bootstrap/JikesPGLexerprs.h; sourceTree = "<group>"; };
-		558DF0431325AD8E00519329 /* JikesPGLexersym.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JikesPGLexersym.h; path = bootstrap/JikesPGLexersym.h; sourceTree = "<group>"; };
+		55CA8AC1133E3F3900958C2A /* optionDesc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optionDesc.cpp; path = src/optionDesc.cpp; sourceTree = "<group>"; };
+		55CA8AC2133E3F3900958C2A /* optionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optionParser.cpp; path = src/optionParser.cpp; sourceTree = "<group>"; };
+		55CA8AC3133E3F3900958C2A /* optionValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optionValues.cpp; path = src/optionValues.cpp; sourceTree = "<group>"; };
+		55CA8D44133EBA8500958C2A /* testDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = testDriver.cpp; path = bootstrap/testDriver.cpp; sourceTree = "<group>"; };
+		55CA8D49133EBAB800958C2A /* scannerTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scannerTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		55CA8D96133EC27100958C2A /* LPGKWLexer.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LPGKWLexer.gi; path = src/LPGKWLexer.gi; sourceTree = "<group>"; };
+		55CA8D97133EC27100958C2A /* LPGLexer.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LPGLexer.gi; path = src/LPGLexer.gi; sourceTree = "<group>"; };
+		55CA8D9F133EC2FB00958C2A /* LPGKWLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LPGKWLexer.cpp; path = bootstrap/LPGKWLexer.cpp; sourceTree = "<group>"; };
+		55CA8DA0133EC2FB00958C2A /* LPGKWLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGKWLexer.h; path = bootstrap/LPGKWLexer.h; sourceTree = "<group>"; };
+		55CA8DA1133EC2FB00958C2A /* LPGKWLexerprs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LPGKWLexerprs.cpp; path = bootstrap/LPGKWLexerprs.cpp; sourceTree = "<group>"; };
+		55CA8DA2133EC2FB00958C2A /* LPGKWLexerprs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGKWLexerprs.h; path = bootstrap/LPGKWLexerprs.h; sourceTree = "<group>"; };
+		55CA8DA3133EC2FB00958C2A /* LPGKWLexersym.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGKWLexersym.h; path = bootstrap/LPGKWLexersym.h; sourceTree = "<group>"; };
+		55CA8DA4133EC2FB00958C2A /* LPGLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LPGLexer.cpp; path = bootstrap/LPGLexer.cpp; sourceTree = "<group>"; };
+		55CA8DA5133EC2FB00958C2A /* LPGLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGLexer.h; path = bootstrap/LPGLexer.h; sourceTree = "<group>"; };
+		55CA8DA6133EC2FB00958C2A /* LPGLexerexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGLexerexp.h; path = bootstrap/LPGLexerexp.h; sourceTree = "<group>"; };
+		55CA8DA7133EC2FB00958C2A /* LPGLexerprs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LPGLexerprs.cpp; path = bootstrap/LPGLexerprs.cpp; sourceTree = "<group>"; };
+		55CA8DA8133EC2FB00958C2A /* LPGLexerprs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGLexerprs.h; path = bootstrap/LPGLexerprs.h; sourceTree = "<group>"; };
+		55CA8DA9133EC2FB00958C2A /* LPGLexersym.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGLexersym.h; path = bootstrap/LPGLexersym.h; sourceTree = "<group>"; };
 		55D1DECF12F6F167003658F8 /* Action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Action.cpp; path = src/Action.cpp; sourceTree = "<group>"; };
 		55D1DED012F6F167003658F8 /* base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base.cpp; path = src/base.cpp; sourceTree = "<group>"; };
 		55D1DED112F6F167003658F8 /* buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = buffer.cpp; path = src/buffer.cpp; sourceTree = "<group>"; };
@@ -182,11 +203,17 @@
 		55D1DF5012F6F185003658F8 /* XmlAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XmlAction.h; path = src/XmlAction.h; sourceTree = "<group>"; };
 		55D1DF5112F6F185003658F8 /* XmlTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XmlTable.h; path = src/XmlTable.h; sourceTree = "<group>"; };
 		55D1DF5C12F6F2B3003658F8 /* jikespg.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jikespg.g; path = src/jikespg.g; sourceTree = "<group>"; };
-		55D1DFC012F8F340003658F8 /* JikesPGLexer.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = JikesPGLexer.gi; path = src/JikesPGLexer.gi; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* lpg */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lpg; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		55CA8D47133EBAB800958C2A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8DD76F660486A84900D96B5E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -222,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				8DD76F6C0486A84900D96B5E /* lpg */,
+				55CA8D49133EBAB800958C2A /* scannerTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -229,11 +257,18 @@
 		558DF03F1325AC4D00519329 /* bootstrapped */ = {
 			isa = PBXGroup;
 			children = (
-				558DF0401325AD8E00519329 /* JikesPGLexer.h */,
-				558DF0411325AD8E00519329 /* JikesPGLexerexp.h */,
-				558DF0421325AD8E00519329 /* JikesPGLexerprs.h */,
-				558DF0431325AD8E00519329 /* JikesPGLexersym.h */,
-				558DF03D1325AC2700519329 /* JikesPGLexer.cpp */,
+				55CA8D9F133EC2FB00958C2A /* LPGKWLexer.cpp */,
+				55CA8DA0133EC2FB00958C2A /* LPGKWLexer.h */,
+				55CA8DA1133EC2FB00958C2A /* LPGKWLexerprs.cpp */,
+				55CA8DA2133EC2FB00958C2A /* LPGKWLexerprs.h */,
+				55CA8DA3133EC2FB00958C2A /* LPGKWLexersym.h */,
+				55CA8DA4133EC2FB00958C2A /* LPGLexer.cpp */,
+				55CA8DA5133EC2FB00958C2A /* LPGLexer.h */,
+				55CA8DA6133EC2FB00958C2A /* LPGLexerexp.h */,
+				55CA8DA7133EC2FB00958C2A /* LPGLexerprs.cpp */,
+				55CA8DA8133EC2FB00958C2A /* LPGLexerprs.h */,
+				55CA8DA9133EC2FB00958C2A /* LPGLexersym.h */,
+				55CA8D44133EBA8500958C2A /* testDriver.cpp */,
 			);
 			name = bootstrapped;
 			sourceTree = "<group>";
@@ -332,9 +367,10 @@
 		55D1DF5A12F6F277003658F8 /* Grammar */ = {
 			isa = PBXGroup;
 			children = (
+				55CA8D96133EC27100958C2A /* LPGKWLexer.gi */,
+				55CA8D97133EC27100958C2A /* LPGLexer.gi */,
 				558DF03F1325AC4D00519329 /* bootstrapped */,
 				55D1DF5C12F6F2B3003658F8 /* jikespg.g */,
-				55D1DFC012F8F340003658F8 /* JikesPGLexer.gi */,
 				55D1DF5B12F6F28E003658F8 /* Generated */,
 			);
 			name = Grammar;
@@ -411,6 +447,9 @@
 				55D1DEE212F6F167003658F8 /* jikespg.cpp */,
 				55D1DEE312F6F167003658F8 /* LexStream.cpp */,
 				55D1DEE612F6F167003658F8 /* option.cpp */,
+				55CA8AC1133E3F3900958C2A /* optionDesc.cpp */,
+				55CA8AC2133E3F3900958C2A /* optionParser.cpp */,
+				55CA8AC3133E3F3900958C2A /* optionValues.cpp */,
 				551D7AE0132D70D100748B79 /* options.cpp */,
 				55D1DEE712F6F167003658F8 /* parser.cpp */,
 				55D1DEE812F6F167003658F8 /* pda.cpp */,
@@ -437,6 +476,22 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		55CA8D48133EBAB800958C2A /* scannerTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55CA8D63133EBAF500958C2A /* Build configuration list for PBXNativeTarget "scannerTest" */;
+			buildPhases = (
+				55CA8D46133EBAB800958C2A /* Sources */,
+				55CA8D47133EBAB800958C2A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = scannerTest;
+			productName = scannerTest;
+			productReference = 55CA8D49133EBAB800958C2A /* scannerTest */;
+			productType = "com.apple.product-type.tool";
+		};
 		8DD76F620486A84900D96B5E /* lpg */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "lpg" */;
@@ -476,11 +531,24 @@
 			projectRoot = "";
 			targets = (
 				8DD76F620486A84900D96B5E /* lpg */,
+				55CA8D48133EBAB800958C2A /* scannerTest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		55CA8D46133EBAB800958C2A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55CA8D4F133EBAD700958C2A /* testDriver.cpp in Sources */,
+				55CA8DAA133EC2FB00958C2A /* LPGKWLexer.cpp in Sources */,
+				55CA8DAB133EC2FB00958C2A /* LPGKWLexerprs.cpp in Sources */,
+				55CA8DAC133EC2FB00958C2A /* LPGLexer.cpp in Sources */,
+				55CA8DAD133EC2FB00958C2A /* LPGLexerprs.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8DD76F640486A84900D96B5E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -526,6 +594,9 @@
 				55D1DF1D12F6F167003658F8 /* XmlAction.cpp in Sources */,
 				55D1DF1E12F6F167003658F8 /* XmlTable.cpp in Sources */,
 				551D7AE1132D70D100748B79 /* options.cpp in Sources */,
+				55CA8AC4133E3F3900958C2A /* optionDesc.cpp in Sources */,
+				55CA8AC5133E3F3900958C2A /* optionParser.cpp in Sources */,
+				55CA8AC6133E3F3900958C2A /* optionValues.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -611,6 +682,46 @@
 			};
 			name = "Release-32";
 		};
+		55CA8D4B133EBAB900958C2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "~/lpg/head/lpg.runtime.cpp";
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = scannerTest;
+			};
+			name = Debug;
+		};
+		55CA8D4C133EBAB900958C2A /* Release-64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = scannerTest;
+			};
+			name = "Release-64";
+		};
+		55CA8D4D133EBAB900958C2A /* Release-32 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = scannerTest;
+			};
+			name = "Release-32";
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -630,6 +741,16 @@
 				1DEB923608733DC60010E9CD /* Debug */,
 				1DEB923708733DC60010E9CD /* Release-64 */,
 				55792E8713185FD400D81C5D /* Release-32 */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release-64";
+		};
+		55CA8D63133EBAF500958C2A /* Build configuration list for PBXNativeTarget "scannerTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55CA8D4B133EBAB900958C2A /* Debug */,
+				55CA8D4C133EBAB900958C2A /* Release-64 */,
+				55CA8D4D133EBAB900958C2A /* Release-32 */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release-64";
