@@ -16,6 +16,14 @@ For changes to other parts of the LPG distribution, see the relevant project.
       separator character is.
     - The out-directory setting is now respected for files generated on behalf of
       included files (like lexer or keyword-lexer files).
+    - Add new precedence option which is false by default and use it (for now) to
+      prevent shift actions from being prioritized (when false). By default, when
+      there are conflicts, shift actions takes precedence over reduce actions; a
+      rule reduction by rule r1 takes precedence over a reduction bu rule r2 if
+      the right-hand side of r1 is longer than the right-hand side of r2.  If the
+      two right-hand sides have the same length then one of the rules is picked
+      at random. [PLEASE NOTE: This option is not presently user-modifiable, since
+      it is only partially implemented.]
 
 2.0.21:
     - Now expands the file name and line number macros relative to the source file
