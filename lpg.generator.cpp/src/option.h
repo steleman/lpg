@@ -116,6 +116,7 @@ public:
          error_maps,
          debug,
          parent_saved,
+         precedence,
          scopes,
          serialize,
          soft_keywords,

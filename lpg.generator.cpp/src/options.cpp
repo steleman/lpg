@@ -268,6 +268,10 @@ OptionDescriptor *parentSaved = new BooleanOptionDescriptor("parent", "saved", "
 OptionDescriptor *parseTableInterfaces = new StringOptionDescriptor("parsetable", "interfaces", "???",
                                                                     &Option::parsetable_interfaces, false);
 
+OptionDescriptor *precedence = new BooleanOptionDescriptor("precedence", NULL,
+                                                           "if true, allow conflicting actions to be ordered",
+                                                           &Option::precedence, false);
+
 OptionDescriptor *prefix = new StringOptionDescriptor("prefix", NULL, "???",
                                                       &Option::prefix, true);
 

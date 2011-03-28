@@ -454,6 +454,13 @@ int Resolve::ComputeReducePriority(int state_no, int item_no, int conflict_symbo
 //
 int Resolve::ComputeShiftPriority(int state_no, int action, int conflict_symbol)
 {
+    //
+    // Process priority for shift action only if the precedence option is in effect. Otherwise, give 
+    // shift actions the highest priority.
+    //
+    if (! option -> precedence)
+        return 0;
+
     Tuple<int>state_list;
     lalr_priority.Resize(pda -> la_top + 1);
     lalr_priority.Initialize(Util::OMEGA);
