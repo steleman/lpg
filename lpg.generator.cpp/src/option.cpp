@@ -52,6 +52,7 @@ Option::Option(int argc_, const char **argv_)
     error_maps = false;
     debug = false;
     parent_saved = false;
+    precedence = false;
     scopes = false;
     serialize = false;
     soft_keywords = false;
