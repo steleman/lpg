@@ -89,7 +89,6 @@ public:
     }
 
 protected:
-
     SymbolKind kind;
     char *name;
     int length,
@@ -103,8 +102,6 @@ class VariableSymbol : public Symbol
 {
 public:
 
-    virtual char *Name()   { return name; }
-    virtual size_t NameLength() { return length; }
     int SymbolIndex() { return symbol_index; }
     void SetSymbolIndex(int index_) { symbol_index = index_; }
     int NameIndex() { return name_index; }
@@ -122,7 +119,6 @@ public:
     {}
 
 private:
-
     int symbol_index,
         name_index;
 };
@@ -131,9 +127,6 @@ private:
 class RuleSymbol : public Symbol
 {
 public:
-    virtual char *Name() { return name; }
-    virtual size_t NameLength() { return length; }
-
     Tuple<int> &Rules() { return rules; }
     void AddRule(int rule_no) { rules.Next() = rule_no; }
 
@@ -151,9 +144,6 @@ private:
 class MacroSymbol : public Symbol
 {
 public:
-    virtual char *Name()   { return name; }
-    virtual size_t NameLength() { return length; }
-
     int Block() { return block; }
     void SetBlock(int block_) { block = block_; }
 
@@ -170,7 +160,6 @@ public:
     {}
 
 private:
-
     int block;
     bool in_use;
 };
@@ -179,9 +168,6 @@ private:
 class SimpleMacroSymbol : public Symbol
 {
 public:
-    virtual char *Name() { return name; }
-    virtual size_t NameLength() { return length; }
-
     char *Value() { return value; }
     void SetValue(const char *value_) { value = new char[strlen(value_) + 1]; strcpy(value, value_); }
 
@@ -210,9 +196,6 @@ private:
 class InputFileSymbol : public Symbol
 {
 public:
-    virtual char *Name() { return name; }
-    virtual size_t NameLength() { return length; }
-
     InputFileSymbol(const char *name_,
                     int length_,
                     int pool_index_,
@@ -233,50 +216,7 @@ public:
     void Unlock()   { locked = false; }
     bool IsLocked() { return locked; }
 
-    void ReadInput()
-    {
-        if (buffer) // file already read in
-            return;
-
-        char *filename = Name();
-        struct stat status;
-        stat(filename, &status);
-
-        FILE *srcfile = fopen(filename, "rb");
-        if (srcfile != NULL)
-        {
-            buffer = new char[status.st_size + 4];
-            size_t file_size = fread(buffer + 1, sizeof(char), status.st_size, srcfile);
-            fclose(srcfile);
-            int mark_size = ByteOrderMarkSize(buffer + 1);
-            if (mark_size > 0)
-                strncpy(buffer, buffer + 1, mark_size);
-            buffer[mark_size] = '\n';
-            buffer_start = buffer + mark_size;
-
-            char *source_tail = &(buffer[file_size]); // point to last character read from the file.
-            //
-            // Remove all trailing spaces
-            //
-            while((source_tail > buffer_start) && Code::IsSpace(*source_tail))
-                source_tail--;
-
-            //
-            // If the very last character is not CTL_Z then add CTL_Z
-            //
-            if (*source_tail != Code::CTL_Z)
-            {
-                if (*source_tail != Code::LINE_FEED)
-                    *(++source_tail) = Code::LINE_FEED; // if the last character is not end-of-line, add end-of-line
-                *(++source_tail) = Code::CTL_Z;         // Mark end-of-file
-            }
-            *(++source_tail) = Code::NULL_CHAR; // add gate
-
-            buffer_length = source_tail - buffer_start;
-        }
-
-        return;
-    }
+    void ReadInput();
 
     Tuple<unsigned> &LineLocation() { return line_location; }
     Tuple<unsigned> *LineLocationReference() { return &line_location; }
@@ -285,7 +225,6 @@ public:
     int BufferLength() { return buffer_length; }
 
 private:
-
     Tuple<unsigned> line_location;
     bool locked;
     char *buffer,
@@ -310,9 +249,6 @@ private:
 class ActionFileSymbol : public Symbol
 {
 public:
-    virtual char *Name()   { return name; }
-    virtual size_t NameLength() { return length; }
-
     ActionFileSymbol(const char *name_,
                      int length_,
                      int pool_index_,
@@ -330,29 +266,7 @@ public:
 
     virtual ~ActionFileSymbol() {}
 
-    void Flush()
-    {
-        if (file) // not the null file?
-        {
-            initial_headers.Flush(file);
-            {
-                for (int i = 0; i < headers.Length(); i++)
-                    headers[i].Flush(file);
-            }
-            body.Flush(file);
-            {
-                for (int i = 0; i < trailers.Length(); i++)
-                    trailers[i].Flush(file);
-            }
-            final_trailers.Flush(file);
-
-            fprintf(file, "\n");
-            fclose (file);
-            file = NULL;
-        }
-
-        return;
-    }
+    void Flush();
 
     void SetBlock(BlockSymbol *block_)
     {
@@ -369,7 +283,6 @@ public:
     TextBuffer &GetNextTrailerBuffer() { return trailers.Next(); }
 
 private:
-
     BlockSymbol *block;
 
     TextBuffer initial_headers,
@@ -393,9 +306,6 @@ public:
         TRAILER_BLOCK
     };
 
-    virtual char *Name()   { return name; }
-    virtual size_t NameLength() { return length; }
-
     BlockSymbol(const char *block_begin_,
                 int block_begin_length_,
                 int pool_index_,
@@ -414,6 +324,7 @@ public:
     char *BlockBegin() { return name; }
     int BlockBeginLength() { return length; }
 
+    // TODO Rename these methods and the field - they shadow the base class field/method
     void SetKind(int kind_) { kind = kind_; }
     int Kind() { return kind; }
 
