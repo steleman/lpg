@@ -9,6 +9,7 @@
 #include "options.h"
 
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -219,13 +220,13 @@ IntegerOptionDescriptor::getTypeDescriptor() const
     std::string result;
     
     result += "int";
-    
-    if (this->minValue != INT_MIN && this->maxValue == INT_MAX) {
+
+    if (this->minValue != std::numeric_limits<int>::min() && this->maxValue == std::numeric_limits<int>::max()) {
         IntToString minStr(this->minValue);
         result += "[ >= ";
         result += minStr.String();
         result += "]";
-    } else if (this->minValue == INT_MIN && this->maxValue != INT_MAX) {
+    } else if (this->minValue == std::numeric_limits<int>::min() && this->maxValue != std::numeric_limits<int>::max()) {
         IntToString maxStr(this->maxValue);
         result += "[ <= ";
         result += maxStr.String();
