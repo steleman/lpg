@@ -216,7 +216,7 @@ PathListOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(Valu
     // Split string at semicolons
     const char *pStart = v->c_str();
     do {
-        char *pEnd = strchr(pStart, ';');
+        const char *pEnd = strchr(pStart, ';');
         std::string *val;
         
         if (pEnd == NULL) {
