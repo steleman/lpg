@@ -3,6 +3,7 @@
 #include "JavaAction.h"
 
 #include <map>
+#include <string>
 
 //
 //
