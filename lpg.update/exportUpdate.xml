@@ -99,17 +99,17 @@
         <property name="lpg.runtime.bin" value="../lpg.runtime.java"/>
         <mkdir dir="${release.dir}"/>
         <zip destfile="${release.dir}/lpg-generator-cpp-src-${lpg.runtime.version}.zip" update="true">
-            <fileset dir="${lpg.gen.src}" includes="src/*.cpp,src/*.h,src/Make*,src/jikespg.g,.project" excludes="bin/*,src/*.o"/>
+            <fileset dir="${lpg.gen.src}" includes="src/*.cpp,src/*.h,src/Make*,src/jikespg.g,.project,RELEASE_NOTES.txt" excludes="bin/*,src/*.o"/>
         </zip>
         <zip destfile="${release.dir}/lpg-generator-templates-${lpg.runtime.version}.zip" update="true">
-            <fileset dir="${lpg.gen}" includes="templates/java/**/*.g*,include/java/**/*.g*,docs/*"/>
+            <fileset dir="${lpg.gen}" includes="templates/java/**/*.g*,include/java/**/*.g*,docs/*,RELEASE_NOTES.txt"/>
         </zip>
         <jar destfile="${release.dir}/lpg-java-runtime-bin-${lpg.runtime.version}.jar" update="true">
             <fileset dir="${lpg.runtime.bin}/bin" includes="**/*.class,**/*.properties"/>
             <fileset dir="${lpg.runtime.bin}" includes="META-INF/*"/>
         </jar>
         <zip destfile="${release.dir}/lpg-java-runtime-src-${lpg.runtime.version}.zip" update="true">
-            <fileset dir="${lpg.runtime.bin}" includes="src/**/*.java,src/**/*.properties,.project,.classpath,META-INF/*,*.xml,*.htm"/>
+            <fileset dir="${lpg.runtime.bin}" includes="src/**/*.java,src/**/*.properties,.project,.classpath,META-INF/*,*.xml,*.htm,RELEASE_NOTES.txt"/>
         </zip>
 
         <for param="platform" values="${generator.platforms}" separator=",">
