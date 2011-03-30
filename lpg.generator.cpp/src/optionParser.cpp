@@ -22,8 +22,8 @@ OptionParser::IsDelimiter(char c)
 OptionDescriptor *
 OptionParser::findOption(const char *&start, bool& flag)
 {
-    for (std::list<OptionDescriptor*>::iterator i=allOptions.begin(); i != allOptions.end(); i++) {
-        OptionDescriptor *od = *i;
+    for (std::list<OptionDescriptor*>::iterator iter=allOptions.begin(); iter != allOptions.end(); iter++) {
+        OptionDescriptor *od = *iter;
         const char *p = start;
         const char *word1 = od->getWord1();
         const char *word2 = od->getWord2();
