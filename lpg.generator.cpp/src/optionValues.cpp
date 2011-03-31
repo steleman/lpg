@@ -99,42 +99,40 @@ EnumOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFor
 {
     EnumOptionDescriptor *eod = static_cast<EnumOptionDescriptor*> (od);
     
-    std::list<std::string> legalValues = eod->getLegalValues();
+    std::list<EnumValue*> legalValues = eod->getLegalValues();
 
     if (v == NULL) {
         value = eod->getDefaultValue();
         return;
-//      throw ValueFormatException("Missing enum value", od);
     }
     
     int endIdx = v->find_first_of(',');
     
     std::string enumValue = v->substr(0, endIdx);
-    
-    
+
     // Check that the given value is one of the allowed values
     bool found = false;
-    for (std::list<std::string>::iterator i = legalValues.begin(); i != legalValues.end(); i++) {
-        if (!(*i).compare(enumValue)) {
+    for (EnumOptionDescriptor::EnumValueList::iterator i = legalValues.begin(); i != legalValues.end(); i++) {
+        if (!enumValue.compare((*i)->first())) {
             found = true;
-            break;
+            value = *v;
+            return;
         }
     }
     if (!found) {
         // TODO say what are the legal values
         std::string msg;
         msg.append("Legal values are: {");
-        for (std::list<std::string>::iterator i = legalValues.begin(); i != legalValues.end(); i++) {
+        for (EnumOptionDescriptor::EnumValueList::iterator i = legalValues.begin(); i != legalValues.end(); i++) {
             if (i != legalValues.begin()) {
                 msg.append(" |");
             }
             msg.append(" ");
-            msg.append(*i);
+            msg.append((*i)->first());
         }        
         msg.append(" }");
         throw ValueFormatException(msg, *v, od);
     }
-    value = *v;
 }
 
 void

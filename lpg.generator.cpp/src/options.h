@@ -39,22 +39,15 @@ public:
     typedef void (OptionProcessor::*ValueHandler)(OptionValue *);
 
     OptionProcessor(Option *);
-    
+
     void processActionBlock(OptionValue *v);
-    void processAutomaticAST(OptionValue *v);
     void processExportTerminals(OptionValue *v);
     void processFilter(OptionValue *v);
     void processIgnoreBlock(OptionValue *v);
     void processImportTerminals(OptionValue *v);
     void processIncludeDir(OptionValue *v);
-    void processNames(OptionValue *v);
-    void processProgrammingLanguage(OptionValue *v);
-    void processRuleClassNames(OptionValue *v);
     void processTable(OptionValue *v);
-    void processTrace(OptionValue *v);
     void processTrailers(OptionValue *v);
-    void processVariables(OptionValue *v);
-    void processVisitor(OptionValue *v);
 
     Option *getOptions() const { return options; }
 
@@ -155,25 +148,43 @@ private:
     OptionProcessor::CharValueField charField;
 };
 
-class EnumOptionDescriptor : public OptionDescriptor {
+template<class F, class S>
+class Pair {
 public:
-    EnumOptionDescriptor(const char *word1, const char *enumValues, OptionProcessor::ValueHandler handler);
-    EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues, OptionProcessor::ValueHandler handler);
-    EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues,
-                         const char *descrip, OptionProcessor::ValueHandler handler);
-    EnumOptionDescriptor(const char *word1, const char *word2, const char *enumValues,
-                         const char *defValue, const char *descrip, OptionProcessor::ValueHandler handler);
-    
-    const std::list<std::string>& getLegalValues() const { return legalValues; }
-    const char *getDefaultValue() const { return defaultValue; }
-    
-    std::string getTypeDescriptor() const;
+    Pair(F fst, S snd) : _first(fst), _second(snd) { }
+
+    F first() const { return _first; }
+    S second() const { return _second; }
 
 private:
-    void setupEnumValues(const char *);
+    F _first;
+    S _second;
+};
 
-    std::list<std::string> legalValues;
-    const char *defaultValue;
+typedef Pair<const char *, int> EnumValue;
+
+class EnumOptionDescriptor : public OptionDescriptor {
+public:
+    typedef std::list<EnumValue*> EnumValueList;
+
+    EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::ValueHandler handler,
+                         const char *defValue, EnumValue *value, ...);
+    EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::IntegerValueField field,
+                         const char *defValue, EnumValue *value, ...);
+
+    const EnumValueList& getLegalValues() const { return legalValues; }
+    const std::string& getDefaultValue() const { return defaultValue; }
+
+    std::string getTypeDescriptor() const;
+
+    void processSetting(OptionProcessor *, OptionValue *);
+
+private:
+    EnumValue *findEnumByName(const std::string& name);
+
+    EnumValueList legalValues;
+    OptionProcessor::IntegerValueField intField;
+    const std::string defaultValue;
 };
 
 class PathOptionDescriptor : public StringOptionDescriptor {

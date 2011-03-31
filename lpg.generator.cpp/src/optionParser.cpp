@@ -111,6 +111,8 @@ OptionParser::parse(const char *&start) throw(ValueFormatException)
         OptionValue *optValue = od->createValue();
 
         optValue->parseValue(optValueStr, od);
+
+        // HACK Handle the "no" prefix on boolean options
         if (od->getType() == BOOLEAN && !noFlag) {
             BooleanOptionValue *bv = static_cast<BooleanOptionValue*> (optValue);
             bv->setValue(!bv->getValue());

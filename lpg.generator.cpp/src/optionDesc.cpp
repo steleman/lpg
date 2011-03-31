@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <limits>
+#include <cstdarg>
 
 using namespace std;
 
@@ -70,12 +71,20 @@ OptionDescriptor::getTypeDescriptor() const
             result += "boolean";
             break;
         }
+        case CHAR: {
+            result += "char";
+            break;
+        }
         case STRING: {
             result += "string";
             break;
         }
         case STRING_LIST: {
             result += "string_list";
+            break;
+        }
+        case ENUM: {
+            result += "enum";
             break;
         }
         case PATH: {
@@ -98,20 +107,22 @@ std::string
 OptionDescriptor::describeAllOptions()
 {
     std::string result;
-    
+
+    result += "Options:\n";
+    result += "========\n\n";
     for (std::list<OptionDescriptor*>::iterator i= allOptionDescriptors.begin(); i != allOptionDescriptors.end(); i++) {
         OptionDescriptor *od = *i;
-        result += "  ";
+        result += "  -";
         result += od->getName();
         if (od->isValueOptional()) {
-            result += "{";
+            result += "[";
         }
         result += "=";
         result += od->getTypeDescriptor();
         if (od->isValueOptional()) {
-            result += "}";
+            result += "]";
         }
-        if (od->getDescription() != NULL) {
+        if (od->getDescription() != NULL && strcmp(od->getDescription(), "???")) {
             result += "\n    ";
             result += od->getDescription();
         }
@@ -307,71 +318,97 @@ PathOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
     // TODO Verify that path exists?
 }
 
-EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *enumValues, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(ENUM, wd1, handler, false), defaultValue(NULL)
+EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+                                           OptionProcessor::IntegerValueField field, const char *defValue,
+                                           EnumValue * value, ...)
+: OptionDescriptor(ENUM, word1, word2, descrip, false), intField(field), defaultValue(defValue)
 {
     setupName();
-    setupEnumValues(enumValues);
+    // set up values list from varargs param
+    va_list ap;
+    va_start(ap, value);
+    for (EnumValue *v=value; v != NULL; v = va_arg(ap, EnumValue*)) {
+        legalValues.push_back(v);
+    }
+    va_end(ap);
+//    cerr << "values for " << getName() << ":" << endl;
+//    for (EnumValueList::const_iterator it = legalValues.begin(); it != legalValues.end(); it++) {
+//        EnumValue *ev = *it;
+//        cerr << "  " << ev->first() << endl;
+//    }
 }
 
-EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *wd2, const char *enumValues, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(ENUM, wd1, wd2, handler, false), defaultValue(NULL)
+EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+                                           OptionProcessor::ValueHandler handler, const char *defValue,
+                                           EnumValue *value, ...)
+: OptionDescriptor(ENUM, word1, word2, descrip, handler, false), intField(NULL), defaultValue(defValue)
 {
     setupName();
-    setupEnumValues(enumValues);
-}
-
-EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *wd2, const char *enumValues,
-                                           const char *descrip, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(ENUM, wd1, wd2, descrip, handler, false), defaultValue(NULL)
-{
-    setupName();
-    setupEnumValues(enumValues);
-}
-
-EnumOptionDescriptor::EnumOptionDescriptor(const char *wd1, const char *wd2, const char *enumValues, const char *defValue,
-                                           const char *descrip, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(ENUM, wd1, wd2, descrip, handler, false), defaultValue(defValue)
-{
-    setupName();
-    setupEnumValues(enumValues);
-}
-
-void
-EnumOptionDescriptor::setupEnumValues(const char *enumValues)
-{
-    char *copy = new char[strlen(enumValues)+1];
-    strcpy(copy, enumValues);
-    char *pStart = copy;
-    do {
-        char *pEnd = strchr(pStart, '|');
-        std::string *val;
-        
-        if (pEnd == NULL) {
-            val = new std::string(pStart);
-            pStart = pEnd;
-        } else {
-            val = new std::string(pStart, pEnd - pStart);
-            pStart = pEnd+1;
-        }
-        
-        legalValues.push_back(*val);
-        delete val;
-    } while (pStart != NULL);
-    delete[] copy;
+    // set up values list from varargs param
+    va_list ap;
+    va_start(ap, value);
+    for (EnumValue *v=value; v != NULL; v = va_arg(ap, EnumValue*)) {
+        legalValues.push_back(v);
+    }
+    va_end(ap);
+//    cerr << "values for " << getName() << ":" << endl;
+//    for (EnumValueList::const_iterator it = legalValues.begin(); it != legalValues.end(); it++) {
+//        EnumValue *ev = *it;
+//        cerr << "  " << ev->first() << endl;
+//    }
 }
 
 std::string
 EnumOptionDescriptor::getTypeDescriptor() const
 {
     std::string result;
-    const std::list<std::string>& legalValues = getLegalValues();
+    const std::list<EnumValue*>& legalValues = getLegalValues();
     
-    for (std::list<std::string>::const_iterator i= legalValues.begin(); i != legalValues.end(); i++) {
+    for (EnumValueList::const_iterator i= legalValues.begin(); i != legalValues.end(); i++) {
         if (i != legalValues.begin()) {
             result += " | ";
         }
-        result += *i;
+        result += (*i)->first();
     }
     return result;
+}
+
+EnumValue *
+EnumOptionDescriptor::findEnumByName(const std::string& nm)
+{
+    if (nm.length() == 0) {
+        if (defaultValue.length() > 0) {
+            return findEnumByName(defaultValue);
+        }
+    }
+    for (EnumValueList::const_iterator iter = legalValues.begin(); iter != legalValues.end(); iter++) {
+        EnumValue *ev = *iter;
+        const char *eName = ev->first();
+
+        if (!nm.compare(eName)) {
+            return ev;
+        }
+    }
+    return NULL;
+}
+
+void
+EnumOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *value)
+{
+    EnumOptionValue *ev = static_cast<EnumOptionValue*>(value);
+
+    EnumValue *val = findEnumByName(ev->getValue());
+
+    if (val != NULL) {
+        int intValue = val->second();
+
+        if (intField != 0) {
+//          cerr << "int field ptr = " << (&(processor->getOptions()->*intField)) << endl;
+            processor->getOptions()->*intField = intValue;
+        } else {
+            OptionDescriptor::processSetting(processor, value);
+        }
+    } else {
+        OptionDescriptor::processSetting(processor, value);
+    }
 }

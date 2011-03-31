@@ -60,30 +60,22 @@ OptionDescriptor *astType = new StringOptionDescriptor("ast", "type", "the name 
 
 OptionDescriptor *attributes = new BooleanOptionDescriptor("attributes", NULL, "???", &Option::attributes);
 
-OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast", "none|nested|toplevel", "nested",
+OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast", 
                                                           "determines where generated AST classes will be placed",
-                                                          &OptionProcessor::processAutomaticAST);
-
-void
-OptionProcessor::processAutomaticAST(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    
-    if (!ev->getValue().compare("nested")) {
-        options->automatic_ast = Option::NESTED;
-    } else if (!ev->getValue().compare("toplevel")) {
-        options->automatic_ast = Option::TOPLEVEL;
-    } else {
-        options->automatic_ast = Option::NONE;
-    }
-}
+                                                          &Option::automatic_ast, "nested",
+                                                          new EnumValue("none", Option::NONE),
+                                                          new EnumValue("nested", Option::NESTED),
+                                                          new EnumValue("toplevel", Option::TOPLEVEL), NULL);
 
 OptionDescriptor *backtrack = new BooleanOptionDescriptor("backtrack", NULL, "???",
                                                           &Option::backtrack);
+
 OptionDescriptor *byte = new BooleanOptionDescriptor("byte", NULL, "???",
                                                      &Option::byte);
+
 OptionDescriptor *conflicts = new BooleanOptionDescriptor("conflicts", NULL, "???",
                                                           &Option::conflicts);
+
 OptionDescriptor *dataDirectory = new PathOptionDescriptor("dat", "directory", "???",
                                                        &Option::dat_directory);
 
@@ -235,22 +227,10 @@ OptionDescriptor *maxCases = new IntegerOptionDescriptor("max", "cases", 1, INT_
                                                          "???",
                                                          &Option::max_cases);
 
-OptionDescriptor *names = new EnumOptionDescriptor("names", "optimized|minimum|maximum", &OptionProcessor::processNames);
-
-void
-OptionProcessor::processNames(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    std::string value = ev->getValue();
-
-    if (!value.compare("optimized")) {
-        options->names = Option::OPTIMIZED;
-    } else if (!value.compare("minimum")) {
-        options->names = Option::MINIMUM;
-    } else if (!value.compare("maximum")) {
-        options->names = Option::MAXIMUM;
-    }
-}
+OptionDescriptor *names = new EnumOptionDescriptor("names", NULL, "???", &Option::names, "optimized",
+                                                   new EnumValue("optimized", Option::OPTIMIZED),
+                                                   new EnumValue("minimum", Option::MINIMUM),
+                                                   new EnumValue("maximum", Option::MAXIMUM), NULL);
 
 OptionDescriptor *ntCheck = new BooleanOptionDescriptor("nt", "check", "???", &Option::nt_check);
 
@@ -278,31 +258,17 @@ OptionDescriptor *prefix = new StringOptionDescriptor("prefix", NULL, "???",
 OptionDescriptor *priority = new BooleanOptionDescriptor("priority", NULL, "???",
                                                          &Option::priority);
 
-OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "language", "c|cpp|c++|java|ml|plx|plxasm|xml",
+OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "language",
                                                              "identifies the desired parser implementation language",
-                                                             &OptionProcessor::processProgrammingLanguage);
-void
-OptionProcessor::processProgrammingLanguage(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    std::string value = ev->getValue();
-    
-    if (!value.compare("c")) {
-        options->programming_language = Option::C;
-    } else if (!value.compare("cpp") || !value.compare("c++")) {
-        options->programming_language = Option::CPP;
-    } else if (!value.compare("java")) {
-        options->programming_language = Option::JAVA;
-    } else if (!value.compare("ml")) {
-        options->programming_language = Option::ML;
-    } else if (!value.compare("plx")) {
-        options->programming_language = Option::PLX;
-    } else if (!value.compare("plxasm")) {
-        options->programming_language = Option::PLXASM;
-    } else if (!value.compare("xml")) {
-        options->programming_language = Option::XML;
-    }
-}
+                                                             &Option::programming_language, "xml",
+                                                             new EnumValue("c", Option::C),
+                                                             new EnumValue("cpp", Option::CPP),
+                                                             new EnumValue("c++", Option::CPP),
+                                                             new EnumValue("java", Option::JAVA),
+                                                             new EnumValue("ml", Option::ML),
+                                                             new EnumValue("plx", Option::PLX),
+                                                             new EnumValue("plxasm", Option::PLXASM),
+                                                             new EnumValue("xml", Option::XML), NULL);
 
 OptionDescriptor *prsFile = new StringOptionDescriptor("prs", "file", "???",
                                                        &Option::prs_file, false);
@@ -319,21 +285,11 @@ OptionDescriptor *remapTerminals = new BooleanOptionDescriptor("remap", "termina
                                                                "???",
                                                                &Option::remap_terminals);
 
-OptionDescriptor *ruleClassNames = new EnumOptionDescriptor("rule", "classnames", "sequential|stable",
-                                                            "???",
-                                                            &OptionProcessor::processRuleClassNames);
-void
-OptionProcessor::processRuleClassNames(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    std::string value = ev->getValue();
-    
-    if (!value.compare("sequential")) {
-        options->rule_classnames = Option::SEQUENTIAL;
-    } else if (!value.compare("stable")) {
-        options->rule_classnames = Option::STABLE;
-    }
-}
+OptionDescriptor *ruleClassNames = new EnumOptionDescriptor("rule", "classnames", "???",
+                                                            &Option::rule_classnames,
+                                                            "stable",
+                                                            new EnumValue("sequential", Option::SEQUENTIAL),
+                                                            new EnumValue("stable", Option::STABLE), NULL);
 
 OptionDescriptor *scopes = new BooleanOptionDescriptor("scopes", NULL,
                                                        "???",
@@ -372,9 +328,18 @@ OptionDescriptor *symFile = new StringOptionDescriptor("sym", "file", "???",
 OptionDescriptor *tabFile = new StringOptionDescriptor("tab", "file", "???",
                                                        &Option::tab_file, false);
 
-OptionDescriptor *table = new EnumOptionDescriptor("table", NULL, "c|cpp|c++|java|ml|plx|plxasm|xml",
-                                                      "???",
-                                                      &OptionProcessor::processTable);
+OptionDescriptor *table = new EnumOptionDescriptor("table", NULL, "???",
+                                                   &OptionProcessor::processTable,
+                                                   "",
+                                                   new EnumValue("c", Option::C),
+                                                   new EnumValue("cpp", Option::CPP),
+                                                   new EnumValue("c++", Option::CPP),
+                                                   new EnumValue("java", Option::JAVA),
+                                                   new EnumValue("ml", Option::ML),
+                                                   new EnumValue("none", Option::XML),
+                                                   new EnumValue("plx", Option::PLX),
+                                                   new EnumValue("plxasm", Option::PLXASM),
+                                                   new EnumValue("xml", Option::XML), NULL);
 void
 OptionProcessor::processTable(OptionValue *v)
 {
@@ -384,41 +349,34 @@ OptionProcessor::processTable(OptionValue *v)
     if (!value.compare("none")) {
         options->table = false;
         options->programming_language = Option::XML;
-    } else if (!value.compare("c")) {
-        options->programming_language = Option::C;
-    } else if (!value.compare("cpp") || !value.compare("c++")) {
-        options->programming_language = Option::CPP;
-    } else if (!value.compare("java")) {
-        options->programming_language = Option::JAVA;
-    } else if (!value.compare("ml")) {
-        options->programming_language = Option::ML;
-    } else if (!value.compare("plx")) {
-        options->programming_language = Option::PLX;
-    } else if (!value.compare("plxasm")) {
-        options->programming_language = Option::PLXASM;
-    } else if (!value.compare("xml")) {
-        options->programming_language = Option::XML;
+    } else {
+        if (!value.compare("c")) {
+            options->programming_language = Option::C;
+        } else if (!value.compare("cpp") || !value.compare("c++")) {
+            options->programming_language = Option::CPP;
+        } else if (!value.compare("java")) {
+            options->programming_language = Option::JAVA;
+        } else if (!value.compare("ml")) {
+            options->programming_language = Option::ML;
+        } else if (!value.compare("plx")) {
+            options->programming_language = Option::PLX;
+        } else if (!value.compare("plxasm")) {
+            options->programming_language = Option::PLXASM;
+        } else if (!value.compare("xml")) {
+            options->programming_language = Option::XML;
+        }
+        options->table = true;
     }
 }
 
 OptionDescriptor *template_ = new StringOptionDescriptor("template", NULL, "???",
                                                          &Option::template_name, false);
 
-OptionDescriptor *trace = new EnumOptionDescriptor("trace", NULL, "conflicts|full",
-                                                   "???",
-                                                   &OptionProcessor::processTrace);
-void
-OptionProcessor::processTrace(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    std::string value = ev->getValue();
-    
-    if (!value.compare("conflicts")) {
-        options->trace = Option::CONFLICTS;
-    } else if (!value.compare("full")) {
-        options->trace = Option::FULL;
-    }
-}
+OptionDescriptor *trace = new EnumOptionDescriptor("trace", NULL, "???",
+                                                   &Option::trace,
+                                                   "conflicts",
+                                                   new EnumValue("conflicts", Option::CONFLICTS),
+                                                   new EnumValue("full", Option::FULL), NULL);
 
 OptionDescriptor *trailers = new OptionDescriptor(STRING_LIST, "trailers", NULL, "???",
                                                   &OptionProcessor::processTrailers);
@@ -437,47 +395,27 @@ OptionProcessor::processTrailers(OptionValue *v)
     options->trailer_options.Next().Set(NULL, filename, block_begin, block_end);
 }
 
-OptionDescriptor *variables = new EnumOptionDescriptor("variables", "", "none|both|terminals|nt|nonterminals|non-terminals",
+OptionDescriptor *variables = new EnumOptionDescriptor("variables", NULL,
                                                        "determines the set of right-hand side symbols for which local variables will be defined within action blocks",
-                                                       &OptionProcessor::processVariables);
-void
-OptionProcessor::processVariables(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    std::string value = ev->getValue();
-    
-    if (!value.compare("none")) {
-        options->variables = Option::NONE;
-    } else if (!value.compare("both")) {
-        options->variables = Option::BOTH;
-    } else if (!value.compare("terminals")) {
-        options->variables = Option::TERMINALS;
-    } else if (!value.compare("nonterminals") || !value.compare("non_terminals") || !value.compare("nt")) {
-        options->variables = Option::NON_TERMINALS;
-    }
-}
+                                                       &Option::variables,
+                                                       "none",
+                                                       new EnumValue("none", Option::NONE),
+                                                       new EnumValue("both", Option::BOTH),
+                                                       new EnumValue("terminals", Option::TERMINALS),
+                                                       new EnumValue("nt", Option::NON_TERMINALS),
+                                                       new EnumValue("nonterminals", Option::NON_TERMINALS),
+                                                       new EnumValue("non-terminals", Option::NON_TERMINALS), NULL);
 
 OptionDescriptor *verbose = new BooleanOptionDescriptor("verbose", NULL,
                                                         "???",
                                                         &Option::verbose);
 
-OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", NULL, "none|default|preorder",
-                                                     "???",
-                                                     &OptionProcessor::processVisitor);
-void
-OptionProcessor::processVisitor(OptionValue *v)
-{
-    EnumOptionValue *ev = static_cast<EnumOptionValue*> (v);
-    std::string value = ev->getValue();
-    
-    if (!value.compare("none")) {
-        options->visitor = Option::NONE;
-    } else if (!value.compare("default")) {
-        options->visitor = Option::DEFAULT;
-    } else if (!value.compare("preorder")) {
-        options->visitor = Option::PREORDER;
-    }
-}
+OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", NULL, "???",
+                                                     &Option::visitor,
+                                                     "none",
+                                                     new EnumValue("none", Option::NONE),
+                                                     new EnumValue("default", Option::DEFAULT),
+                                                     new EnumValue("preorder", Option::PREORDER), NULL);
 
 OptionDescriptor *visitorType = new StringOptionDescriptor("visitor", "type", "???",
                                                            &Option::visitor_type, false);
