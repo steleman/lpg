@@ -3514,6 +3514,8 @@ void Option::PrintOptionsInEffect()
 //
 void Option::PrintOptionsList(void)
 {
+//  cout << OptionDescriptor::describeAllOptions();
+
     cout << "\n"
          << Control::HEADER_INFO
          <<    "\n(C) Copyright IBM Corp. 1984, 2006.\n"
