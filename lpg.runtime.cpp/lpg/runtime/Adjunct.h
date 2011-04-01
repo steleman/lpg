@@ -1,5 +1,5 @@
-#ifndef ADJUNCT_INCLUDED
-#define ADJUNCT_INCLUDED
+#ifndef LPG_RUNTIME_ADJUNCT_H
+#define LPG_RUNTIME_ADJUNCT_H
 
 #include "Token.h"
 
@@ -15,5 +15,4 @@ public:
         tokenIndex = idx;
     }
 };
-
 #endif

@@ -1,5 +1,5 @@
-#ifndef LPG_RUNTIME_STACKS_INCLUDED
-#define LPG_RUNTIME_STACKS_INCLUDED
+#ifndef LPG_RUNTIME_STACKS_H
+#define LPG_RUNTIME_STACKS_H
 
 #include <limits.h>
 #include <iostream>

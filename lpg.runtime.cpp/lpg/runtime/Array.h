@@ -1,5 +1,5 @@
-#ifndef ARRAY_INCLUDED
-#define ARRAY_INCLUDED
+#ifndef LPG_RUNTIME_ARRAY_H
+#define LPG_RUNTIME_ARRAY_H
 
 #include <string.h>
 #include <stdlib.h>
@@ -125,5 +125,4 @@ public:
         return info[i];
     }
 };
-
 #endif

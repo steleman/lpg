@@ -1,5 +1,5 @@
-#ifndef LPG_RUNTIME_DETERMINISTIC_PARSER_INCLUDED
-#define LPG_RUNTIME_DETERMINISTIC_PARSER_INCLUDED
+#ifndef LPG_RUNTIME_DETERMINISTIC_PARSER_H
+#define LPG_RUNTIME_DETERMINISTIC_PARSER_H
 
 #include "Stacks.h"
 
@@ -126,5 +126,4 @@ public:
                 : tokStream_->getPrevious(getToken(i + 1)));
     }
 };
-
 #endif

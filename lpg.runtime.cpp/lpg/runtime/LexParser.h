@@ -1,5 +1,5 @@
-#ifndef LEXPARSER_INCLUDED
-#define LEXPARSER_INCLUDED
+#ifndef LPG_RUNTIME_LEXPARSER_H
+#define LPG_RUNTIME_LEXPARSER_H
 
 #include <limits.h>
 

@@ -1,5 +1,5 @@
-#ifndef LPG_RUNTIME_TOKEN_INCLUDED
-#define LPG_RUNTIME_TOKEN_INCLUDED
+#ifndef LPG_RUNTIME_TOKEN_H
+#define LPG_RUNTIME_TOKEN_H
 
 #include <stdio.h>
 #include <string.h>
@@ -48,5 +48,4 @@ private:
     char*        yytext_;
     int          kind_, startOffset_, endOffset_;
 };
-
 #endif
