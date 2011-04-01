@@ -1,7 +1,7 @@
-#ifndef LPG_RUNTIME_PRSSTREAM_INCLUDED
-#define LPG_RUNTIME_PRSSTREAM_INCLUDED
+#ifndef LPG_RUNTIME_PRS_STREAM_H
+#define LPG_RUNTIME_PRS_STREAM_H
 
-#include "tuple.h"
+#include "Tuple.h"
 #include "Token.h"
 
 class PrsStream
@@ -22,10 +22,10 @@ public:
     inline void reset(int i = 1) 
       { index_ = getPrevious(i); }
 
-    inline int getToken()
+    inline int getTokenIndex()
       { return index_ = getNext(index_); }
 
-    inline int getToken(int end_token)
+    inline int getTokenIndex(int end_token)
       { return index_ = (index_ < end_token ? getNext(index_) : tokens_.Length() - 1); }
 
     inline int badToken()
