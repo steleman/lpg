@@ -36,7 +36,7 @@ trimQuotes(std::string& s)
 
 std::list<OptionDescriptor*> OptionDescriptor::allOptionDescriptors;
 
-OptionDescriptor *actionBlock = new OptionDescriptor(STRING_LIST, "action", "block", &OptionProcessor::processActionBlock);
+OptionDescriptor *actionBlock = new OptionDescriptor(STRING_LIST, "action", "block", "???", &OptionProcessor::processActionBlock);
 
 void
 OptionProcessor::processActionBlock(OptionValue *v)
@@ -58,7 +58,7 @@ OptionDescriptor *astDirectory = new PathOptionDescriptor("ast", "directory",
 
 OptionDescriptor *astType = new StringOptionDescriptor("ast", "type", "the name of the AST root class", &Option::ast_type, false);
 
-OptionDescriptor *attributes = new BooleanOptionDescriptor("attributes", NULL, "???", &Option::attributes);
+OptionDescriptor *attributes = new BooleanOptionDescriptor("attributes", "???", &Option::attributes);
 
 OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast", 
                                                           "determines where generated AST classes will be placed",
@@ -67,13 +67,13 @@ OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast",
                                                           new EnumValue("nested", Option::NESTED),
                                                           new EnumValue("toplevel", Option::TOPLEVEL), NULL);
 
-OptionDescriptor *backtrack = new BooleanOptionDescriptor("backtrack", NULL, "???",
+OptionDescriptor *backtrack = new BooleanOptionDescriptor("backtrack", "???",
                                                           &Option::backtrack);
 
-OptionDescriptor *byte = new BooleanOptionDescriptor("byte", NULL, "???",
+OptionDescriptor *byte = new BooleanOptionDescriptor("byte", "???",
                                                      &Option::byte);
 
-OptionDescriptor *conflicts = new BooleanOptionDescriptor("conflicts", NULL, "???",
+OptionDescriptor *conflicts = new BooleanOptionDescriptor("conflicts", "???",
                                                           &Option::conflicts);
 
 OptionDescriptor *dataDirectory = new PathOptionDescriptor("dat", "directory", "???",
@@ -91,13 +91,13 @@ OptionDescriptor *defFile = new PathOptionDescriptor("def", "file", "???",
 OptionDescriptor *dirPrefix = new PathOptionDescriptor("directory", "prefix", "???",
                                                        &Option::directory_prefix, true);
 
-OptionDescriptor *debug = new BooleanOptionDescriptor("debug", NULL, "???", &Option::debug);
+OptionDescriptor *debug = new BooleanOptionDescriptor("debug", "???", &Option::debug);
 
-OptionDescriptor *edit = new BooleanOptionDescriptor("edit", NULL, "???", &Option::edit);
+OptionDescriptor *edit = new BooleanOptionDescriptor("edit", "???", &Option::edit);
 
 OptionDescriptor *errorMaps = new BooleanOptionDescriptor("error", "maps", "???", &Option::error_maps);
 
-OptionDescriptor *escapeChar = new CharOptionDescriptor("escape", NULL, "???",
+OptionDescriptor *escapeChar = new CharOptionDescriptor("escape", "???",
                                                         &Option::escape);
 
 OptionDescriptor *exportsTerminals = new OptionDescriptor(STRING_LIST, "export", "terminals", "???",
@@ -124,7 +124,7 @@ OptionProcessor::processExportTerminals(OptionValue *v)
 OptionDescriptor *extendsParseTable = new StringOptionDescriptor("extends", "parsetable", "???",
                                                                  &Option::extends_parsetable, false);
 
-OptionDescriptor *factory = new StringOptionDescriptor("factory", NULL, "???",
+OptionDescriptor *factory = new StringOptionDescriptor("factory", "???",
                                                        &Option::factory, false);
 
 OptionDescriptor *filePrefix = new StringOptionDescriptor("file", "prefix", "???",
@@ -135,7 +135,7 @@ OptionDescriptor *filePrefix = new StringOptionDescriptor("file", "prefix", "???
 //OptionDescriptor *filter = new StringOptionDescriptor("filter", NULL, "???",
 //                                                      &Option::filter, false);
 //
-OptionDescriptor *filter = new OptionDescriptor(STRING, "filter", &OptionProcessor::processFilter, false);
+OptionDescriptor *filter = new OptionDescriptor(STRING, "filter", "???", &OptionProcessor::processFilter, false);
 
 void
 OptionProcessor::processFilter(OptionValue *v)
@@ -147,11 +147,11 @@ OptionProcessor::processFilter(OptionValue *v)
     options->filter = valStr;
 }
 
-OptionDescriptor *first = new BooleanOptionDescriptor("first", NULL, "???", &Option::first);
+OptionDescriptor *first = new BooleanOptionDescriptor("first", "???", &Option::first);
 
-OptionDescriptor *follow = new BooleanOptionDescriptor("follow", NULL, "???", &Option::follow);
+OptionDescriptor *follow = new BooleanOptionDescriptor("follow", "???", &Option::follow);
 
-OptionDescriptor *glr = new BooleanOptionDescriptor("glr", NULL, "???", &Option::glr);
+OptionDescriptor *glr = new BooleanOptionDescriptor("glr", "???", &Option::glr);
 
 OptionDescriptor *gotoDefault = new BooleanOptionDescriptor("goto", "default", "???",
                                                             &Option::goto_default);
@@ -215,11 +215,11 @@ OptionDescriptor *lalr = new IntegerOptionDescriptor("lalr", "", 1, INT_MAX,
                                                      "determines how many tokens of look-ahead can be used to disambiguate",
                                                      &Option::lalr_level);
 
-OptionDescriptor *legacy = new BooleanOptionDescriptor("legacy", NULL, "???", &Option::legacy);
+OptionDescriptor *legacy = new BooleanOptionDescriptor("legacy", "???", &Option::legacy);
 
-OptionDescriptor *list = new BooleanOptionDescriptor("list", NULL, "???", &Option::list);
+OptionDescriptor *list = new BooleanOptionDescriptor("list", "???", &Option::list);
 
-OptionDescriptor *margin = new IntegerOptionDescriptor("margin", NULL, 1, INT_MAX,
+OptionDescriptor *margin = new IntegerOptionDescriptor("margin", 1, INT_MAX,
                                                        "???",
                                                        &Option::margin);
 
@@ -227,7 +227,7 @@ OptionDescriptor *maxCases = new IntegerOptionDescriptor("max", "cases", 1, INT_
                                                          "???",
                                                          &Option::max_cases);
 
-OptionDescriptor *names = new EnumOptionDescriptor("names", NULL, "???", &Option::names, "optimized",
+OptionDescriptor *names = new EnumOptionDescriptor("names", "???", &Option::names, "optimized",
                                                    new EnumValue("optimized", Option::OPTIMIZED),
                                                    new EnumValue("minimum", Option::MINIMUM),
                                                    new EnumValue("maximum", Option::MAXIMUM), NULL);
@@ -240,7 +240,7 @@ OptionDescriptor *orMarker = new CharOptionDescriptor("or", "marker", "???",
 OptionDescriptor *outDirectory = new StringOptionDescriptor("out", "directory", "???",
                                                             &Option::out_directory, true);
 
-OptionDescriptor *package = new StringOptionDescriptor("package", NULL, "???",
+OptionDescriptor *package = new StringOptionDescriptor("package", "???",
                                                        &Option::package, false);
 
 OptionDescriptor *parentSaved = new BooleanOptionDescriptor("parent", "saved", "???", &Option::parent_saved);
@@ -248,14 +248,14 @@ OptionDescriptor *parentSaved = new BooleanOptionDescriptor("parent", "saved", "
 OptionDescriptor *parseTableInterfaces = new StringOptionDescriptor("parsetable", "interfaces", "???",
                                                                     &Option::parsetable_interfaces, false);
 
-OptionDescriptor *precedence = new BooleanOptionDescriptor("precedence", NULL,
+OptionDescriptor *precedence = new BooleanOptionDescriptor("precedence",
                                                            "if true, allow conflicting actions to be ordered",
                                                            &Option::precedence, false);
 
-OptionDescriptor *prefix = new StringOptionDescriptor("prefix", NULL, "???",
+OptionDescriptor *prefix = new StringOptionDescriptor("prefix", "???",
                                                       &Option::prefix, true);
 
-OptionDescriptor *priority = new BooleanOptionDescriptor("priority", NULL, "???",
+OptionDescriptor *priority = new BooleanOptionDescriptor("priority", "???",
                                                          &Option::priority);
 
 OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "language",
@@ -273,7 +273,7 @@ OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "lan
 OptionDescriptor *prsFile = new StringOptionDescriptor("prs", "file", "???",
                                                        &Option::prs_file, false);
 
-OptionDescriptor *quiet = new BooleanOptionDescriptor("quiet", NULL,
+OptionDescriptor *quiet = new BooleanOptionDescriptor("quiet",
                                                       "???",
                                                       &Option::quiet);
 
@@ -291,11 +291,11 @@ OptionDescriptor *ruleClassNames = new EnumOptionDescriptor("rule", "classnames"
                                                             new EnumValue("sequential", Option::SEQUENTIAL),
                                                             new EnumValue("stable", Option::STABLE), NULL);
 
-OptionDescriptor *scopes = new BooleanOptionDescriptor("scopes", NULL,
+OptionDescriptor *scopes = new BooleanOptionDescriptor("scopes",
                                                        "???",
                                                        &Option::scopes);
 
-OptionDescriptor *serialize = new BooleanOptionDescriptor("serialize", NULL,
+OptionDescriptor *serialize = new BooleanOptionDescriptor("serialize",
                                                           "???",
                                                           &Option::serialize);
 
@@ -307,7 +307,7 @@ OptionDescriptor *singleProductions = new BooleanOptionDescriptor("single", "pro
                                                            "???",
                                                            &Option::single_productions);
 
-OptionDescriptor *slr = new BooleanOptionDescriptor("slr", NULL,
+OptionDescriptor *slr = new BooleanOptionDescriptor("slr",
                                                     "???",
                                                     &Option::slr);
 
@@ -315,11 +315,11 @@ OptionDescriptor *softKeywords = new BooleanOptionDescriptor("soft", "keywords",
                                                              "if true, try treating keywords as identifiers if parsing fails otherwise",
                                                              &Option::soft_keywords);
 
-OptionDescriptor *states = new BooleanOptionDescriptor("states", NULL,
+OptionDescriptor *states = new BooleanOptionDescriptor("states",
                                                        "???",
                                                        &Option::states);
 
-OptionDescriptor *suffix = new StringOptionDescriptor("suffix", NULL, "???",
+OptionDescriptor *suffix = new StringOptionDescriptor("suffix", "???",
                                                       &Option::suffix, true);
 
 OptionDescriptor *symFile = new StringOptionDescriptor("sym", "file", "???",
@@ -328,7 +328,7 @@ OptionDescriptor *symFile = new StringOptionDescriptor("sym", "file", "???",
 OptionDescriptor *tabFile = new StringOptionDescriptor("tab", "file", "???",
                                                        &Option::tab_file, false);
 
-OptionDescriptor *table = new EnumOptionDescriptor("table", NULL, "???",
+OptionDescriptor *table = new EnumOptionDescriptor("table", "???",
                                                    &OptionProcessor::processTable,
                                                    "",
                                                    new EnumValue("c", Option::C),
@@ -369,16 +369,16 @@ OptionProcessor::processTable(OptionValue *v)
     }
 }
 
-OptionDescriptor *template_ = new StringOptionDescriptor("template", NULL, "???",
+OptionDescriptor *template_ = new StringOptionDescriptor("template", "???",
                                                          &Option::template_name, false);
 
-OptionDescriptor *trace = new EnumOptionDescriptor("trace", NULL, "???",
+OptionDescriptor *trace = new EnumOptionDescriptor("trace", "???",
                                                    &Option::trace,
                                                    "conflicts",
                                                    new EnumValue("conflicts", Option::CONFLICTS),
                                                    new EnumValue("full", Option::FULL), NULL);
 
-OptionDescriptor *trailers = new OptionDescriptor(STRING_LIST, "trailers", NULL, "???",
+OptionDescriptor *trailers = new OptionDescriptor(STRING_LIST, "trailers", "???",
                                                   &OptionProcessor::processTrailers);
 void
 OptionProcessor::processTrailers(OptionValue *v)
@@ -395,7 +395,7 @@ OptionProcessor::processTrailers(OptionValue *v)
     options->trailer_options.Next().Set(NULL, filename, block_begin, block_end);
 }
 
-OptionDescriptor *variables = new EnumOptionDescriptor("variables", NULL,
+OptionDescriptor *variables = new EnumOptionDescriptor("variables",
                                                        "determines the set of right-hand side symbols for which local variables will be defined within action blocks",
                                                        &Option::variables,
                                                        "none",
@@ -406,11 +406,11 @@ OptionDescriptor *variables = new EnumOptionDescriptor("variables", NULL,
                                                        new EnumValue("nonterminals", Option::NON_TERMINALS),
                                                        new EnumValue("non-terminals", Option::NON_TERMINALS), NULL);
 
-OptionDescriptor *verbose = new BooleanOptionDescriptor("verbose", NULL,
+OptionDescriptor *verbose = new BooleanOptionDescriptor("verbose",
                                                         "???",
                                                         &Option::verbose);
 
-OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", NULL, "???",
+OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", "???",
                                                      &Option::visitor,
                                                      "none",
                                                      new EnumValue("none", Option::NONE),
@@ -420,10 +420,10 @@ OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", NULL, "???",
 OptionDescriptor *visitorType = new StringOptionDescriptor("visitor", "type", "???",
                                                            &Option::visitor_type, false);
 
-OptionDescriptor *warnings = new BooleanOptionDescriptor("warnings", NULL,
+OptionDescriptor *warnings = new BooleanOptionDescriptor("warnings",
                                                          "???",
                                                          &Option::warnings);
 
-OptionDescriptor *xref = new BooleanOptionDescriptor("xref", NULL,
+OptionDescriptor *xref = new BooleanOptionDescriptor("xref",
                                                      "???",
                                                      &Option::xref);

@@ -57,8 +57,7 @@ private:
 
 class OptionDescriptor {
 public:
-    OptionDescriptor(OptionType type, const char *word1, OptionProcessor::ValueHandler handler, bool valueOptional = false);
-    OptionDescriptor(OptionType type, const char *word1, const char *word2, OptionProcessor::ValueHandler handler, bool valueOptional = false);
+    OptionDescriptor(OptionType type, const char *word1, const char *descrip, OptionProcessor::ValueHandler handler, bool valueOptional = false);
     OptionDescriptor(OptionType type, const char *word1, const char *word2, const char *descrip, OptionProcessor::ValueHandler handler, bool valueOptional = false);
 
     const char *getWord1() const { return word1; }
@@ -94,6 +93,7 @@ protected:
 
 class BooleanOptionDescriptor : public OptionDescriptor {
 public:
+    BooleanOptionDescriptor(const char *word1, const char *descrip, OptionProcessor::BooleanValueField, bool valueOptional=true);
     BooleanOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::BooleanValueField, bool valueOptional=true);
 
     void processSetting(OptionProcessor *, OptionValue *);
@@ -104,10 +104,10 @@ private:
 
 class IntegerOptionDescriptor : public OptionDescriptor {
 public:
-    IntegerOptionDescriptor(const char *word1, int min, int max, OptionProcessor::ValueHandler handler);
-    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, OptionProcessor::ValueHandler handler);
     IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
                             OptionProcessor::ValueHandler handler);
+    IntegerOptionDescriptor(const char *word1, int min, int max, const char *descrip,
+                            OptionProcessor::IntegerValueField, bool valueOpt=false);
     IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
                             OptionProcessor::IntegerValueField, bool valueOpt=false);
     
@@ -125,6 +125,8 @@ private:
 
 class StringOptionDescriptor : public OptionDescriptor {
 public:
+    StringOptionDescriptor(const char *word1, const char *descrip,
+                           OptionProcessor::StringValueField, bool emptyOk=false);
     StringOptionDescriptor(const char *word1, const char *word2, const char *descrip,
                            OptionProcessor::StringValueField, bool emptyOk=false);
 
@@ -139,6 +141,8 @@ protected:
 
 class CharOptionDescriptor : public StringOptionDescriptor {
 public:
+    CharOptionDescriptor(const char *word1, const char *descrip,
+                         OptionProcessor::CharValueField);
     CharOptionDescriptor(const char *word1, const char *word2, const char *descrip,
                          OptionProcessor::CharValueField);
 
@@ -167,7 +171,11 @@ class EnumOptionDescriptor : public OptionDescriptor {
 public:
     typedef std::list<EnumValue*> EnumValueList;
 
+    EnumOptionDescriptor(const char *word1, const char *descrip, OptionProcessor::ValueHandler handler,
+                         const char *defValue, EnumValue *value, ...);
     EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::ValueHandler handler,
+                         const char *defValue, EnumValue *value, ...);
+    EnumOptionDescriptor(const char *word1, const char *descrip, OptionProcessor::IntegerValueField field,
                          const char *defValue, EnumValue *value, ...);
     EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::IntegerValueField field,
                          const char *defValue, EnumValue *value, ...);
