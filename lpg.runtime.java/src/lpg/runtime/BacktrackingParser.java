@@ -464,7 +464,7 @@ public class BacktrackingParser extends Stacks
             {
                 if (tokStream.getKind(curtok) > NT_OFFSET) 
                 {
-                    ErrorToken badtok = (ErrorToken) ((PrsStream) tokStream).getIToken(curtok);
+                    ErrorToken badtok = (ErrorToken) ((IPrsStream) tokStream).getIToken(curtok);
                     throw new BadParseException(badtok.getErrorToken().getTokenIndex()); // parseStack[stateStackTop] = ra.prostheticAst[prs.getProsthesisIndex(tokStream.getKind(curtok))].create(tokStream.getIToken(curtok));
                 }
                 lastToken = curtok;
