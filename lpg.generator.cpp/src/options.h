@@ -67,19 +67,23 @@ public:
     OptionType getType() const { return type; }
     virtual std::string getTypeDescriptor() const;
     bool isValueOptional() const { return valueOptional; }
-    
+
     OptionValue *createValue();
-    
+
     virtual void processSetting(OptionProcessor *processor, OptionValue *value);
 
     static const std::list<OptionDescriptor*>& getAllDescriptors();
+    static void setAllDefaults(OptionProcessor *processor);
 
     static std::string describeAllOptions();
 
 protected:
     OptionDescriptor(OptionType type, const char *word1, const char *word2, const char *descrip, bool valueOptional);
+
     void setupName();
     
+    virtual void setDefault(OptionProcessor *processor);
+
     const OptionType type;
     const char *word1;
     const char *word2; // may be null
@@ -93,22 +97,25 @@ protected:
 
 class BooleanOptionDescriptor : public OptionDescriptor {
 public:
-    BooleanOptionDescriptor(const char *word1, const char *descrip, OptionProcessor::BooleanValueField, bool valueOptional=true);
-    BooleanOptionDescriptor(const char *word1, const char *word2, const char *descrip, OptionProcessor::BooleanValueField, bool valueOptional=true);
+    BooleanOptionDescriptor(const char *word1, const char *descrip, bool defaultValue, OptionProcessor::BooleanValueField, bool valueOptional=true);
+    BooleanOptionDescriptor(const char *word1, const char *word2, const char *descrip, bool defaultValue, OptionProcessor::BooleanValueField, bool valueOptional=true);
 
     void processSetting(OptionProcessor *, OptionValue *);
 
 private:
+    void setDefault(OptionProcessor *processor);
+
+    bool defaultValue;
     OptionProcessor::BooleanValueField boolField;
 };
 
 class IntegerOptionDescriptor : public OptionDescriptor {
 public:
-    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, int defValue, const char *descrip,
                             OptionProcessor::ValueHandler handler);
-    IntegerOptionDescriptor(const char *word1, int min, int max, const char *descrip,
+    IntegerOptionDescriptor(const char *word1, int min, int max, int defValue, const char *descrip,
                             OptionProcessor::IntegerValueField, bool valueOpt=false);
-    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, const char *descrip,
+    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, int defValue, const char *descrip,
                             OptionProcessor::IntegerValueField, bool valueOpt=false);
     
     int getMinValue() const { return minValue; }
@@ -119,36 +126,45 @@ public:
     void processSetting(OptionProcessor *, OptionValue *);
     
 private:
+    void setDefault(OptionProcessor *processor);
+
+    int defaultValue;
     int minValue, maxValue;
     OptionProcessor::IntegerValueField intField;
 };
 
 class StringOptionDescriptor : public OptionDescriptor {
 public:
-    StringOptionDescriptor(const char *word1, const char *descrip,
+    StringOptionDescriptor(const char *word1, const char *descrip, const char *defValue,
                            OptionProcessor::StringValueField, bool emptyOk=false);
-    StringOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+    StringOptionDescriptor(const char *word1, const char *word2, const char *descrip, const char *defValue,
                            OptionProcessor::StringValueField, bool emptyOk=false);
 
     void processSetting(OptionProcessor *, OptionValue *);
 
 protected:
     StringOptionDescriptor(OptionType type, const char *word1, const char *word2, const char *descrip,
+                           const char *defValue,
                            OptionProcessor::StringValueField, bool emptyOk=false);
+    void setDefault(OptionProcessor *processor);
+
+    const char *defaultValue;
     bool emptyOk;
     OptionProcessor::StringValueField stringField;
 };
 
 class CharOptionDescriptor : public StringOptionDescriptor {
 public:
-    CharOptionDescriptor(const char *word1, const char *descrip,
+    CharOptionDescriptor(const char *word1, const char *descrip, const char *defValue,
                          OptionProcessor::CharValueField);
-    CharOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+    CharOptionDescriptor(const char *word1, const char *word2, const char *descrip, const char *defValue,
                          OptionProcessor::CharValueField);
 
     void processSetting(OptionProcessor *, OptionValue *);
 
 private:
+    void setDefault(OptionProcessor *processor);
+
     OptionProcessor::CharValueField charField;
 };
 
@@ -188,6 +204,8 @@ public:
     void processSetting(OptionProcessor *, OptionValue *);
 
 private:
+    void setDefault(OptionProcessor *processor);
+    
     EnumValue *findEnumByName(const std::string& name);
 
     EnumValueList legalValues;
@@ -198,6 +216,7 @@ private:
 class PathOptionDescriptor : public StringOptionDescriptor {
 public:
     PathOptionDescriptor(const char *word1, const char *word2, const char *descrip,
+                         const char *defValue,
                          OptionProcessor::StringValueField, bool emptyOk=false);
 
     void processSetting(OptionProcessor *, OptionValue *);

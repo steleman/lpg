@@ -125,13 +125,26 @@ OptionDescriptor::describeAllOptions()
 }
 
 void
+OptionDescriptor::setAllDefaults(OptionProcessor *processor)
+{
+    for (std::list<OptionDescriptor*>::iterator i= allOptionDescriptors.begin(); i != allOptionDescriptors.end(); i++) {
+        OptionDescriptor *od = *i;
+        od->setDefault(processor);
+    }
+}
+
+void
 OptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
 {
-//  OptionDescriptor *od = v->getOptionDescriptor();
-
-//  cerr << "Setting option '" << od->getName() << "' to value " << *v->toString() << endl;
+//  cerr << "Setting option '" << getName() << "' to value " << *v->toString() << endl;
     
     (processor->*valueHandler)(v);
+}
+
+void
+OptionDescriptor::setDefault(OptionProcessor *processor)
+{
+//  cerr << "*** " << getName() << " uses default implementation of setDefault()!" << endl;
 }
 
 OptionValue *
@@ -171,17 +184,17 @@ OptionDescriptor::createValue()
     }
 }
 
-BooleanOptionDescriptor::BooleanOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
+BooleanOptionDescriptor::BooleanOptionDescriptor(const char *wd1, const char *wd2, const char *descrip, bool defValue,
                                                  OptionProcessor::BooleanValueField field, bool valueOpt)
 
-: OptionDescriptor(BOOLEAN, wd1, wd2, descrip, valueOpt), boolField(field)
+: OptionDescriptor(BOOLEAN, wd1, wd2, descrip, valueOpt), defaultValue(defValue), boolField(field)
 {
 }
 
-BooleanOptionDescriptor::BooleanOptionDescriptor(const char *wd1, const char *descrip,
+BooleanOptionDescriptor::BooleanOptionDescriptor(const char *wd1, const char *descrip, bool defValue,
                                                  OptionProcessor::BooleanValueField field, bool valueOpt)
 
-: OptionDescriptor(BOOLEAN, wd1, NULL, descrip, valueOpt), boolField(field)
+: OptionDescriptor(BOOLEAN, wd1, NULL, descrip, valueOpt), defaultValue(defValue), boolField(field)
 {
 }
 
@@ -194,21 +207,29 @@ BooleanOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue 
     options->*boolField = bv->getValue();
 }
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int min, int max,
+void
+BooleanOptionDescriptor::setDefault(OptionProcessor *processor)
+{
+    processor->getOptions()->*boolField = defaultValue;
+}
+
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int defValue, int min, int max,
                                                  const char *descrip, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(INTEGER, wd1, wd2, descrip, handler, false), minValue(min), maxValue(max)
+: OptionDescriptor(INTEGER, wd1, wd2, descrip, handler, false), defaultValue(defValue), minValue(min), maxValue(max)
 {
 }
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, int min, int max, const char *descrip,
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, int defValue, int min, int max,
+                                                 const char *descrip,
                                                  OptionProcessor::IntegerValueField field, bool valueOpt)
-: OptionDescriptor(INTEGER, wd1, NULL, descrip, valueOpt), minValue(min), maxValue(max), intField(field)
+: OptionDescriptor(INTEGER, wd1, NULL, descrip, valueOpt), defaultValue(defValue), minValue(min), maxValue(max), intField(field)
 {
 }
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int min, int max, const char *descrip,
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int defValue, int min, int max,
+                                                 const char *descrip,
                                                  OptionProcessor::IntegerValueField field, bool valueOpt)
-: OptionDescriptor(INTEGER, wd1, wd2, descrip, valueOpt), minValue(min), maxValue(max), intField(field)
+: OptionDescriptor(INTEGER, wd1, wd2, descrip, valueOpt), defaultValue(defValue), minValue(min), maxValue(max), intField(field)
 {
 }
 
@@ -219,6 +240,12 @@ IntegerOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue 
     Option *options = processor->getOptions();
 
     options->*intField = iv->getValue();
+}
+
+void
+IntegerOptionDescriptor::setDefault(OptionProcessor *processor)
+{
+    processor->getOptions()->*intField = defaultValue;
 }
 
 std::string
@@ -251,21 +278,22 @@ IntegerOptionDescriptor::getTypeDescriptor() const
     return result;
 }
 
-StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *descrip,
+StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *descrip, const char *defValue,
                                                OptionProcessor::StringValueField field, bool emptyOk)
-: OptionDescriptor(STRING, wd1, NULL, descrip, false), emptyOk(emptyOk), stringField(field)
+: OptionDescriptor(STRING, wd1, NULL, descrip, false), emptyOk(emptyOk), stringField(field), defaultValue(defValue)
 {
 }
 
-StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
+StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *wd2, const char *descrip, const char *defValue,
                                                OptionProcessor::StringValueField field, bool emptyOk)
-: OptionDescriptor(STRING, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field)
+: OptionDescriptor(STRING, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field), defaultValue(defValue)
 {
 }
 
 StringOptionDescriptor::StringOptionDescriptor(OptionType t, const char *wd1, const char *wd2, const char *descrip,
+                                               const char *defValue,
                                                OptionProcessor::StringValueField field, bool emptyOk)
-: OptionDescriptor(t, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field)
+: OptionDescriptor(t, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field), defaultValue(defValue)
 {
 }
 
@@ -287,15 +315,23 @@ StringOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *
     }
 }
 
+void
+StringOptionDescriptor::setDefault(OptionProcessor *processor)
+{
+    processor->getOptions()->*stringField = (defaultValue != NULL) ? strdup(defaultValue) : NULL;
+}
+
 CharOptionDescriptor::CharOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
+                                           const char *defValue,
                                            OptionProcessor::CharValueField field)
-: StringOptionDescriptor(CHAR, wd1, wd2, descrip, false), charField(field)
+: StringOptionDescriptor(CHAR, wd1, wd2, descrip, defValue, false), charField(field)
 {
 }
 
 CharOptionDescriptor::CharOptionDescriptor(const char *wd1, const char *descrip,
+                                           const char *defValue,
                                            OptionProcessor::CharValueField field)
-: StringOptionDescriptor(CHAR, wd1, NULL, descrip, false), charField(field)
+: StringOptionDescriptor(CHAR, wd1, NULL, descrip, defValue, false), charField(field)
 {
 }
 
@@ -312,9 +348,16 @@ CharOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
     }
 }
 
+void
+CharOptionDescriptor::setDefault(OptionProcessor *processor)
+{
+    processor->getOptions()->*charField = defaultValue[0];
+}
+
 PathOptionDescriptor::PathOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
+                                           const char *defValue,
                                            OptionProcessor::StringValueField field, bool emptyOk)
-: StringOptionDescriptor(PATH, wd1, wd2, descrip, field, emptyOk)
+: StringOptionDescriptor(PATH, wd1, wd2, descrip, defValue, field, emptyOk)
 {
 }
 
@@ -438,5 +481,15 @@ EnumOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *va
         }
     } else {
         OptionDescriptor::processSetting(processor, value);
+    }
+}
+
+void
+EnumOptionDescriptor::setDefault(OptionProcessor *processor)
+{
+    EnumValue *ev = findEnumByName(defaultValue);
+
+    if (ev != NULL) {
+        processor->getOptions()->*intField = ev->second();
     }
 }
