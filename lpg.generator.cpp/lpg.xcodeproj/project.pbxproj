@@ -112,6 +112,26 @@
 		55CA8DA7133EC2FB00958C2A /* LPGLexerprs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LPGLexerprs.cpp; path = bootstrap/LPGLexerprs.cpp; sourceTree = "<group>"; };
 		55CA8DA8133EC2FB00958C2A /* LPGLexerprs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGLexerprs.h; path = bootstrap/LPGLexerprs.h; sourceTree = "<group>"; };
 		55CA8DA9133EC2FB00958C2A /* LPGLexersym.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LPGLexersym.h; path = bootstrap/LPGLexersym.h; sourceTree = "<group>"; };
+		55CA90671346151800958C2A /* Adjunct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Adjunct.h; path = ../lpg.runtime.cpp/lpg/runtime/Adjunct.h; sourceTree = SOURCE_ROOT; };
+		55CA90681346151800958C2A /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../lpg.runtime.cpp/lpg/runtime/Array.h; sourceTree = SOURCE_ROOT; };
+		55CA90691346151800958C2A /* BoundedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BoundedArray.h; path = ../lpg.runtime.cpp/lpg/runtime/BoundedArray.h; sourceTree = SOURCE_ROOT; };
+		55CA906A1346151800958C2A /* ConvertibleArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConvertibleArray.h; path = ../lpg.runtime.cpp/lpg/runtime/ConvertibleArray.h; sourceTree = SOURCE_ROOT; };
+		55CA906B1346151800958C2A /* DeterministicParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeterministicParser.h; path = ../lpg.runtime.cpp/lpg/runtime/DeterministicParser.h; sourceTree = SOURCE_ROOT; };
+		55CA906C1346151800958C2A /* LexParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LexParser.h; path = ../lpg.runtime.cpp/lpg/runtime/LexParser.h; sourceTree = SOURCE_ROOT; };
+		55CA906D1346151800958C2A /* LexStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LexStream.h; path = ../lpg.runtime.cpp/lpg/runtime/LexStream.h; sourceTree = SOURCE_ROOT; };
+		55CA906E1346151800958C2A /* PrsStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrsStream.h; path = ../lpg.runtime.cpp/lpg/runtime/PrsStream.h; sourceTree = SOURCE_ROOT; };
+		55CA906F1346151800958C2A /* Stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stack.h; path = ../lpg.runtime.cpp/lpg/runtime/Stack.h; sourceTree = SOURCE_ROOT; };
+		55CA90701346151800958C2A /* Stacks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stacks.h; path = ../lpg.runtime.cpp/lpg/runtime/Stacks.h; sourceTree = SOURCE_ROOT; };
+		55CA90711346151800958C2A /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Token.h; path = ../lpg.runtime.cpp/lpg/runtime/Token.h; sourceTree = SOURCE_ROOT; };
+		55CA90721346151800958C2A /* tuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tuple.h; path = ../lpg.runtime.cpp/lpg/runtime/tuple.h; sourceTree = SOURCE_ROOT; };
+		55CA90731346152800958C2A /* dtParserTemplate.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dtParserTemplate.gi; path = ../lpg.runtime.cpp/templates/dtParserTemplate.gi; sourceTree = SOURCE_ROOT; };
+		55CA90741346152800958C2A /* dtParserTemplateD.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dtParserTemplateD.gi; path = ../lpg.runtime.cpp/templates/dtParserTemplateD.gi; sourceTree = SOURCE_ROOT; };
+		55CA90751346152800958C2A /* KeywordTemplateD.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = KeywordTemplateD.gi; path = ../lpg.runtime.cpp/templates/KeywordTemplateD.gi; sourceTree = SOURCE_ROOT; };
+		55CA90761346152800958C2A /* LexerTemplate.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LexerTemplate.gi; path = ../lpg.runtime.cpp/templates/LexerTemplate.gi; sourceTree = SOURCE_ROOT; };
+		55CA90771346153700958C2A /* KWLexerFoldedCaseMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = KWLexerFoldedCaseMap.gi; path = ../lpg.runtime.cpp/include/KWLexerFoldedCaseMap.gi; sourceTree = SOURCE_ROOT; };
+		55CA90781346153700958C2A /* KWLexerLowerCaseMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = KWLexerLowerCaseMap.gi; path = ../lpg.runtime.cpp/include/KWLexerLowerCaseMap.gi; sourceTree = SOURCE_ROOT; };
+		55CA90791346153700958C2A /* LexerBasicMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LexerBasicMap.gi; path = ../lpg.runtime.cpp/include/LexerBasicMap.gi; sourceTree = SOURCE_ROOT; };
+		55CA907A1346153700958C2A /* LexerVeryBasicMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LexerVeryBasicMap.gi; path = ../lpg.runtime.cpp/include/LexerVeryBasicMap.gi; sourceTree = SOURCE_ROOT; };
 		55D1DECF12F6F167003658F8 /* Action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Action.cpp; path = src/Action.cpp; sourceTree = "<group>"; };
 		55D1DED012F6F167003658F8 /* base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base.cpp; path = src/base.cpp; sourceTree = "<group>"; };
 		55D1DED112F6F167003658F8 /* buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = buffer.cpp; path = src/buffer.cpp; sourceTree = "<group>"; };
@@ -227,6 +247,8 @@
 		08FB7794FE84155DC02AAC07 /* lpg */ = {
 			isa = PBXGroup;
 			children = (
+				55CA9066134614EC00958C2A /* C++ Templates */,
+				55CA9065134614CF00958C2A /* C++ Runtime */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -271,6 +293,40 @@
 				55CA8D44133EBA8500958C2A /* testDriver.cpp */,
 			);
 			name = bootstrapped;
+			sourceTree = "<group>";
+		};
+		55CA9065134614CF00958C2A /* C++ Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				55CA90671346151800958C2A /* Adjunct.h */,
+				55CA90681346151800958C2A /* Array.h */,
+				55CA90691346151800958C2A /* BoundedArray.h */,
+				55CA906A1346151800958C2A /* ConvertibleArray.h */,
+				55CA906B1346151800958C2A /* DeterministicParser.h */,
+				55CA906C1346151800958C2A /* LexParser.h */,
+				55CA906D1346151800958C2A /* LexStream.h */,
+				55CA906E1346151800958C2A /* PrsStream.h */,
+				55CA906F1346151800958C2A /* Stack.h */,
+				55CA90701346151800958C2A /* Stacks.h */,
+				55CA90711346151800958C2A /* Token.h */,
+				55CA90721346151800958C2A /* tuple.h */,
+			);
+			name = "C++ Runtime";
+			sourceTree = "<group>";
+		};
+		55CA9066134614EC00958C2A /* C++ Templates */ = {
+			isa = PBXGroup;
+			children = (
+				55CA90771346153700958C2A /* KWLexerFoldedCaseMap.gi */,
+				55CA90781346153700958C2A /* KWLexerLowerCaseMap.gi */,
+				55CA90791346153700958C2A /* LexerBasicMap.gi */,
+				55CA907A1346153700958C2A /* LexerVeryBasicMap.gi */,
+				55CA90731346152800958C2A /* dtParserTemplate.gi */,
+				55CA90741346152800958C2A /* dtParserTemplateD.gi */,
+				55CA90751346152800958C2A /* KeywordTemplateD.gi */,
+				55CA90761346152800958C2A /* LexerTemplate.gi */,
+			);
+			name = "C++ Templates";
 			sourceTree = "<group>";
 		};
 		55D1DF5212F6F1A3003658F8 /* C++ */ = {
