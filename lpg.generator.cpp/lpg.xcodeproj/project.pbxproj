@@ -92,7 +92,6 @@
 /* Begin PBXFileReference section */
 		551D7ADF132D70D100748B79 /* options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = options.h; path = src/options.h; sourceTree = "<group>"; };
 		551D7AE0132D70D100748B79 /* options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = options.cpp; path = src/options.cpp; sourceTree = "<group>"; };
-		55792EAA1318820800D81C5D /* change-notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "change-notes.txt"; path = "../change-notes.txt"; sourceTree = SOURCE_ROOT; };
 		55792EAD131BEDC000D81C5D /* RELEASE_NOTES.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RELEASE_NOTES.txt; sourceTree = "<group>"; };
 		55CA8AC1133E3F3900958C2A /* optionDesc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optionDesc.cpp; path = src/optionDesc.cpp; sourceTree = "<group>"; };
 		55CA8AC2133E3F3900958C2A /* optionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optionParser.cpp; path = src/optionParser.cpp; sourceTree = "<group>"; };
@@ -132,6 +131,27 @@
 		55CA90781346153700958C2A /* KWLexerLowerCaseMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = KWLexerLowerCaseMap.gi; path = ../lpg.runtime.cpp/include/KWLexerLowerCaseMap.gi; sourceTree = SOURCE_ROOT; };
 		55CA90791346153700958C2A /* LexerBasicMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LexerBasicMap.gi; path = ../lpg.runtime.cpp/include/LexerBasicMap.gi; sourceTree = SOURCE_ROOT; };
 		55CA907A1346153700958C2A /* LexerVeryBasicMap.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LexerVeryBasicMap.gi; path = ../lpg.runtime.cpp/include/LexerVeryBasicMap.gi; sourceTree = SOURCE_ROOT; };
+		55CA911F134B853600958C2A /* LPGKWLexer.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LPGKWLexer.gi; path = test/LPGKWLexer.gi; sourceTree = "<group>"; };
+		55CA9120134B853600958C2A /* LPGLexer.gi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LPGLexer.gi; path = test/LPGLexer.gi; sourceTree = "<group>"; };
+		55CA9121134B853600958C2A /* LPGParser.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LPGParser.g; path = test/LPGParser.g; sourceTree = "<group>"; };
+		55CA9123134B855B00958C2A /* LPGKWLexer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGKWLexer.java; path = test/LPGKWLexer.java; sourceTree = "<group>"; };
+		55CA9124134B855B00958C2A /* LPGKWLexerprs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGKWLexerprs.java; path = test/LPGKWLexerprs.java; sourceTree = "<group>"; };
+		55CA9125134B855B00958C2A /* LPGKWLexersym.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGKWLexersym.java; path = test/LPGKWLexersym.java; sourceTree = "<group>"; };
+		55CA9126134B855B00958C2A /* LPGLexer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGLexer.java; path = test/LPGLexer.java; sourceTree = "<group>"; };
+		55CA9127134B855B00958C2A /* LPGLexerprs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGLexerprs.java; path = test/LPGLexerprs.java; sourceTree = "<group>"; };
+		55CA9128134B855B00958C2A /* LPGLexersym.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGLexersym.java; path = test/LPGLexersym.java; sourceTree = "<group>"; };
+		55CA9129134B855B00958C2A /* LPGParser.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGParser.java; path = test/LPGParser.java; sourceTree = "<group>"; };
+		55CA912A134B855B00958C2A /* LPGParserprs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGParserprs.java; path = test/LPGParserprs.java; sourceTree = "<group>"; };
+		55CA912B134B855B00958C2A /* LPGParsersym.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGParsersym.java; path = test/LPGParsersym.java; sourceTree = "<group>"; };
+		55CA912D134B857900958C2A /* LPGKWLexer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGKWLexer.java; path = test/GOLDEN/LPGKWLexer.java; sourceTree = "<group>"; };
+		55CA912E134B857900958C2A /* LPGKWLexerprs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGKWLexerprs.java; path = test/GOLDEN/LPGKWLexerprs.java; sourceTree = "<group>"; };
+		55CA912F134B857900958C2A /* LPGKWLexersym.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGKWLexersym.java; path = test/GOLDEN/LPGKWLexersym.java; sourceTree = "<group>"; };
+		55CA9130134B857900958C2A /* LPGLexer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGLexer.java; path = test/GOLDEN/LPGLexer.java; sourceTree = "<group>"; };
+		55CA9131134B857900958C2A /* LPGLexerprs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGLexerprs.java; path = test/GOLDEN/LPGLexerprs.java; sourceTree = "<group>"; };
+		55CA9132134B857900958C2A /* LPGLexersym.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGLexersym.java; path = test/GOLDEN/LPGLexersym.java; sourceTree = "<group>"; };
+		55CA9133134B857900958C2A /* LPGParser.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGParser.java; path = test/GOLDEN/LPGParser.java; sourceTree = "<group>"; };
+		55CA9134134B857900958C2A /* LPGParserprs.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGParserprs.java; path = test/GOLDEN/LPGParserprs.java; sourceTree = "<group>"; };
+		55CA9135134B857900958C2A /* LPGParsersym.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LPGParsersym.java; path = test/GOLDEN/LPGParsersym.java; sourceTree = "<group>"; };
 		55D1DECF12F6F167003658F8 /* Action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Action.cpp; path = src/Action.cpp; sourceTree = "<group>"; };
 		55D1DED012F6F167003658F8 /* base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base.cpp; path = src/base.cpp; sourceTree = "<group>"; };
 		55D1DED112F6F167003658F8 /* buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = buffer.cpp; path = src/buffer.cpp; sourceTree = "<group>"; };
@@ -247,6 +267,7 @@
 		08FB7794FE84155DC02AAC07 /* lpg */ = {
 			isa = PBXGroup;
 			children = (
+				55CA911D134B84E300958C2A /* test */,
 				55CA9066134614EC00958C2A /* C++ Templates */,
 				55CA9065134614CF00958C2A /* C++ Runtime */,
 				08FB7795FE84155DC02AAC07 /* Source */,
@@ -327,6 +348,58 @@
 				55CA90761346152800958C2A /* LexerTemplate.gi */,
 			);
 			name = "C++ Templates";
+			sourceTree = "<group>";
+		};
+		55CA911D134B84E300958C2A /* test */ = {
+			isa = PBXGroup;
+			children = (
+				55CA911E134B84FE00958C2A /* LPG grammar */,
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+		55CA911E134B84FE00958C2A /* LPG grammar */ = {
+			isa = PBXGroup;
+			children = (
+				55CA912C134B856300958C2A /* GOLDEN */,
+				55CA9122134B853A00958C2A /* output */,
+				55CA911F134B853600958C2A /* LPGKWLexer.gi */,
+				55CA9120134B853600958C2A /* LPGLexer.gi */,
+				55CA9121134B853600958C2A /* LPGParser.g */,
+			);
+			name = "LPG grammar";
+			sourceTree = "<group>";
+		};
+		55CA9122134B853A00958C2A /* output */ = {
+			isa = PBXGroup;
+			children = (
+				55CA9123134B855B00958C2A /* LPGKWLexer.java */,
+				55CA9124134B855B00958C2A /* LPGKWLexerprs.java */,
+				55CA9125134B855B00958C2A /* LPGKWLexersym.java */,
+				55CA9126134B855B00958C2A /* LPGLexer.java */,
+				55CA9127134B855B00958C2A /* LPGLexerprs.java */,
+				55CA9128134B855B00958C2A /* LPGLexersym.java */,
+				55CA9129134B855B00958C2A /* LPGParser.java */,
+				55CA912A134B855B00958C2A /* LPGParserprs.java */,
+				55CA912B134B855B00958C2A /* LPGParsersym.java */,
+			);
+			name = output;
+			sourceTree = "<group>";
+		};
+		55CA912C134B856300958C2A /* GOLDEN */ = {
+			isa = PBXGroup;
+			children = (
+				55CA912D134B857900958C2A /* LPGKWLexer.java */,
+				55CA912E134B857900958C2A /* LPGKWLexerprs.java */,
+				55CA912F134B857900958C2A /* LPGKWLexersym.java */,
+				55CA9130134B857900958C2A /* LPGLexer.java */,
+				55CA9131134B857900958C2A /* LPGLexerprs.java */,
+				55CA9132134B857900958C2A /* LPGLexersym.java */,
+				55CA9133134B857900958C2A /* LPGParser.java */,
+				55CA9134134B857900958C2A /* LPGParserprs.java */,
+				55CA9135134B857900958C2A /* LPGParsersym.java */,
+			);
+			name = GOLDEN;
 			sourceTree = "<group>";
 		};
 		55D1DF5212F6F1A3003658F8 /* C++ */ = {
@@ -489,7 +562,6 @@
 		55D1DF5E12F6F2FA003658F8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				55792EAA1318820800D81C5D /* change-notes.txt */,
 				55D1DECF12F6F167003658F8 /* Action.cpp */,
 				55D1DED012F6F167003658F8 /* base.cpp */,
 				55D1DED112F6F167003658F8 /* buffer.cpp */,
