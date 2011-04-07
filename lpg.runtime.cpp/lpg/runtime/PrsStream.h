@@ -54,7 +54,7 @@ public:
     {
         printf("TOKENS(%d)\n", tokens_.Length());
         for (int i = 0; i < tokens_.Length(); i++) {
-            printf("% 4d [%d..%d] : [% 4d] %s\n", i, 
+            printf("% 4d [%5d..%5d] : [% 4d] %s\n", i, 
 		   tokens_[i].getStartOffset(),
 		   tokens_[i].getEndOffset(),
                    tokens_[i].getKind(),
