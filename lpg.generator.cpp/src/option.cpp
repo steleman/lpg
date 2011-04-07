@@ -2804,6 +2804,7 @@ void Option::ProcessPath(Tuple<const char *> &list, const char *path, const char
     }
     else *str = '\0';
     strcat(str, path);
+    NormalizeSlashes(str);
 
     int length;
     for (length = strlen(str) - 1; length >= 0 && IsSpace(str[length]); length--)
