@@ -22,11 +22,14 @@
             {
                 prsStream_->makeToken(inputChars_, getLeftSpan(), getRightSpan(), kind);
             }
+
             inline void skipToken()
             { /* Do nothing. */ }
-            static int getKind(int _c);
+
+            int getKind(int idx);
 
             void checkForKeyWord();
+
             void checkForKeyWord(int defaultKind);
     !/
     /.
@@ -53,9 +56,9 @@
             makeToken(startOffset, endOffset, kwKind);
         }        
 
-        int $action_class::getKind(int _c)
+        int $action_class::getKind(int idx)
         {
-            unsigned char c = (unsigned char) _c;
+            unsigned char c = getCharValue(idx);
             return (c < 128 ? tokenKind[c]
                             : (c == 0xff ? Char_EOF : Char_AfterASCII));
         }
