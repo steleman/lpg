@@ -35,7 +35,7 @@
             const char* inputChars_;
             static int* keywordKind_;
         public:
-            $action_type(char* inputChars, int identifierKind);
+            $action_type(const char* inputChars, int identifierKind);
             int lexer(int curtok, int lasttok);
             const int* getKeywordKinds() { return keywordKind_; }
             void setInputChars(const char* inputChars) { inputChars_ = inputChars; }
@@ -83,7 +83,7 @@
 %Rules
     /.
         #line $next_line "$input_file$"
-        $action_type::$action_type(char* inputChars, int identifierKind)
+        $action_type::$action_type(const char* inputChars, int identifierKind)
         {
             #include "$exp_type.h"
             inputChars_ = inputChars;
