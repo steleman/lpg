@@ -2905,7 +2905,8 @@ void Option::CheckDirectory(Token *directory_location, const char *directory)
     int directory_length = strlen(directory);
     char *temp = new char[directory_length + 2];
     strcpy(temp, directory);
-    if (temp[directory_length - 1] != '/' &&
+    if (directory_length > 0 &&
+	temp[directory_length - 1] != '/' &&
         temp[directory_length - 1] != '\\')
     {
         strcat(temp, "/");
