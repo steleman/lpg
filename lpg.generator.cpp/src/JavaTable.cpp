@@ -657,10 +657,12 @@ void JavaTable::init_parser_files(void)
 //
 void JavaTable::exit_parser_files(void)
 {
-    fclose(sysprs);
-    fclose(syssym);
-    if (grammar -> exported_symbols.Length() > 0)
-        fclose(sysexp);
+    fclose(sysprs); sysprs = NULL;
+    fclose(syssym); syssym = NULL;
+    if (grammar -> exported_symbols.Length() > 0) {
+	fclose(sysexp);
+	sysexp = NULL;
+    }
 }
 
 

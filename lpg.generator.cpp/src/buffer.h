@@ -240,7 +240,9 @@ public:
 
     ~UnbufferedTextFile()
     {
-        Flush();
+	if (file != NULL) {
+	    Flush();
+	}
     }
 
     //
