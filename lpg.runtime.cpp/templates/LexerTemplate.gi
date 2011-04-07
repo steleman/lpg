@@ -76,23 +76,26 @@
             LexParser<$prs_type, $action_class> lp_;
             $action_class();
             $action_class($action_class&);
+
         public:
             virtual ~$action_class();
+
             virtual void ruleAction(int ruleNumber);
+
             virtual int lexer(PrsStream* prsStream);
 
             inline int getLeftSpan()
-            { return lp_.getTokenStartOffset(); }
+            { return lp_.getToken(1); }
 
             inline int getRightSpan()
-            { return lp_.getTokenEndOffset(); }
+            { return lp_.getLastToken(); }
 
             inline void makeToken(int startOffset, int endOffset, int kind)
             {
                 prsStream_->makeToken(inputChars_, startOffset, endOffset, kind);
             }
 
-            inline int makeComment(int kind)
+            inline void makeComment(int kind)
             {
                 prsStream_->makeAdjunct(inputChars_, getLeftSpan(), getRightSpan(), kind);
             }
@@ -125,9 +128,9 @@
         int $action_class::lexer(PrsStream* prsStream)
         {
             prsStream_ = prsStream;
-            makeToken(0);
+            makeToken(0, -1, 0);
             lp_.parseCharacters();
-            makeToken($exp_class::EOF_TOKEN);
+            prsStream_->makeToken(inputChars_, getStreamIndex(), getStreamIndex(), ENUM_LPGLexerexp::EOF_TOKEN);
             return 0;
         }        
     ./
