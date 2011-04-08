@@ -1,0 +1,364 @@
+%Rules
+    NameChar[^:] ->    
+             Aa
+           | Bb
+           | Cc
+           | Dd
+           | Ee
+           | Ff
+           | Gg
+           | Hh
+           | Ii
+           | Jj
+           | Kk
+           | Ll
+           | Mm
+           | Nn
+           | Oo
+           | Pp
+           | Qq
+           | Rr
+           | Ss
+           | Tt
+           | Uu
+           | Vv
+           | Ww
+           | Xx
+           | Yy
+           | Zz
+
+           | NonAsciiBaseChar
+           | Ideographic
+           | Digit
+           | '.'
+           | '-'
+           | '_'
+    --     | ':'
+           | CombiningChar
+           | Extender 
+
+    NameChar[^x:] ->
+             A
+           | B
+           | C
+           | D
+           | E
+           | F
+           | G
+           | H
+           | I
+           | J
+           | K
+           | L
+           | M
+           | N
+           | O
+           | P
+           | Q
+           | R
+           | S
+           | T
+           | U
+           | V
+           | W
+           | X
+           | Y
+           | Z
+
+           | a
+           | b
+           | c
+           | d
+           | e
+           | f
+           | g
+           | h
+           | i
+           | j
+           | k
+           | l
+           | m
+           | n
+           | o
+           | p
+           | q
+           | r
+           | s
+           | t
+           | u
+           | v
+           | w
+    --     | x
+           | y
+           | z
+
+           | NonAsciiBaseChar
+           | Ideographic
+           | Digit
+           | '.'
+           | '-'
+           | '_'
+    --     | ':'
+           | CombiningChar
+           | Extender 
+
+    NameChar[^m:] ->
+             A
+           | B
+           | C
+           | D
+           | E
+           | F
+           | G
+           | H
+           | I
+           | J
+           | K
+           | L
+           | M
+           | N
+           | O
+           | P
+           | Q
+           | R
+           | S
+           | T
+           | U
+           | V
+           | W
+           | X
+           | Y
+           | Z
+
+           | a
+           | b
+           | c
+           | d
+           | e
+           | f
+           | g
+           | h
+           | i
+           | j
+           | k
+           | l
+    --     | m
+           | n
+           | o
+           | p
+           | q
+           | r
+           | s
+           | t
+           | u
+           | v
+           | w
+           | x
+           | y
+           | z
+
+           | NonAsciiBaseChar
+           | Ideographic
+           | Digit
+           | '.'
+           | '-'
+           | '_'
+    --     | ':'
+           | CombiningChar
+           | Extender 
+
+    NameChar[^l:] ->
+             A
+           | B
+           | C
+           | D
+           | E
+           | F
+           | G
+           | H
+           | I
+           | J
+           | K
+           | L
+           | M
+           | N
+           | O
+           | P
+           | Q
+           | R
+           | S
+           | T
+           | U
+           | V
+           | W
+           | X
+           | Y
+           | Z
+
+           | a
+           | b
+           | c
+           | d
+           | e
+           | f
+           | g
+           | h
+           | i
+           | j
+           | k
+    --     | l
+           | m
+           | n
+           | o
+           | p
+           | q
+           | r
+           | s
+           | t
+           | u
+           | v
+           | w
+           | x
+           | y
+           | z
+
+           | NonAsciiBaseChar
+           | Ideographic
+           | Digit
+           | '.'
+           | '-'
+           | '_'
+    --     | ':'
+           | CombiningChar
+           | Extender 
+
+    NameChar[^n:] ->
+             A
+           | B
+           | C
+           | D
+           | E
+           | F
+           | G
+           | H
+           | I
+           | J
+           | K
+           | L
+           | M
+           | N
+           | O
+           | P
+           | Q
+           | R
+           | S
+           | T
+           | U
+           | V
+           | W
+           | X
+           | Y
+           | Z
+
+           | a
+           | b
+           | c
+           | d
+           | e
+           | f
+           | g
+           | h
+           | i
+           | j
+           | k
+           | l
+           | m
+    --     | n
+           | o
+           | p
+           | q
+           | r
+           | s
+           | t
+           | u
+           | v
+           | w
+           | x
+           | y
+           | z
+
+           | NonAsciiBaseChar
+           | Ideographic
+           | Digit
+           | '.'
+           | '-'
+           | '_'
+    --     | ':'
+           | CombiningChar
+           | Extender 
+
+    NameChar[^s:] ->
+             A
+           | B
+           | C
+           | D
+           | E
+           | F
+           | G
+           | H
+           | I
+           | J
+           | K
+           | L
+           | M
+           | N
+           | O
+           | P
+           | Q
+           | R
+           | S
+           | T
+           | U
+           | V
+           | W
+           | X
+           | Y
+           | Z
+
+           | a
+           | b
+           | c
+           | d
+           | e
+           | f
+           | g
+           | h
+           | i
+           | j
+           | k
+           | l
+           | m
+           | n
+           | o
+           | p
+           | q
+           | r
+    --     | s
+           | t
+           | u
+           | v
+           | w
+           | x
+           | y
+           | z
+
+           | NonAsciiBaseChar
+           | Ideographic
+           | Digit
+           | '.'
+           | '-'
+           | '_'
+    --     | ':'
+           | CombiningChar
+           | Extender 
+%End
