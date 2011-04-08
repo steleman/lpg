@@ -27,9 +27,9 @@ if [[ ! -r "$JUNIT_JAR" ]]; then
     exit 1
 fi
 
-if [[ ! -r "$TEST_CLASS_LOC" || ! -r "$TEST_CLASS_LOC/GeneratorTest.class" ]]; then
-    echo "Couldn't find test class GeneratorTest at $TEST_CLASS_LOC"
-    echo "Please specify the correct path using the -testClassLoc option"
+if [[ ! -r "$TEST_CLASS_LOC" || ! -r "$TEST_CLASS_LOC/lpg/test/GeneratorTest.class" ]]; then
+    echo "Couldn't find test class lpg.test.GeneratorTest at $TEST_CLASS_LOC"
+    echo "Please specify the correct path using the --testClassLoc option"
     echo "$usageMsg"
     exit 1
 fi
@@ -37,4 +37,4 @@ fi
 echo "Using JUnit4 at $JUNIT_JAR"
 echo "Using test class GeneratorTest at $TEST_CLASS_LOC"
 
-java -cp ${JUNIT_JAR}:${TEST_CLASS_LOC} org.junit.runner.JUnitCore GeneratorTest
+java -cp ${JUNIT_JAR}:${TEST_CLASS_LOC} org.junit.runner.JUnitCore lpg.test.GeneratorTest
