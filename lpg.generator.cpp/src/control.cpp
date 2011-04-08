@@ -14,7 +14,7 @@
 using namespace std;
 
 const char Control::HEADER_INFO[]  = "IBM LALR Parser Generator",
-           Control::VERSION[] = "2.0.22 (" __DATE__ ")";
+           Control::VERSION[] = "2.0.23 (" __DATE__ ")";
 
 //
 //
