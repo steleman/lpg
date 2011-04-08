@@ -185,7 +185,11 @@ public class GeneratorTest {
 		File inputsDir = new File(grammarDir, "parser-inputs");
 
 		Assert.assertTrue("Missing inputs directory: " + inputsDir.getAbsolutePath(), inputsDir.exists());
-		File[] inputs = inputsDir.listFiles();
+		File[] inputs = inputsDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return !pathname.getName().equals("CVS");
+			}
+		});
 		Assert.assertTrue("Empty inputs directory: " + inputsDir.getAbsolutePath(), inputs.length > 0);
 
 		for (File srcFile : inputs) {
@@ -244,7 +248,11 @@ public class GeneratorTest {
 		File goldenDir = new File(grammarDir, "GOLDEN");
 		Assert.assertTrue("Folder 'GOLDEN' does not exist in " + grammarDir, goldenDir.exists());
 
-		File[] goldenFiles= goldenDir.listFiles();
+		File[] goldenFiles= goldenDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return !pathname.getName().equals("CVS");
+			}
+		});
 
 		for (File goldenFile : goldenFiles) {
 			if (!goldenFile.getName().endsWith(".java")) {
@@ -317,10 +325,6 @@ public class GeneratorTest {
 		Assert.assertTrue("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath(), sJavaRuntimeDir.exists());
 	}
 
-	/**
-	 * Assumes the test is run with "lpg.generator.cpp/test" as the current directory.
-	 */
-
 	private static void findGenerator() {
 		String generatorPath = "bin/lpg";
 		File cwdFile = new File(".").getAbsoluteFile().getParentFile();
@@ -331,7 +335,6 @@ public class GeneratorTest {
 		sGeneratorFile = genFile;
 	}
 
-
 	private File getInputFile(String path) {
 		String realPath = path;
 		File file = new File(realPath);
@@ -339,7 +342,6 @@ public class GeneratorTest {
 		Assert.assertTrue("Resource doesn't exist: " + file, file.exists());
 		return file;
 	}
-
 
 	private void runGenerator(File grammarFile) {
 		File grammarDir = grammarFile.getParentFile();
