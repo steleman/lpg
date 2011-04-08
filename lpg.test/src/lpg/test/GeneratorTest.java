@@ -160,10 +160,12 @@ public class GeneratorTest {
 		runTest("softjavaparser/SoftJavaParser.g");
 	}
 
-	@Test
-	public void lpgGrammar() {
-		runTest("lpg/LPGParser.g");
-	}
+	// Following test is disabled for now, since the LPG IDE grammar uses a "nested"
+	// Java parser for the action blocks, which requires different build steps.
+//	@Test
+//	public void lpgGrammar() {
+//		runTest("lpg/LPGParser.g");
+//	}
 
 	@Test
 	public void xmlGrammar() {
