@@ -24,6 +24,7 @@ if [[ ! -r "$JUNIT_JAR" ]]; then
     echo "JUnit4 jar file $JUNIT_JAR does not exist"
     echo "$usageMsg"
     echo "You can find the JUnit4 distribution at http://www.junit.org"
+    echo "Please note that the JUnit4 distributed with Eclipse may depend on org.hamcrest components..."
     exit 1
 fi
 
