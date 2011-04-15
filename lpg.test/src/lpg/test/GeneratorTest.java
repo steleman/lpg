@@ -106,6 +106,7 @@ public class GeneratorTest {
 				return execFile;
 			}
 		}
+		System.err.println("Unable to find executable in PATH: " + executableName);
 		Assert.fail("Unable to find executable in PATH: " + executableName);
 		return null;
 	}
@@ -248,7 +249,11 @@ public class GeneratorTest {
 
 	private void compareGeneratedOutputs(File grammarDir) {
 		File goldenDir = new File(grammarDir, "GOLDEN");
-		Assert.assertTrue("Folder 'GOLDEN' does not exist in " + grammarDir, goldenDir.exists());
+
+		if (!goldenDir.exists()) {
+			return;
+		}
+//		Assert.assertTrue("Folder 'GOLDEN' does not exist in " + grammarDir, goldenDir.exists());
 
 		File[] goldenFiles= goldenDir.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
@@ -322,6 +327,15 @@ public class GeneratorTest {
 		sIncludeDir = new File(lpgGeneratorDir, "include/java");
 		sJavaRuntimeDir = new File(lpgRuntimeJavaDir, "bin");
 
+		if (!sTemplatesDir.exists()) {
+			System.err.println("Folder 'templates/java' does not exist in " + lpgGeneratorDir.getAbsolutePath());
+		}
+		if (!sIncludeDir.exists()) {
+			System.err.println("Folder 'include/java' does not exist in " + lpgGeneratorDir.getAbsolutePath());
+		}
+		if (!sJavaRuntimeDir.exists()) {
+			System.err.println("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath());
+		}
 		Assert.assertTrue("Folder 'templates/java' does not exist in " + lpgGeneratorDir.getAbsolutePath(), sTemplatesDir.exists());
 		Assert.assertTrue("Folder 'include/java' does not exist in " + lpgGeneratorDir.getAbsolutePath(), sIncludeDir.exists());
 		Assert.assertTrue("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath(), sJavaRuntimeDir.exists());
@@ -330,16 +344,19 @@ public class GeneratorTest {
 	private static void findGenerator() {
 		String generatorPath = "bin/lpg";
 		File cwdFile = new File(".").getAbsoluteFile().getParentFile();
-		File lpgGeneratorCppDir = new File(cwdFile.getParentFile().getParentFile(), "lpg.generator.cpp");
+		File lpgGeneratorCppDir = new File(cwdFile.getParentFile(), "lpg.generator.cpp");
 		File genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
 
-		Assert.assertTrue("Generator executable not found at " + genFile + "(cwd = " + new File(".").getAbsolutePath() + ")", genFile.exists() && genFile.isFile());
+		if (!genFile.exists() || !genFile.isFile()) {
+			System.err.println("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")");
+			System.err.println("Test should be run from within directory 'lpg.test'");
+		}
+		Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFile.exists() && genFile.isFile());
 		sGeneratorFile = genFile;
 	}
 
 	private File getInputFile(String path) {
-		String realPath = path;
-		File file = new File(realPath);
+		File file = new File(sTestsDir, path);
 
 		Assert.assertTrue("Resource doesn't exist: " + file, file.exists());
 		return file;
