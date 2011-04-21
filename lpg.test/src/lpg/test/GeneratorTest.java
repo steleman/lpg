@@ -97,10 +97,11 @@ public class GeneratorTest {
 
 	private static File findExecutableInPATH(String executableName) {
 		String path= System.getenv("PATH");
-		String[] pathComponents= path.split(":");
+		String[] pathComponents= path.split(File.pathSeparator);
+		boolean isWin32 = System.getProperty("os.name").contains("indows");
 
 		for (String pathEntry : pathComponents) {
-			File execFile= new File(pathEntry + "/" + executableName);
+			File execFile= new File(pathEntry + File.separator + executableName + (isWin32 ? ".exe" : ""));
 			if (execFile.exists()) {
 				System.out.println("Found " + executableName + " at: " + execFile.getAbsolutePath());
 				return execFile;
