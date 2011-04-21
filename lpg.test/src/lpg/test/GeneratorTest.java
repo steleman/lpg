@@ -344,16 +344,21 @@ public class GeneratorTest {
 
 	private static void findGenerator() {
 		String generatorPath = "bin/lpg";
-		File cwdFile = new File(".").getAbsoluteFile().getParentFile();
-		File lpgGeneratorCppDir = new File(cwdFile.getParentFile(), "lpg.generator.cpp");
-		File genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
+		try {
+			File cwdFile = new File(".").getCanonicalFile();
+			File projectsParentDir = cwdFile.getParentFile();
+			File lpgGeneratorCppDir = new File(projectsParentDir.getParentFile(), "lpg.generator.cpp");
+			File genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
 
-		if (!genFile.exists() || !genFile.isFile()) {
-			System.err.println("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")");
-			System.err.println("Test should be run from within directory 'lpg.test'");
+			if (!genFile.exists() || !genFile.isFile()) {
+				System.err.println("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")");
+				System.err.println("Test should be run from within directory 'lpg.test'");
+			}
+			Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFile.exists() && genFile.isFile());
+			sGeneratorFile = genFile;
+		} catch (IOException e) {
+			Assert.fail("Error obtaining path for current working directory: " + e.getMessage());
 		}
-		Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFile.exists() && genFile.isFile());
-		sGeneratorFile = genFile;
 	}
 
 	private File getInputFile(String path) {
