@@ -90,6 +90,11 @@ public class GeneratorTest {
 
 	@BeforeClass
 	public static void findPrerequisites() {
+		try {
+			System.out.println("cwd = " + new File(".").getCanonicalPath());
+		} catch (IOException e) {
+			System.err.println("Exception encountered while determining cwd: " + e.getMessage());
+		}
 		sJavaExecutable= findExecutableInPATH("java");
 		sJavacExecutable= findExecutableInPATH("javac");
 		findGeneratorAndTemplates();
@@ -343,18 +348,37 @@ public class GeneratorTest {
 	}
 
 	private static void findGenerator() {
-		String generatorPath = "bin/lpg";
 		try {
-			File cwdFile = new File(".").getCanonicalFile();
-			File projectsParentDir = cwdFile.getParentFile();
-			File lpgGeneratorCppDir = new File(projectsParentDir.getParentFile(), "lpg.generator.cpp");
-			File genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
+			String lpgEnv = System.getenv("LPG");
+			File genFile;
 
-			if (!genFile.exists() || !genFile.isFile()) {
-				System.err.println("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")");
-				System.err.println("Test should be run from within directory 'lpg.test'");
+			if (lpgEnv != null) {
+				System.out.println("Using LPG generator location set in environment variable 'LPG': " + lpgEnv);
+				genFile = new File(lpgEnv);
+			} else {
+				String generatorPath = "bin/lpg";
+				File cwdFile = new File(".").getCanonicalFile();
+				File projectsParentDir = cwdFile.getParentFile();
+				File lpgGeneratorCppDir = new File(projectsParentDir.getParentFile(), "lpg.generator.cpp");
+
+				genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
 			}
-			Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFile.exists() && genFile.isFile());
+
+			boolean genFileExists = genFile.exists() && genFile.isFile();
+
+			if (!genFileExists) {
+				System.err.println("Generator executable not found at " + genFile);
+				System.err.println("Note: Generator will be found if test is run within directory 'lpg.test'.");
+				System.err.println("Note: You can also set the 'LPG' environment variable to point to the generator.");
+			}
+			Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFileExists);
+
+			boolean genFileExecutable = genFile.canExecute();
+
+			if (!genFileExecutable) {
+				System.err.println("Generator not executable: " + genFile);
+			}
+			Assert.assertTrue("Generator is not executable: " + genFile, genFileExecutable);
 			sGeneratorFile = genFile;
 		} catch (IOException e) {
 			Assert.fail("Error obtaining path for current working directory: " + e.getMessage());
