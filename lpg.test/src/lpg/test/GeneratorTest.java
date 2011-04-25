@@ -102,12 +102,15 @@ public class GeneratorTest {
 	 */
 	private static File sJavacExecutable;
 
+	private static boolean sIsWin32= false;
+
 	@BeforeClass
 	public static void findPrerequisites() {
+        sIsWin32 = System.getProperty("os.name").contains("indows");
 		try {
 			sCWDFile = new File(".").getCanonicalFile();
 
-			System.out.println("cwd = " + sCWDFile);
+			System.out.println("Current working directory = " + sCWDFile);
 		} catch (IOException e) {
 			System.err.println("Exception encountered while determining cwd: " + e.getMessage());
 		}
@@ -134,10 +137,9 @@ public class GeneratorTest {
 	private static File findExecutableInPATH(String executableName) {
 		String path= System.getenv("PATH");
 		String[] pathComponents= path.split(File.pathSeparator);
-		boolean isWin32 = System.getProperty("os.name").contains("indows");
 
-		if (isWin32) {
-		    executableName = executableName + (isWin32 ? ".exe" : "");
+		if (sIsWin32) {
+		    executableName = executableName + (sIsWin32 ? ".exe" : "");
 		}
 
 		for (String pathEntry : pathComponents) {
@@ -259,8 +261,8 @@ public class GeneratorTest {
 		runTest("softjavaparser/SoftJavaParser.g");
 	}
 
-	// The following test is disabled for now, since the LPG IDE grammar uses a "nested"
-	// Java parser for the action blocks, which requires different build steps.
+	// The following test doesn't use runTest(), since the LPG IDE grammar uses a "nested"
+	// Java parser for the action blocks, which requires somewhat different build steps.
 	@Test
 	public void lpgGrammar() {
 		String lpgGrammar = "lpg/LPGParser.g";
@@ -281,6 +283,8 @@ public class GeneratorTest {
 	}
 
 	private void runTest(String rootGrammarFile) {
+	    System.out.println("*** Running test on grammar file " + rootGrammarFile);
+
 		File grammarFile = getInputFile(rootGrammarFile);
 		File grammarDir = grammarFile.getParentFile();
 
@@ -290,6 +294,7 @@ public class GeneratorTest {
 		runParserOnInputs(grammarDir);
 //		compareParserOutput(grammarFile);
 	}
+
 
 	private void runParserOnInputs(File grammarDir) {
 		File inputsDir = new File(grammarDir, "parser-inputs");
@@ -435,29 +440,28 @@ public class GeneratorTest {
         runCommand(sGeneratorFile, grammarDir, cmdArgs);
 	}
 
-	private boolean fIsWin32 = false;
-
 	private String[] buildLPGCmdArgs(String fileName, String executablePath) {
-        String includeSearchPath= "-include-directory='" + sTemplatesDir.getAbsolutePath() + ";" + sIncludeDir.getAbsolutePath() + "'";
-//      String directoryPrefixPath= "-directory-prefix='" + this.getProject().getLocation().toOSString() + "'";
+        String includePathOption= "-include-directory=" + sTemplatesDir.getAbsolutePath() + ";" + sIncludeDir.getAbsolutePath() + "";
+//      String directoryPrefixOption= "-directory-prefix='" + this.getProject().getLocation().toOSString() + "'";
+        List<String> cmdArgs = new LinkedList<String>();
 
-        String cmd[]= new String[] {
-                executablePath,
-                "-quiet",
-                "-list",
-                // In order for Windows to treat the following template path argument as
-                // a single argument, despite any embedded spaces, it has to be completely
-                // enclosed in double quotes. It does not suffice to quote only the path
-                // part. However, for lpg to treat the path properly, the path itself
-                // must also be quoted, since the outer quotes will be stripped by the
-                // Windows shell (command/cmd.exe). As an added twist, if we used the same
-                // kind of quote for both the inner and outer quoting, and the outer quotes
-                // survived, the part that actually needed quoting would be "bare"! Hence
-                // we use double quotes for the outer level and single quotes inside.
-                (fIsWin32 ? "\"" + includeSearchPath + "\"" : includeSearchPath),
-//              (fIsWin32 ? "\"" + directoryPrefixPath + "\"" : directoryPrefixPath),
-                fileName};
-        return cmd;
+        cmdArgs.add(executablePath);
+//        cmdArgs.add("-quiet");
+        cmdArgs.add("-list");
+        // In order for Windows to treat the following template path argument as
+        // a single argument, despite any embedded spaces, it has to be completely
+        // enclosed in double quotes. It does not suffice to quote only the path
+        // part. However, for lpg to treat the path properly, the path itself
+        // must also be quoted, since the outer quotes will be stripped by the
+        // Windows shell (command/cmd.exe). As an added twist, if we used the same
+        // kind of quote for both the inner and outer quoting, and the outer quotes
+        // survived, the part that actually needed quoting would be "bare"! Hence
+        // we use double quotes for the outer level and single quotes inside.
+        cmdArgs.add(sIsWin32 ? "\"" + includePathOption + "\"" : includePathOption);
+//      cmdArgs.add(sIsWin32 ? "\"" + directoryPrefixOption + "\"" : directoryPrefixOption);
+        cmdArgs.add(fileName);
+
+        return cmdArgs.toArray(new String[cmdArgs.size()]);
     }
 
 	private void runCommand(File execFile, File processCWD, String[] cmdArgs) {
@@ -468,6 +472,7 @@ public class GeneratorTest {
 				System.out.print(' ');
 			}
 			System.out.println();
+			System.out.println("  Process working directory: " + processCWD);
 			Process proc = Runtime.getRuntime().exec(cmdArgs, null, processCWD);
 
 			processStandardOutput(proc);
