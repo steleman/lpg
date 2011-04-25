@@ -18,24 +18,27 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 /**
- * JUnit4 test class that performs the following steps for each test grammar:
+ * A JUnit4 test class that performs the following steps for each test grammar:
  * <ul>
  *   <li>runs the LPG generator on the grammar
  *   <li>compiles the resulting Java code
  *   <li>runs the parser on any test source input files in "parser-inputs" (see below)
  * </ul>
- * <b>Assumes the test is run with "lpg.test/tests" as the current directory.</b><br><br>
- * When that's true, it will find everything else it needs, if all of the relevant
- * projects have been checked out as sibling directories:
+ * <b>Requires</b> that java and javac are in a directory listed on the PATH
+ * environment variable.<br><br>
+ * <b>Requires that the test is run with "lpg.test" or some sub-directory as the current directory.</b><br><br>
+ * When that's true, the test harness should find everything else it needs, if all
+ * of the projects below have been checked out as sibling directories:
  * <ul>
  *  <li>lpg.generator.cpp
  *  <li>lpg.generator (for the templates)
  *  <li>lpg.runtime.java (must have the .class files in "bin")
  *  <li>lpg.test
  * </ul>
- * <b>Requires</b> that the lpg generator is located at "lpg.generator.cpp/bin/lpg".<br>  
- * <b>Requires</b> that java and javac are in a directory listed on the PATH environment
- * variable.<br>
+ * <b>If the environment variable 'LPG' is defined</b>, it must point to the LPG
+ * generator executable to be used.<br>
+ * <b>If the environment variable 'LPG' is undefined</b>, the LPG generator
+ * executable must be located at "lpg.generator.cpp/bin/lpg".<br><br>  
  * Scans "lpg.test/tests" for test directories, one per grammar.
  * Each directory has:
  * <ul>
@@ -54,9 +57,20 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class GeneratorTest {
 	/**
+	 * A File referring to the current working directory
+	 */
+	private static File sCWDFile;
+
+	/**
 	 * The location of the LPG generator executable
 	 */
 	private static File sGeneratorFile;
+
+	/**
+	 * The location of the "projects directory" that contains the projects
+	 * "lpg.generator", "lpg.test", and so on, from an LPG source distribution.
+	 */
+	private static File sProjectsDir;
 
 	/**
 	 * The location of the "lpg.test/tests" directory
@@ -91,22 +105,43 @@ public class GeneratorTest {
 	@BeforeClass
 	public static void findPrerequisites() {
 		try {
-			System.out.println("cwd = " + new File(".").getCanonicalPath());
+			sCWDFile = new File(".").getCanonicalFile();
+
+			System.out.println("cwd = " + sCWDFile);
 		} catch (IOException e) {
 			System.err.println("Exception encountered while determining cwd: " + e.getMessage());
 		}
+		findProjectsDir();
 		sJavaExecutable= findExecutableInPATH("java");
 		sJavacExecutable= findExecutableInPATH("javac");
-		findGeneratorAndTemplates();
+		findGenerator();
+		findTemplates();
 	}
+
+    private static void findProjectsDir() {
+        File dir = sCWDFile;
+
+        while (dir != null && !dir.getName().equals("lpg.test")) {
+            dir = dir.getParentFile();
+        }
+        if (dir == null) {
+            System.err.println("Unable to locate project directory lpg.test starting at " + sCWDFile);
+        }
+        Assert.assertNotNull("Unable to locate project parent directory starting at " + sCWDFile, dir);
+        sProjectsDir = dir.getParentFile();
+    }
 
 	private static File findExecutableInPATH(String executableName) {
 		String path= System.getenv("PATH");
 		String[] pathComponents= path.split(File.pathSeparator);
 		boolean isWin32 = System.getProperty("os.name").contains("indows");
 
+		if (isWin32) {
+		    executableName = executableName + (isWin32 ? ".exe" : "");
+		}
+
 		for (String pathEntry : pathComponents) {
-			File execFile= new File(pathEntry + File.separator + executableName + (isWin32 ? ".exe" : ""));
+			File execFile= new File(pathEntry + File.separator + executableName);
 			if (execFile.exists()) {
 				System.out.println("Found " + executableName + " at: " + execFile.getAbsolutePath());
 				return execFile;
@@ -116,6 +151,63 @@ public class GeneratorTest {
 		Assert.fail("Unable to find executable in PATH: " + executableName);
 		return null;
 	}
+
+    private static void findGenerator() {
+        String lpgEnv = System.getenv("LPG");
+        File genFile;
+
+        if (lpgEnv != null) {
+            System.out.println("Using LPG generator location set in environment variable 'LPG': " + lpgEnv);
+            genFile = new File(lpgEnv);
+        } else {
+            String generatorPath = "bin/lpg";
+            File projectsParentDir = sCWDFile.getParentFile();
+            File lpgGeneratorCppDir = new File(projectsParentDir.getParentFile(), "lpg.generator.cpp");
+
+            genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
+        }
+
+        boolean genFileExists = genFile.exists() && genFile.isFile();
+
+        if (!genFileExists) {
+            System.err.println("Generator executable not found at " + genFile);
+            System.err.println("Note: Generator will be found if test is run within directory 'lpg.test'.");
+            System.err.println("Note: You can also set the 'LPG' environment variable to point to the generator.");
+        }
+        Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFileExists);
+
+        boolean genFileExecutable = genFile.canExecute();
+
+        if (!genFileExecutable) {
+            System.err.println("Generator not executable: " + genFile);
+        }
+        Assert.assertTrue("Generator is not executable: " + genFile, genFileExecutable);
+        sGeneratorFile = genFile;
+    }
+
+    private static void findTemplates() {
+        File lpgTestDir = new File(sProjectsDir, "lpg.test");
+        File lpgGeneratorDir = new File(sProjectsDir, "lpg.generator");
+        File lpgRuntimeJavaDir = new File(sProjectsDir, "lpg.runtime.java");
+
+        sTestsDir = new File(lpgTestDir, "tests");
+        sTemplatesDir = new File(lpgGeneratorDir, "templates/java");
+        sIncludeDir = new File(lpgGeneratorDir, "include/java");
+        sJavaRuntimeDir = new File(lpgRuntimeJavaDir, "bin");
+
+        if (!sTemplatesDir.exists()) {
+            System.err.println("Folder 'templates/java' does not exist in " + lpgGeneratorDir.getAbsolutePath());
+        }
+        if (!sIncludeDir.exists()) {
+            System.err.println("Folder 'include/java' does not exist in " + lpgGeneratorDir.getAbsolutePath());
+        }
+        if (!sJavaRuntimeDir.exists()) {
+            System.err.println("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath());
+        }
+        Assert.assertTrue("Folder 'templates/java' does not exist in " + lpgGeneratorDir.getAbsolutePath(), sTemplatesDir.exists());
+        Assert.assertTrue("Folder 'include/java' does not exist in " + lpgGeneratorDir.getAbsolutePath(), sIncludeDir.exists());
+        Assert.assertTrue("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath(), sJavaRuntimeDir.exists());
+    }
 
 	@Test
 	public void expr1() {
@@ -167,12 +259,21 @@ public class GeneratorTest {
 		runTest("softjavaparser/SoftJavaParser.g");
 	}
 
-	// Following test is disabled for now, since the LPG IDE grammar uses a "nested"
+	// The following test is disabled for now, since the LPG IDE grammar uses a "nested"
 	// Java parser for the action blocks, which requires different build steps.
 //	@Test
-//	public void lpgGrammar() {
-//		runTest("lpg/LPGParser.g");
-//	}
+	public void lpgGrammar() {
+		String lpgGrammar = "lpg/LPGParser.g";
+		String javaGrammar = "lpg/GJavaParser.g";
+		File lpgGrammarFile = getInputFile(lpgGrammar);
+		File grammarDir = lpgGrammarFile.getParentFile();
+		File javaGrammarFile = getInputFile(javaGrammar);
+
+		runGenerator(lpgGrammarFile);
+		runGenerator(javaGrammarFile);
+		compileParserFiles(grammarDir);
+		runParserOnInputs(grammarDir);
+	}
 
 	@Test
 	public void xmlGrammar() {
@@ -320,71 +421,6 @@ public class GeneratorTest {
 		}
 	}
 
-	private static void findGeneratorAndTemplates() {
-		findGenerator();
-
-		File parentDir = sGeneratorFile.getParentFile().getParentFile().getParentFile();
-		File lpgTestDir = new File(parentDir, "lpg.test");
-		File lpgGeneratorDir = new File(parentDir, "lpg.generator");
-		File lpgRuntimeJavaDir = new File(parentDir, "lpg.runtime.java");
-
-		sTestsDir = new File(lpgTestDir, "tests");
-		sTemplatesDir = new File(lpgGeneratorDir, "templates/java");
-		sIncludeDir = new File(lpgGeneratorDir, "include/java");
-		sJavaRuntimeDir = new File(lpgRuntimeJavaDir, "bin");
-
-		if (!sTemplatesDir.exists()) {
-			System.err.println("Folder 'templates/java' does not exist in " + lpgGeneratorDir.getAbsolutePath());
-		}
-		if (!sIncludeDir.exists()) {
-			System.err.println("Folder 'include/java' does not exist in " + lpgGeneratorDir.getAbsolutePath());
-		}
-		if (!sJavaRuntimeDir.exists()) {
-			System.err.println("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath());
-		}
-		Assert.assertTrue("Folder 'templates/java' does not exist in " + lpgGeneratorDir.getAbsolutePath(), sTemplatesDir.exists());
-		Assert.assertTrue("Folder 'include/java' does not exist in " + lpgGeneratorDir.getAbsolutePath(), sIncludeDir.exists());
-		Assert.assertTrue("Folder 'bin' does not exist in " + lpgRuntimeJavaDir.getAbsolutePath(), sJavaRuntimeDir.exists());
-	}
-
-	private static void findGenerator() {
-		try {
-			String lpgEnv = System.getenv("LPG");
-			File genFile;
-
-			if (lpgEnv != null) {
-				System.out.println("Using LPG generator location set in environment variable 'LPG': " + lpgEnv);
-				genFile = new File(lpgEnv);
-			} else {
-				String generatorPath = "bin/lpg";
-				File cwdFile = new File(".").getCanonicalFile();
-				File projectsParentDir = cwdFile.getParentFile();
-				File lpgGeneratorCppDir = new File(projectsParentDir.getParentFile(), "lpg.generator.cpp");
-
-				genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
-			}
-
-			boolean genFileExists = genFile.exists() && genFile.isFile();
-
-			if (!genFileExists) {
-				System.err.println("Generator executable not found at " + genFile);
-				System.err.println("Note: Generator will be found if test is run within directory 'lpg.test'.");
-				System.err.println("Note: You can also set the 'LPG' environment variable to point to the generator.");
-			}
-			Assert.assertTrue("Generator executable not found at " + genFile + " (cwd = " + new File(".").getAbsolutePath() + ")", genFileExists);
-
-			boolean genFileExecutable = genFile.canExecute();
-
-			if (!genFileExecutable) {
-				System.err.println("Generator not executable: " + genFile);
-			}
-			Assert.assertTrue("Generator is not executable: " + genFile, genFileExecutable);
-			sGeneratorFile = genFile;
-		} catch (IOException e) {
-			Assert.fail("Error obtaining path for current working directory: " + e.getMessage());
-		}
-	}
-
 	private File getInputFile(String path) {
 		File file = new File(sTestsDir, path);
 
@@ -454,7 +490,6 @@ public class GeneratorTest {
 		}
 	}
 
-
 	private void processStandardError(Process process) throws IOException {
         InputStream is= process.getErrorStream();
         BufferedReader in= new BufferedReader(new InputStreamReader(is));
@@ -466,7 +501,6 @@ public class GeneratorTest {
         }
         is.close();
     }
-
 
 	private void processStandardOutput(Process process) throws IOException {
         InputStream is= process.getInputStream();
