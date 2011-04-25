@@ -261,7 +261,7 @@ public class GeneratorTest {
 
 	// The following test is disabled for now, since the LPG IDE grammar uses a "nested"
 	// Java parser for the action blocks, which requires different build steps.
-//	@Test
+	@Test
 	public void lpgGrammar() {
 		String lpgGrammar = "lpg/LPGParser.g";
 		String javaGrammar = "lpg/GJavaParser.g";
@@ -345,7 +345,7 @@ public class GeneratorTest {
 		List<String> cmdArgList = new LinkedList<String>();
 		cmdArgList.add("javac");
 		cmdArgList.add("-cp");
-		cmdArgList.add("..:" + sJavaRuntimeDir.getAbsolutePath());
+		cmdArgList.add(".:..:" + sJavaRuntimeDir.getAbsolutePath());
 		cmdArgList.add("-d");
 		cmdArgList.add("bin");
 		for (File javaFile : grammarDirJavaFiles) {
