@@ -49,7 +49,8 @@ OptionProcessor::processActionBlock(OptionValue *v)
     std::string blockEnd = trimQuotes(*i++);
 
     Option::BlockInfo& actionBlock = options->action_options.Next();
-    actionBlock.Set(NULL, strdup(fileName.c_str()), strdup(blockBegin.c_str()), strdup(blockEnd.c_str()));
+    Token *optionLoc = options->GetTokenLocation(options->parm_ptr, 0);
+    actionBlock.Set(optionLoc, strdup(fileName.c_str()), strdup(blockBegin.c_str()), strdup(blockEnd.c_str()));
 }
 
 OptionDescriptor *astDirectory = new PathOptionDescriptor("ast", "directory",
@@ -63,7 +64,7 @@ OptionDescriptor *attributes = new BooleanOptionDescriptor("attributes", "???", 
 
 OptionDescriptor *automaticAST = new EnumOptionDescriptor("automatic", "ast", 
                                                           "determines where generated AST classes will be placed",
-                                                          &Option::automatic_ast, "none",
+                                                          &Option::automatic_ast, "none", "nested", "none",
                                                           new EnumValue("none", Option::NONE),
                                                           new EnumValue("nested", Option::NESTED),
                                                           new EnumValue("toplevel", Option::TOPLEVEL), NULL);
@@ -200,6 +201,7 @@ OptionProcessor::processIncludeDir(OptionValue *v)
     std::string includeDirOption;
 
     options->include_search_directory.Reset();
+    options->include_search_directory.Next() = strdup(options->home_directory);
     for(std::list<std::string>::iterator i= values.begin(); i != values.end(); i++) {
         std::string path = *i;
 //      cerr << "include-dir path: " << path << endl;
@@ -228,7 +230,7 @@ OptionDescriptor *maxCases = new IntegerOptionDescriptor("max", "cases", 1024, 1
                                                          "???",
                                                          &Option::max_cases);
 
-OptionDescriptor *names = new EnumOptionDescriptor("names", "???", &Option::names, "optimized",
+OptionDescriptor *names = new EnumOptionDescriptor("names", "???", &Option::names, "optimized", "", "",
                                                    new EnumValue("optimized", Option::OPTIMIZED),
                                                    new EnumValue("minimum", Option::MINIMUM),
                                                    new EnumValue("maximum", Option::MAXIMUM), NULL);
@@ -262,7 +264,7 @@ OptionDescriptor *priority = new BooleanOptionDescriptor("priority", "???", true
 
 OptionDescriptor *programmingLang = new EnumOptionDescriptor("programming", "language",
                                                              "identifies the desired parser implementation language",
-                                                             &Option::programming_language, "xml",
+                                                             &Option::programming_language, "xml", "", "",
                                                              new EnumValue("c", Option::C),
                                                              new EnumValue("cpp", Option::CPP),
                                                              new EnumValue("c++", Option::CPP),
@@ -289,7 +291,7 @@ OptionDescriptor *remapTerminals = new BooleanOptionDescriptor("remap", "termina
 
 OptionDescriptor *ruleClassNames = new EnumOptionDescriptor("rule", "classnames", "???",
                                                             &Option::rule_classnames,
-                                                            "sequential",
+                                                            "sequential", "", "",
                                                             new EnumValue("sequential", Option::SEQUENTIAL),
                                                             new EnumValue("stable", Option::STABLE), NULL);
 
@@ -306,7 +308,7 @@ OptionDescriptor *shiftDefault = new BooleanOptionDescriptor("shift", "default",
                                                              &Option::shift_default);
 
 OptionDescriptor *singleProductions = new BooleanOptionDescriptor("single", "productions",
-                                                           "???",
+                                                           "???", false,
                                                            &Option::single_productions);
 
 OptionDescriptor *slr = new BooleanOptionDescriptor("slr",
@@ -377,7 +379,8 @@ OptionDescriptor *template_ = new StringOptionDescriptor("template", "???", NULL
 
 OptionDescriptor *trace = new EnumOptionDescriptor("trace", "???",
                                                    &Option::trace,
-                                                   "conflicts",
+                                                   "conflicts", "conflicts", "none",
+                                                   new EnumValue("none", Option::NONE),
                                                    new EnumValue("conflicts", Option::CONFLICTS),
                                                    new EnumValue("full", Option::FULL), NULL);
 
@@ -401,7 +404,7 @@ OptionProcessor::processTrailers(OptionValue *v)
 OptionDescriptor *variables = new EnumOptionDescriptor("variables",
                                                        "determines the set of right-hand side symbols for which local variables will be defined within action blocks",
                                                        &Option::variables,
-                                                       "none",
+                                                       "none", "both", "none",
                                                        new EnumValue("none", Option::NONE),
                                                        new EnumValue("both", Option::BOTH),
                                                        new EnumValue("terminals", Option::TERMINALS),
@@ -415,7 +418,7 @@ OptionDescriptor *verbose = new BooleanOptionDescriptor("verbose",
 
 OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", "???",
                                                      &Option::visitor,
-                                                     "none",
+                                                     "none", "default", "none",
                                                      new EnumValue("none", Option::NONE),
                                                      new EnumValue("default", Option::DEFAULT),
                                                      new EnumValue("preorder", Option::PREORDER), NULL);

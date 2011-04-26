@@ -20,7 +20,7 @@ OptionParser::IsDelimiter(char c)
 }
 
 OptionDescriptor *
-OptionParser::findOption(const char *&start, bool& flag)
+OptionParser::findOption(const char *&start, bool& noFlag)
 {
     for (std::list<OptionDescriptor*>::iterator iter=allOptions.begin(); iter != allOptions.end(); iter++) {
         OptionDescriptor *od = *iter;
@@ -28,11 +28,11 @@ OptionParser::findOption(const char *&start, bool& flag)
         const char *word1 = od->getWord1();
         const char *word2 = od->getWord2();
 
-        if (od->getType() == BOOLEAN && (*p == 'n' || *p == 'N') && (*(p+1) == 'o' || *(p+1) == 'O')) {
+        if ((*p == 'n' || *p == 'N') && (*(p+1) == 'o' || *(p+1) == 'O')) {
             p += 2;
-            flag = false;
+            noFlag = true;
         } else {
-            flag = true;
+            noFlag = false;
         }
 
 
@@ -66,7 +66,7 @@ OptionParser::findOption(const char *&start, bool& flag)
         
         if (p[i+1] == '=' || IsDelimiter(p[i+1])) {
             start += i + 1;
-            if (!flag) {
+            if (noFlag) {
                 start += 2;
             }
             return od;
@@ -108,15 +108,15 @@ OptionParser::parse(const char *&start) throw(ValueFormatException)
     if (od != NULL) {
         // This option is a match
         std::string *optValueStr = getOptionValue(start);
-        OptionValue *optValue = od->createValue();
+        OptionValue *optValue = od->createValue(noFlag);
 
-        optValue->parseValue(optValueStr, od);
+        optValue->parseValue(optValueStr);
 
-        // HACK Handle the "no" prefix on boolean options
-        if (od->getType() == BOOLEAN && !noFlag) {
-            BooleanOptionValue *bv = static_cast<BooleanOptionValue*> (optValue);
-            bv->setValue(!bv->getValue());
-        }
+//        // HACK Handle the "no" prefix on boolean options
+//        if (od->getType() == BOOLEAN && !noFlag) {
+//            BooleanOptionValue *bv = static_cast<BooleanOptionValue*> (optValue);
+//            bv->setValue(!bv->getValue());
+//        }
         return optValue;
     }
     return NULL;

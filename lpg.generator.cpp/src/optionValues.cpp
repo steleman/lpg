@@ -12,20 +12,26 @@ static const std::string *TRUE_VALUE_STR = new std::string("true");
 static const std::string *FALSE_VALUE_STR = new std::string("false");
 
 void
-BooleanOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException)
+OptionValue::processSetting(OptionProcessor *processor)
+{
+    getOptionDescriptor()->processSetting(processor, this);
+}
+
+void
+BooleanOptionValue::parseValue(std::string *v) throw(ValueFormatException)
 {
     if (v == NULL) {
-        if (od->isValueOptional()) {
-            value = true;
+        if (optionDesc->isValueOptional()) {
+            value = !noFlag;
         } else {
-            throw ValueFormatException("Missing boolean value", od);
+            throw ValueFormatException("Missing boolean value", optionDesc);
         }
     } else if (!v->compare(*TRUE_VALUE_STR)) {
         value = true;
     } else if (!v->compare(*FALSE_VALUE_STR)) {
         value = false;
     } else {
-        throw ValueFormatException("Invalid boolean value", *v, od);
+        throw ValueFormatException("Invalid boolean value", *v, optionDesc);
     }
 }
 
@@ -36,25 +42,28 @@ BooleanOptionValue::toString()
 }
 
 void
-IntegerOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException)
+IntegerOptionValue::parseValue(std::string *v) throw(ValueFormatException)
 {
+    if (noFlag) {
+        throw ValueFormatException("Invalid 'no' prefix for option", optionDesc);
+    }
     if (v == NULL) {
-        if (od->isValueOptional()) {
+        if (optionDesc->isValueOptional()) {
             value = 0;
         } else {
-            throw ValueFormatException("Missing integer value", od);
+            throw ValueFormatException("Missing integer value", optionDesc);
         }
     }
     
-    const IntegerOptionDescriptor *id = static_cast<const IntegerOptionDescriptor*> (od);
+    const IntegerOptionDescriptor *iod = static_cast<const IntegerOptionDescriptor*> (optionDesc);
     const char *vs = v->c_str();
     
     if (!verify(vs)) {
-        throw ValueFormatException("Invalid integer value", *v, od);
+        throw ValueFormatException("Invalid integer value", *v, optionDesc);
     } else {
         int iv = atoi(vs);
-        if (iv < id->getMinValue() || iv > id->getMaxValue()) {
-            throw ValueFormatException("Integer value outside allowable range", *v, od);
+        if (iv < iod->getMinValue() || iv > iod->getMaxValue()) {
+            throw ValueFormatException("Integer value outside allowable range", *v, optionDesc);
         }
         value = iv;
     }
@@ -69,16 +78,16 @@ IntegerOptionValue::toString()
 }
 
 void
-StringOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException)
+StringOptionValue::parseValue(std::string *v) throw(ValueFormatException)
 {
     if (v == NULL) {
-        throw ValueFormatException("Missing string value", od);
+        throw ValueFormatException("Missing string value", optionDesc);
     }
     if (v->length() == 0) {
         value = *v;
     } else if (v->at(0) == '\'') {
         if (v->at(v->length()-1) != '\'') {
-            throw ValueFormatException("String option value must be quoted", *v, od);
+            throw ValueFormatException("String option value must be quoted", *v, optionDesc);
         }
         // trim quotes
         value = v->substr(1, v->length() - 2);
@@ -95,13 +104,16 @@ StringOptionValue::toString()
 }
 
 void
-EnumOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException)
+EnumOptionValue::parseValue(std::string *v) throw(ValueFormatException)
 {
-    EnumOptionDescriptor *eod = static_cast<EnumOptionDescriptor*> (od);
+    EnumOptionDescriptor *eod = static_cast<EnumOptionDescriptor*> (optionDesc);
     
     std::list<EnumValue*> legalValues = eod->getLegalValues();
 
     if (v == NULL) {
+        if (!eod->isValueOptional() && eod->getDefaultValue().size() == 0) {
+            throw ValueFormatException("option requires a value", "", optionDesc);
+        }
         value = eod->getDefaultValue();
         return;
     }
@@ -120,19 +132,29 @@ EnumOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFor
         }
     }
     if (!found) {
-        // TODO say what are the legal values
-        std::string msg;
-        msg.append("Legal values are: {");
-        for (EnumOptionDescriptor::EnumValueList::iterator i = legalValues.begin(); i != legalValues.end(); i++) {
-            if (i != legalValues.begin()) {
-                msg.append(" |");
-            }
-            msg.append(" ");
-            msg.append((*i)->first());
-        }        
-        msg.append(" }");
-        throw ValueFormatException(msg, *v, od);
+        // Say what are the legal values
+        std::string msg = describeLegalValues();
+        throw ValueFormatException(msg, *v, eod);
     }
+}
+
+std::string
+EnumOptionValue::describeLegalValues()
+{
+    std::string msg;
+    EnumOptionDescriptor *eod = static_cast<EnumOptionDescriptor*> (getOptionDescriptor());
+    EnumOptionDescriptor::EnumValueList legalValues = eod->getLegalValues();
+    
+    msg.append("Legal values are: {");
+    for (EnumOptionDescriptor::EnumValueList::iterator i = legalValues.begin(); i != legalValues.end(); i++) {
+        if (i != legalValues.begin()) {
+            msg.append(" |");
+        }
+        msg.append(" ");
+        msg.append((*i)->first());
+    }
+    msg.append(" }");
+    return msg;
 }
 
 void
@@ -143,20 +165,20 @@ StringListOptionValue::addValue(const char *s)
 }
 
 void
-StringListOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException)
+StringListOptionValue::parseValue(std::string *v) throw(ValueFormatException)
 {
     if (v == NULL) {
-        throw ValueFormatException("Missing list-of-strings value", od);
+        throw ValueFormatException("Missing list-of-strings value", optionDesc);
     }
     
     // Trim surrounding ()'s, and split string at commas
     // Work on a copy
     const char *p = v->c_str();
     if (p[0] != '(') {
-        throw ValueFormatException("String-list-valued option must be enclosed in parentheses", *v, od);
+        throw ValueFormatException("String-list-valued option must be enclosed in parentheses", *v, optionDesc);
     }
     if (p[strlen(p)-1] != ')') {
-        throw ValueFormatException("String-list-valued option must be enclosed in parentheses", *v, od);
+        throw ValueFormatException("String-list-valued option must be enclosed in parentheses", *v, optionDesc);
     }
     char *pCopy = strdup(p+1); // trim leading '('
     pCopy[strlen(pCopy)-1] = '\0'; // trim trailing ')'
@@ -205,10 +227,10 @@ StringListOptionValue::toString()
 }
 
 void
-PathListOptionValue::parseValue(std::string *v, OptionDescriptor *od) throw(ValueFormatException)
+PathListOptionValue::parseValue(std::string *v) throw(ValueFormatException)
 {
     if (v == NULL) {
-        throw ValueFormatException("Missing path-list value", od);
+        throw ValueFormatException("Missing path-list value", optionDesc);
     }
     
     // Split string at semicolons
