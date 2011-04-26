@@ -118,7 +118,6 @@ public class GeneratorTest {
 
 	@BeforeClass
 	public static void findPrerequisites() {
-        sIsWin32 = System.getProperty("os.name").contains("indows");
 		try {
 			sCWDFile = new File(".").getCanonicalFile();
 
@@ -126,9 +125,10 @@ public class GeneratorTest {
 		} catch (IOException e) {
 			System.err.println("Exception encountered while determining cwd: " + e.getMessage());
 		}
-		findProjectsDir();
+        sIsWin32 = System.getProperty("os.name").contains("indows");
 		sJavaExecutable= findExecutableInPATH("java");
 		sJavacExecutable= findExecutableInPATH("javac");
+        findProjectsDir();
 		findGenerator();
 		findTemplates();
 	}
@@ -175,8 +175,7 @@ public class GeneratorTest {
             genFile = new File(lpgEnv);
         } else {
             String generatorPath = "bin/lpg";
-            File projectsParentDir = sCWDFile.getParentFile();
-            File lpgGeneratorCppDir = new File(projectsParentDir.getParentFile(), "lpg.generator.cpp");
+            File lpgGeneratorCppDir = new File(sProjectsDir, "lpg.generator.cpp");
 
             genFile = new File(lpgGeneratorCppDir, generatorPath).getAbsoluteFile();
         }
