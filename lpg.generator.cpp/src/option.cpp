@@ -85,11 +85,8 @@ Option::Option(int argc_, const char **argv_)
     imp_file = NULL;
     out_directory = NULL;
     ast_directory = NULL;
-    ast_package = NULL;
     ast_type = NULL;
     visitor_type = NULL;
-    filter = NULL;
-    import_terminals = NULL;
     include_directory = NULL;
     template_name = NULL;
     extends_parsetable = NULL;
@@ -99,7 +96,13 @@ Option::Option(int argc_, const char **argv_)
     suffix = NULL;
 // <<<
 
+    // The following fields have option descriptors, but use a "handler" rather
+    // than a direct field member ptr, and so don't get auto initialization.
+    filter = NULL;
+    import_terminals = NULL;
+
     // The remaining fields have no cmd-line options associated with them
+    ast_package = NULL;
     grm_file = NULL;
     lis_file = NULL;
     tab_file = NULL;
@@ -2674,7 +2677,7 @@ void Option::CheckAutomaticAst()
 //
 // Change the following static to "true" to enable the new options-processing code
 //
-static bool NEW_OPTIONS_CODE = false;
+static bool NEW_OPTIONS_CODE = true;
 
 void Option::ProcessOptions(const char *parm)
 {
