@@ -129,7 +129,7 @@ OptionDescriptor::setAllDefaults(OptionProcessor *processor)
 {
     for (std::list<OptionDescriptor*>::iterator i= allOptionDescriptors.begin(); i != allOptionDescriptors.end(); i++) {
         OptionDescriptor *od = *i;
-        od->setDefault(processor);
+        od->initializeValue(processor);
     }
 }
 
@@ -142,41 +142,41 @@ OptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
 }
 
 void
-OptionDescriptor::setDefault(OptionProcessor *processor)
+OptionDescriptor::initializeValue(OptionProcessor *processor)
 {
 //  cerr << "*** " << getName() << " uses default implementation of setDefault()!" << endl;
 }
 
 OptionValue *
-OptionDescriptor::createValue()
+OptionDescriptor::createValue(bool noFlag)
 {
     switch (getType()) {
         case BOOLEAN: {
-            BooleanOptionValue *bv = new BooleanOptionValue(this);
+            BooleanOptionValue *bv = new BooleanOptionValue(this, noFlag);
             return bv;
         }
         case ENUM: {
-            EnumOptionValue *ev = new EnumOptionValue(this);
+            EnumOptionValue *ev = new EnumOptionValue(this, noFlag);
             return ev;
         }
         case INTEGER: {
-            IntegerOptionValue *iv = new IntegerOptionValue(this);
+            IntegerOptionValue *iv = new IntegerOptionValue(this, noFlag);
             return iv;
         }
         case PATH: {
-            PathOptionValue *pv = new PathOptionValue(this);
+            PathOptionValue *pv = new PathOptionValue(this, noFlag);
             return pv;
         }
         case STRING: {
-            StringOptionValue *sv = new StringOptionValue(this);
+            StringOptionValue *sv = new StringOptionValue(this, noFlag);
             return sv;
         }
         case STRING_LIST: {
-            StringListOptionValue *slv = new StringListOptionValue(this);
+            StringListOptionValue *slv = new StringListOptionValue(this, noFlag);
             return slv;
         }
         case PATH_LIST: {
-            PathListOptionValue *plv = new PathListOptionValue(this);
+            PathListOptionValue *plv = new PathListOptionValue(this, noFlag);
             return plv;
         }
         default:
@@ -184,17 +184,21 @@ OptionDescriptor::createValue()
     }
 }
 
+//
+// =================================================================================
+//
+
 BooleanOptionDescriptor::BooleanOptionDescriptor(const char *wd1, const char *wd2, const char *descrip, bool defValue,
                                                  OptionProcessor::BooleanValueField field, bool valueOpt)
 
-: OptionDescriptor(BOOLEAN, wd1, wd2, descrip, valueOpt), defaultValue(defValue), boolField(field)
+: OptionDescriptor(BOOLEAN, wd1, wd2, descrip, valueOpt), initValue(defValue), boolField(field)
 {
 }
 
 BooleanOptionDescriptor::BooleanOptionDescriptor(const char *wd1, const char *descrip, bool defValue,
                                                  OptionProcessor::BooleanValueField field, bool valueOpt)
 
-: OptionDescriptor(BOOLEAN, wd1, NULL, descrip, valueOpt), defaultValue(defValue), boolField(field)
+: OptionDescriptor(BOOLEAN, wd1, NULL, descrip, valueOpt), initValue(defValue), boolField(field)
 {
 }
 
@@ -208,28 +212,32 @@ BooleanOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue 
 }
 
 void
-BooleanOptionDescriptor::setDefault(OptionProcessor *processor)
+BooleanOptionDescriptor::initializeValue(OptionProcessor *processor)
 {
-    processor->getOptions()->*boolField = defaultValue;
+    processor->getOptions()->*boolField = initValue;
 }
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int defValue, int min, int max,
+//
+// =================================================================================
+//
+
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int initVal, int min, int max,
                                                  const char *descrip, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(INTEGER, wd1, wd2, descrip, handler, false), defaultValue(defValue), minValue(min), maxValue(max)
+: OptionDescriptor(INTEGER, wd1, wd2, descrip, handler, false), initValue(initVal), minValue(min), maxValue(max)
 {
 }
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, int defValue, int min, int max,
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, int initVal, int min, int max,
                                                  const char *descrip,
                                                  OptionProcessor::IntegerValueField field, bool valueOpt)
-: OptionDescriptor(INTEGER, wd1, NULL, descrip, valueOpt), defaultValue(defValue), minValue(min), maxValue(max), intField(field)
+: OptionDescriptor(INTEGER, wd1, NULL, descrip, valueOpt), initValue(initVal), minValue(min), maxValue(max), intField(field)
 {
 }
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int defValue, int min, int max,
+IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int initVal, int min, int max,
                                                  const char *descrip,
                                                  OptionProcessor::IntegerValueField field, bool valueOpt)
-: OptionDescriptor(INTEGER, wd1, wd2, descrip, valueOpt), defaultValue(defValue), minValue(min), maxValue(max), intField(field)
+: OptionDescriptor(INTEGER, wd1, wd2, descrip, valueOpt), initValue(initVal), minValue(min), maxValue(max), intField(field)
 {
 }
 
@@ -243,9 +251,9 @@ IntegerOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue 
 }
 
 void
-IntegerOptionDescriptor::setDefault(OptionProcessor *processor)
+IntegerOptionDescriptor::initializeValue(OptionProcessor *processor)
 {
-    processor->getOptions()->*intField = defaultValue;
+    processor->getOptions()->*intField = initValue;
 }
 
 std::string
@@ -278,22 +286,26 @@ IntegerOptionDescriptor::getTypeDescriptor() const
     return result;
 }
 
-StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *descrip, const char *defValue,
+//
+// =================================================================================
+//
+
+StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *descrip, const char *initVal,
                                                OptionProcessor::StringValueField field, bool emptyOk)
-: OptionDescriptor(STRING, wd1, NULL, descrip, false), emptyOk(emptyOk), stringField(field), defaultValue(defValue)
+: OptionDescriptor(STRING, wd1, NULL, descrip, false), emptyOk(emptyOk), stringField(field), initValue(initVal)
 {
 }
 
-StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *wd2, const char *descrip, const char *defValue,
+StringOptionDescriptor::StringOptionDescriptor(const char *wd1, const char *wd2, const char *descrip, const char *initVal,
                                                OptionProcessor::StringValueField field, bool emptyOk)
-: OptionDescriptor(STRING, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field), defaultValue(defValue)
+: OptionDescriptor(STRING, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field), initValue(initVal)
 {
 }
 
 StringOptionDescriptor::StringOptionDescriptor(OptionType t, const char *wd1, const char *wd2, const char *descrip,
-                                               const char *defValue,
+                                               const char *initVal,
                                                OptionProcessor::StringValueField field, bool emptyOk)
-: OptionDescriptor(t, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field), defaultValue(defValue)
+: OptionDescriptor(t, wd1, wd2, descrip, false), emptyOk(emptyOk), stringField(field), initValue(initVal)
 {
 }
 
@@ -316,10 +328,14 @@ StringOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *
 }
 
 void
-StringOptionDescriptor::setDefault(OptionProcessor *processor)
+StringOptionDescriptor::initializeValue(OptionProcessor *processor)
 {
-    processor->getOptions()->*stringField = (defaultValue != NULL) ? strdup(defaultValue) : NULL;
+    processor->getOptions()->*stringField = (initValue != NULL) ? strdup(initValue) : NULL;
 }
+
+//
+// =================================================================================
+//
 
 CharOptionDescriptor::CharOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
                                            const char *defValue,
@@ -349,10 +365,14 @@ CharOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
 }
 
 void
-CharOptionDescriptor::setDefault(OptionProcessor *processor)
+CharOptionDescriptor::initializeValue(OptionProcessor *processor)
 {
-    processor->getOptions()->*charField = defaultValue[0];
+    processor->getOptions()->*charField = initValue[0];
 }
+
+//
+// =================================================================================
+//
 
 PathOptionDescriptor::PathOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
                                            const char *defValue,
@@ -369,10 +389,16 @@ PathOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *v)
     // TODO Verify that path exists?
 }
 
+//
+// =================================================================================
+//
+
 EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *descrip,
-                                           OptionProcessor::IntegerValueField field, const char *defValue,
-                                           EnumValue * value, ...)
-: OptionDescriptor(ENUM, word1, NULL, descrip, false), intField(field), defaultValue(defValue)
+                                           OptionProcessor::IntegerValueField field,
+                                           const char *initVal, const char *defValue,
+                                           const char *noVal, EnumValue * value, ...)
+: OptionDescriptor(ENUM, word1, NULL, descrip, false), intField(field),
+  initValue(initVal), defaultValue(defValue), noValue(noVal)
 {
     setupName();
     // set up values list from varargs param
@@ -385,9 +411,11 @@ EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *descri
 }
 
 EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip,
-                                           OptionProcessor::IntegerValueField field, const char *defValue,
-                                           EnumValue * value, ...)
-: OptionDescriptor(ENUM, word1, word2, descrip, false), intField(field), defaultValue(defValue)
+                                           OptionProcessor::IntegerValueField field,
+                                           const char *initVal, const char *defValue,
+                                           const char *noVal, EnumValue * value, ...)
+: OptionDescriptor(ENUM, word1, word2, descrip, false), intField(field),
+  initValue(initVal), defaultValue(defValue), noValue(noVal)
 {
     setupName();
     // set up values list from varargs param
@@ -400,9 +428,10 @@ EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *word2,
 }
 
 EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *word2, const char *descrip,
-                                           OptionProcessor::ValueHandler handler, const char *defValue,
-                                           EnumValue *value, ...)
-: OptionDescriptor(ENUM, word1, word2, descrip, handler, false), intField(NULL), defaultValue(defValue)
+                                           OptionProcessor::ValueHandler handler,
+                                           const char *initVal, EnumValue *value, ...)
+: OptionDescriptor(ENUM, word1, word2, descrip, handler, true), intField(NULL),
+  initValue(initVal), defaultValue(""), noValue("")
 {
     setupName();
     // set up values list from varargs param
@@ -415,9 +444,10 @@ EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *word2,
 }
 
 EnumOptionDescriptor::EnumOptionDescriptor(const char *word1, const char *descrip,
-                                           OptionProcessor::ValueHandler handler, const char *defValue,
-                                           EnumValue *value, ...)
-: OptionDescriptor(ENUM, word1, NULL, descrip, handler, false), intField(NULL), defaultValue(defValue)
+                                           OptionProcessor::ValueHandler handler,
+                                           const char *initVal, EnumValue *value, ...)
+: OptionDescriptor(ENUM, word1, NULL, descrip, handler, true), intField(NULL),
+  initValue(initVal), defaultValue(""), noValue("")
 {
     setupName();
     // set up values list from varargs param
@@ -485,9 +515,9 @@ EnumOptionDescriptor::processSetting(OptionProcessor *processor, OptionValue *va
 }
 
 void
-EnumOptionDescriptor::setDefault(OptionProcessor *processor)
+EnumOptionDescriptor::initializeValue(OptionProcessor *processor)
 {
-    EnumValue *ev = findEnumByName(defaultValue);
+    EnumValue *ev = findEnumByName(initValue);
 
     if (ev != NULL) {
         processor->getOptions()->*intField = ev->second();
