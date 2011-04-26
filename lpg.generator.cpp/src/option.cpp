@@ -298,7 +298,8 @@ Token *Option::GetTokenLocation(const char *p, int length)
         assert(buffer_ptr != NULL);
         assert(parm_ptr != NULL);
         int error_location = (buffer_ptr + (p - parm_ptr)) - input_file_symbol -> Buffer();
-        Token *error_token = lex_stream -> GetErrorToken(input_file_symbol, error_location);
+        // RMF The following statement used to declare a shadowing var named 'error_token'...
+        error_token = lex_stream -> GetErrorToken(input_file_symbol, error_location);
         error_token -> SetEndLocation(error_location + length - 1);
         error_token -> SetKind(0);
     }
@@ -2670,6 +2671,9 @@ void Option::CheckAutomaticAst()
 //
 //
 //
+static bool NEW_OPTIONS_CODE = false;
+//static bool NEW_OPTIONS_CODE = true;
+
 void Option::ProcessOptions(const char *parm)
 {
     for (parm = CleanUp(parm); *parm != NULL_CHAR; parm = CleanUp(parm))
@@ -2677,17 +2681,21 @@ void Option::ProcessOptions(const char *parm)
         bool flag = ! ((parm[0] == 'n' || parm[0] == 'N') &&
                        (parm[1] == 'o' || parm[1] == 'O'));
 
-        if (! flag)
-            parm += 2; // skip the "NO" prefix
+        // Comment out the following 2 lines when using the new options-processing code
+        if (!NEW_OPTIONS_CODE) {
+            if (! flag)
+                parm += 2; // skip the "NO" prefix
+        }
 
         try {
             OptionValue *value = NULL;
 
-//          Comment out the following line for the original options-processing behavior
-//          value = optionParser->parse(parm);
+            if (NEW_OPTIONS_CODE) {
+                value = optionParser->parse(parm);
+            }
             
             if (value != NULL) {
-                value->getOptionDescriptor()->processSetting(optionProcessor, value);
+                value->processSetting(optionProcessor);
             } else {
                 unsigned char c = (unsigned char) (*parm);
                 parm = (this ->* classify_option[c < 128 ? c : 0])(parm, flag);
