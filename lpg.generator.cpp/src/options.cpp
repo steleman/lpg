@@ -155,7 +155,7 @@ OptionDescriptor *follow = new BooleanOptionDescriptor("follow", "???", false, &
 
 OptionDescriptor *glr = new BooleanOptionDescriptor("glr", "???", false, &Option::glr);
 
-OptionDescriptor *gotoDefault = new BooleanOptionDescriptor("goto", "default", false, "???",
+OptionDescriptor *gotoDefault = new BooleanOptionDescriptor("goto", "default", "???", false,
                                                             &Option::goto_default);
 
 OptionDescriptor *ignoreBlock = new OptionDescriptor(STRING, "ignore", "block", "???",
@@ -423,7 +423,7 @@ OptionDescriptor *visitor = new EnumOptionDescriptor("visitor", "???",
                                                      new EnumValue("default", Option::DEFAULT),
                                                      new EnumValue("preorder", Option::PREORDER), NULL);
 
-OptionDescriptor *visitorType = new StringOptionDescriptor("visitor", "type", "???",
+OptionDescriptor *visitorType = new StringOptionDescriptor("visitor", "type", "???", NULL,
                                                            &Option::visitor_type, false);
 
 OptionDescriptor *warnings = new BooleanOptionDescriptor("warnings",
