@@ -1,9 +1,9 @@
 #!/bin/bash
 
-JUNIT_JAR=/Developer/junit-4.8.2.jar
-TEST_CLASS_LOC=$HOME/eclipse/workspaces/lpg/lpg.test/bin
+JUNIT_JAR=$HOME/junit-4.8.2.jar
+TEST_CLASS_LOC=../bin
 
-usageMsg="$0 [--help] [--junit junit4-jar-location] [--testClassLoc <test class folder/jar>]"
+usageMsg="Usage: $0 [--help] [--junit junit4-jar-location] [--testClassLoc <test class folder/jar>]"
 
 while [ $# != 0 ]; do
     case $1 in
