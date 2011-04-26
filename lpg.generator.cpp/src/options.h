@@ -73,7 +73,7 @@ public:
     virtual void processSetting(OptionProcessor *processor, OptionValue *value);
 
     static const std::list<OptionDescriptor*>& getAllDescriptors();
-    static void setAllDefaults(OptionProcessor *processor);
+    static void initializeAll(OptionProcessor *processor);
 
     static std::string describeAllOptions();
 

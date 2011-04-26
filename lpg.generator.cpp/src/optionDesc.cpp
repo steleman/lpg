@@ -125,7 +125,7 @@ OptionDescriptor::describeAllOptions()
 }
 
 void
-OptionDescriptor::setAllDefaults(OptionProcessor *processor)
+OptionDescriptor::initializeAll(OptionProcessor *processor)
 {
     for (std::list<OptionDescriptor*>::iterator i= allOptionDescriptors.begin(); i != allOptionDescriptors.end(); i++) {
         OptionDescriptor *od = *i;
@@ -338,16 +338,16 @@ StringOptionDescriptor::initializeValue(OptionProcessor *processor)
 //
 
 CharOptionDescriptor::CharOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
-                                           const char *defValue,
+                                           const char *initValue,
                                            OptionProcessor::CharValueField field)
-: StringOptionDescriptor(CHAR, wd1, wd2, descrip, defValue, false), charField(field)
+: StringOptionDescriptor(CHAR, wd1, wd2, descrip, initValue, false), charField(field)
 {
 }
 
 CharOptionDescriptor::CharOptionDescriptor(const char *wd1, const char *descrip,
-                                           const char *defValue,
+                                           const char *initValue,
                                            OptionProcessor::CharValueField field)
-: StringOptionDescriptor(CHAR, wd1, NULL, descrip, defValue, false), charField(field)
+: StringOptionDescriptor(CHAR, wd1, NULL, descrip, initValue, false), charField(field)
 {
 }
 
@@ -375,9 +375,9 @@ CharOptionDescriptor::initializeValue(OptionProcessor *processor)
 //
 
 PathOptionDescriptor::PathOptionDescriptor(const char *wd1, const char *wd2, const char *descrip,
-                                           const char *defValue,
+                                           const char *initValue,
                                            OptionProcessor::StringValueField field, bool emptyOk)
-: StringOptionDescriptor(PATH, wd1, wd2, descrip, defValue, field, emptyOk)
+: StringOptionDescriptor(PATH, wd1, wd2, descrip, initValue, field, emptyOk)
 {
 }
 
