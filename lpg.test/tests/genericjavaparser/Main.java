@@ -52,13 +52,23 @@ public class Main
             r3 = r.totalMemory();
             f3 = r.freeMemory();
 
-            if (ast == null) System.out.println("****Failure");
+            if (ast == null) {
+                if (option.expectErrors()) {
+                    System.out.println("****Failure [expected]");
+                } else {
+                    System.out.println("****Unexpected failure!");
+                }
+            }
             else System.out.println("****Success");
 
             if (option.dumpTokens())
             {
                 System.out.println("\n****Output Tokens: \n");
                 java_parser.getIPrsStream().dumpTokens();
+            }
+
+            if (!option.expectErrors() && ast == null) {
+                System.exit(1);
             }
 
             System.out.println("\n****Parsing statistics: \n");

@@ -11,6 +11,7 @@ public class Option
     String fileName = "input";
     boolean dump = false;
     boolean print  = false;
+    boolean expectErrors = false;
     char[] inputChars;
     boolean isUTF8;
     IntSegmentedTuple lineOffsets;
@@ -23,6 +24,8 @@ public class Option
             {
                 if (args[i].equals("-d"))
                     dump = true;
+                else if (args[i].equals("-e"))
+                    expectErrors = true;
                 else if (args[i].equals("-p"))
                     print = true;
             }
@@ -41,6 +44,8 @@ public class Option
     public boolean dumpTokens() { return dump; }
 
     public boolean printTokens() { return print; }
+
+    public boolean expectErrors() { return expectErrors; }
 
     public char[] getInputChars() { return inputChars; }
 

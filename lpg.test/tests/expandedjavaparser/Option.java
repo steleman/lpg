@@ -13,6 +13,7 @@ public class Option
     boolean incremental = false;
     boolean dumpKeywords = false;
     boolean print  = false;
+    boolean expectErrors = false;
     char[] inputChars;
 
 
@@ -24,6 +25,8 @@ public class Option
             {
                 if (args[i].equals("-d"))
                     dumpTokens = true;
+                else if (args[i].equals("-e"))
+                    expectErrors = true;
                 else if (args[i].equals("-i"))
                     incremental = true;
                 else if (args[i].equals("-k"))
@@ -48,6 +51,8 @@ public class Option
     public boolean dumpKeywords() { return dumpKeywords; }
 
     public boolean printTokens() { return print; }
+
+    public boolean expectErrors() { return expectErrors; }
 
     public char[] getInputChars() { return inputChars; }
 

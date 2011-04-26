@@ -25,9 +25,19 @@ public class Main
             
             // Parse the token stream creating an Ast and then visit the Ast to obtain the result
             Ast ast = Expr_parser.parser();
-            if (ast == null) 
-                 System.out.println("****Failure");
-            else Expr_visitor.visitAst(ast);
+
+            if (ast == null) { 
+                if (option.expectErrors()) {
+                    System.out.println("****Failure [expected]");
+                } else {
+                    System.out.println("****Unexpected failure!");
+                }
+            } else
+                Expr_visitor.visitAst(ast);
+
+            if (!option.expectErrors() && ast == null) {
+                System.exit(1);
+            }
 
             return;
         }

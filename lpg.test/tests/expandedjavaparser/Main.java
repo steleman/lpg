@@ -314,9 +314,13 @@ public class Main
                 t5 = System.currentTimeMillis();
             }
 
-            if (ast == null) 
-                System.out.println("****Failure");
-            else
+            if (ast == null) { 
+                if (option.expectErrors()) {
+                    System.out.println("****Failure [expected]");
+                } else {
+                    System.out.println("****Unexpected failure!");
+                }
+            } else
             {
                 System.out.println("****Begin visitor: ");
                 v.visit((CompilationUnit) ast);
@@ -375,6 +379,10 @@ public class Main
                 // }
             }
          
+            if (!option.expectErrors() && ast == null) {
+                System.exit(1);
+            }
+
             System.out.println("\n****Parsing statistics: \n");
             System.out.println("****File length = " + java_lexer.getILexStream().getStreamLength());
             System.out.println("****Number of Lines = " + (java_lexer.getILexStream().getLineCount() - 1));

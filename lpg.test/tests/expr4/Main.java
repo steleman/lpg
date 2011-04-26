@@ -23,11 +23,20 @@ public class Main
             }
 
             ast = Expr_parser.parser(); // Parse the token stream to produce an AST
-            if (ast == null) 
-            	 System.out.println("****Failure");
-            else {
+
+            if (ast == null) { 
+                if (option.expectErrors()) {
+                    System.out.println("****Failure [expected]");
+                } else {
+                    System.out.println("****Unexpected failure!");
+                }
+            } else {
             	option.readInputChars();
             	System.out.println(new String(option.getInputChars()) + " = " + ast.intValue());
+            }
+
+            if (!option.expectErrors() && ast == null) {
+                System.exit(1);
             }
 
             return;

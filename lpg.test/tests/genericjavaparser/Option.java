@@ -11,6 +11,7 @@ class Option
     String fileName = "input";
     boolean dump = false;
     boolean print  = false;
+    boolean expectErrors = false;
     char[] inputChars;
 
 
@@ -22,6 +23,8 @@ class Option
             {
                 if (args[i].equals("-d"))
                     dump = true;
+                else if (args[i].equals("-e"))
+                    expectErrors = true;
                 else if (args[i].equals("-p"))
                     print = true;
             }
@@ -38,6 +41,8 @@ class Option
     boolean dumpTokens() { return dump; }
 
     boolean printTokens() { return print; }
+
+    public boolean expectErrors() { return expectErrors; }
 
     char[] getInputChars() { return inputChars; }
 

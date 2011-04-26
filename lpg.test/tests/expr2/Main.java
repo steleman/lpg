@@ -23,12 +23,21 @@ public class Main
                 Expr_parser.getIPrsStream().dumpTokens();
             }
             ast = Expr_parser.parser(); // Parse the token stream to produce an AST
-            if (ast == null) 
-                 System.out.println("****Failure");
-            else
+
+            if (ast == null) { 
+                if (option.expectErrors()) {
+                    System.out.println("****Failure [expected]");
+                } else {
+                    System.out.println("****Unexpected failure!");
+                }
+            } else
             {
                 ast.accept(new ExprVisitor());
                 System.out.println(ast.toString() + " = " + ast.getValue());
+            }
+
+            if (!option.expectErrors() && ast == null) {
+                System.exit(1);
             }
 
             return;
