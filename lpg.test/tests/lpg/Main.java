@@ -45,6 +45,9 @@ public class Main
                 }
                 visitor.reset(lpg_parser);
                 ast.accept(visitor);
+                if (visitor.hadParseErrors() && !option.expectErrors()) {
+                    System.exit(1);
+                }
             }
 
             if (!option.expectErrors() && ast == null) {

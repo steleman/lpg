@@ -11,6 +11,11 @@ public abstract class JavaActionBlockVisitor extends AbstractVisitor
 {
     private JavaLexer javaLexer = new JavaLexer(); // lexer can be shared.
     private JavaParser javaParser = new JavaParser();
+    private boolean parseErrors;
+
+    public boolean hadParseErrors() {
+        return parseErrors;
+    }
 
     public void reset(IParser env)
     {
@@ -29,7 +34,11 @@ public abstract class JavaActionBlockVisitor extends AbstractVisitor
             end_offset   = n.getBLOCK().getEndOffset() - 2;
         javaParser.reset(javaLexer.getILexStream()); // allocate a new parse stream.
         javaLexer.lexer(javaParser.getIPrsStream(), start_offset, end_offset);
-        n.setAst(javaParser.parseClassBodyDeclarationsopt());
+        JavaParser.Ast ast = javaParser.parseClassBodyDeclarationsopt();
+        if (ast == null) {
+            parseErrors = true;
+        }
+        n.setAst(ast);
     }
 
     protected void parse(action_segmentList list) {
@@ -42,7 +51,11 @@ public abstract class JavaActionBlockVisitor extends AbstractVisitor
             end_offset   = n.getBLOCK().getEndOffset() - 2;
         javaParser.reset(javaLexer.getILexStream()); // allocate a new parse stream.
         javaLexer.lexer(javaParser.getIPrsStream(), start_offset, end_offset);
-        n.setAst(javaParser.parseLPGUserAction());
+        JavaParser.Ast ast = javaParser.parseLPGUserAction();
+        if (ast == null) {
+            parseErrors = true;
+        }
+        n.setAst(ast);
     }
 
     protected void parse(action_segment n) {
@@ -50,7 +63,11 @@ public abstract class JavaActionBlockVisitor extends AbstractVisitor
             end_offset   = n.getBLOCK().getEndOffset() - 2;
         javaParser.reset(javaLexer.getILexStream()); // allocate a new parse stream.
         javaLexer.lexer(javaParser.getIPrsStream(), start_offset, end_offset);
-        n.setAst(javaParser.parser());
+        JavaParser.Ast ast = javaParser.parser();
+        if (ast == null) {
+            parseErrors = true;
+        }
+        n.setAst(ast);
     }
 
     //
@@ -59,6 +76,11 @@ public abstract class JavaActionBlockVisitor extends AbstractVisitor
     public void unimplementedVisitor(String s) {
         // Sometimes useful for debugging
         //System.out.println(s);
+    }
+
+    public boolean visit(LPG n) {
+        parseErrors = false;
+        return true;
     }
 
     public boolean visit(AstSeg n) {
