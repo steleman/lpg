@@ -25,6 +25,13 @@ Option::Option(int argc_, const char **argv_)
     lex_stream = NULL;
     
     return_code = 0;
+
+    optionParser = new OptionParser(OptionDescriptor::getAllDescriptors());
+    optionProcessor = new OptionProcessor(this);
+    OptionDescriptor::initializeAll(optionProcessor);
+
+    // All of the initializations below are to fields that have cmd-line options
+    // >>>
     quiet = false;
     automatic_ast = NONE;
     attributes = false;
@@ -70,31 +77,16 @@ Option::Option(int argc_, const char **argv_)
     or_marker = '|';
     factory = NULL;
     file_prefix = NULL;
-    grm_file = NULL;
-    lis_file = NULL;
-    tab_file = NULL;
     dat_directory = NULL;
     dat_file = NULL;
     dcl_file = NULL;
     def_file = NULL;
     directory_prefix = NULL;
-    prs_file = NULL;
-    sym_file = NULL;
     imp_file = NULL;
-    exp_file = NULL;
-    exp_prefix = NULL;
-    exp_suffix = NULL;
     out_directory = NULL;
     ast_directory = NULL;
     ast_package = NULL;
     ast_type = NULL;
-    exp_type = NULL;
-    prs_type = NULL;
-    sym_type = NULL;
-    dcl_type = NULL;
-    imp_type = NULL;
-    def_type = NULL;
-    action_type = NULL;
     visitor_type = NULL;
     filter = NULL;
     import_terminals = NULL;
@@ -105,6 +97,24 @@ Option::Option(int argc_, const char **argv_)
     package = NULL;
     prefix = NULL;
     suffix = NULL;
+// <<<
+
+    // The remaining fields have no cmd-line options associated with them
+    grm_file = NULL;
+    lis_file = NULL;
+    tab_file = NULL;
+    prs_file = NULL;
+    sym_file = NULL;
+    exp_file = NULL;
+    exp_prefix = NULL;
+    exp_suffix = NULL;
+    exp_type = NULL;
+    prs_type = NULL;
+    sym_type = NULL;
+    dcl_type = NULL;
+    imp_type = NULL;
+    def_type = NULL;
+    action_type = NULL;
     default_action_prefix = NULL;
     default_action_file = NULL;
     
@@ -264,15 +274,10 @@ Option::Option(int argc_, const char **argv_)
         syslis = fopen(lis_file, "w");
         if (syslis  == (FILE *) NULL)
         {
-            fprintf(stderr, "***ERROR: Listing file \"%s\" cannot be openned.\n", lis_file);
+            fprintf(stderr, "***ERROR: Listing file \"%s\" cannot be opened.\n", lis_file);
             throw 12;
         }
     }
-    
-    optionParser = new OptionParser(OptionDescriptor::getAllDescriptors());
-    optionProcessor = new OptionProcessor(this);
-    
-    return;
 }
 
 Option::~Option()
@@ -285,8 +290,6 @@ Option::~Option()
     
     FlushReport();
     fclose(syslis); // close listing file
-    
-    return;
 }
 
 Token *Option::GetTokenLocation(const char *p, int length)
@@ -2669,10 +2672,9 @@ void Option::CheckAutomaticAst()
 
 
 //
-//
+// Change the following static to "true" to enable the new options-processing code
 //
 static bool NEW_OPTIONS_CODE = false;
-//static bool NEW_OPTIONS_CODE = true;
 
 void Option::ProcessOptions(const char *parm)
 {
@@ -2681,7 +2683,6 @@ void Option::ProcessOptions(const char *parm)
         bool flag = ! ((parm[0] == 'n' || parm[0] == 'N') &&
                        (parm[1] == 'o' || parm[1] == 'O'));
 
-        // Comment out the following 2 lines when using the new options-processing code
         if (!NEW_OPTIONS_CODE) {
             if (! flag)
                 parm += 2; // skip the "NO" prefix
