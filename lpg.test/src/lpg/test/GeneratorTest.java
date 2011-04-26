@@ -285,7 +285,7 @@ public class GeneratorTest {
 		runGenerator(lpgGrammarFile);
 		runGenerator(javaGrammarFile);
 		compileParserFiles(grammarDir);
-		runParserOnInputs(grammarDir);
+		runParserOnInputs(grammarDir, new String[] {/*"-a"*/});
 	}
 
 	@Test
@@ -308,7 +308,11 @@ public class GeneratorTest {
 	}
 
 
-	private void runParserOnInputs(File grammarDir) {
+    private void runParserOnInputs(File grammarDir) {
+        runParserOnInputs(grammarDir, null);
+    }
+
+    private void runParserOnInputs(File grammarDir, String extraArgs[]) {
 		File inputsDir = new File(grammarDir, "parser-inputs");
 
 		Assert.assertTrue("Missing inputs directory: " + inputsDir.getAbsolutePath(), inputsDir.exists());
@@ -320,7 +324,7 @@ public class GeneratorTest {
 		Assert.assertTrue("Empty inputs directory: " + inputsDir.getAbsolutePath(), inputs.length > 0);
 
 		for (File srcFile : inputs) {
-			runParserOn(grammarDir, srcFile, false);
+			runParserOn(grammarDir, srcFile, false, extraArgs);
 		}
 	}
 
@@ -345,7 +349,11 @@ public class GeneratorTest {
     }
 
 
-	private void runParserOn(File grammarDir, File srcFile, boolean expectErrors) {
+    private void runParserOn(File grammarDir, File srcFile, boolean expectErrors) {
+        runParserOn(grammarDir, srcFile, expectErrors, null);
+    }
+
+    private void runParserOn(File grammarDir, File srcFile, boolean expectErrors, String extraArgs[]) {
 		File srcDir = srcFile.getParentFile();
 		List<String> cmdArgList = new LinkedList<String>();
 		cmdArgList.add("java");
@@ -363,6 +371,11 @@ public class GeneratorTest {
 		}
 		if (PRINT_TOKENS) {
 		    cmdArgList.add("-p"); // print tokens
+		}
+		if (extraArgs != null) {
+		    for(String arg: extraArgs) {
+		        cmdArgList.add(arg);
+		    }
 		}
 		cmdArgList.add(srcFile.getAbsolutePath());
 		runCommand(sJavaExecutable, srcDir, cmdArgList.toArray(new String[cmdArgList.size()]));		
