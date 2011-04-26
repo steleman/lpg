@@ -3,7 +3,7 @@
 --
 %Options fp=JavaKWLexer
 %options package=javaparser
-%options template=KeyWordTemplateF.gi
+%options template=KeywordTemplateF.gi
 
 %Include
     KWLexerLowerCaseMapF.gi
