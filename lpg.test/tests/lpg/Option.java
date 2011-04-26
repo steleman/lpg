@@ -12,6 +12,8 @@ public class Option
     boolean dumpTokens = false;
     boolean dumpKeywords = false;
     boolean print  = false;
+    boolean expectErrors = false;
+    boolean automaticAST = false;
     char[] inputChars;
 
 
@@ -21,8 +23,12 @@ public class Option
         {
             if (args[i].charAt(0) == '-')
             {
-                if (args[i].equals("-d"))
+                if (args[i].equals("-a"))
+                    automaticAST = true;
+                else if (args[i].equals("-d"))
                     dumpTokens = true;
+                else if (args[i].equals("-e"))
+                    expectErrors = true;
                 else if (args[i].equals("-k"))
                     dumpKeywords = true;
                 else if (args[i].equals("-p"))
@@ -43,6 +49,10 @@ public class Option
     public boolean dumpKeywords() { return dumpKeywords; }
 
     public boolean printTokens() { return print; }
+
+    public boolean expectErrors() { return expectErrors; }
+
+    public boolean automaticAST() { return automaticAST; }
 
     public char[] getInputChars() { return inputChars; }
 

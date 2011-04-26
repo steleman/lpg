@@ -1,7 +1,12 @@
 package lpg;
 
 import org.eclipse.imp.lpg.parser.LPGParser;
+import org.eclipse.imp.lpg.parser.LPGParser.ASTNode;
 import org.eclipse.imp.lpg.parser.LPGLexer;
+
+import lpg.JavaActionBlockAutomaticVisitor;
+import lpg.JavaActionBlockUserDefinedVisitor;
+import lpg.JavaActionBlockVisitor;
 
 public class Main
 {
@@ -22,14 +27,29 @@ public class Main
                 System.out.println("\n****Output Tokens: \n");
                 lpg_parser.getIPrsStream().dumpTokens();
             }
-            Object ast = lpg_parser.parser(); // Parse the token stream to produce an AST
-            if (ast == null) 
-                 System.out.println("****Failure");
-            //else
-            //{
-                //Integer result = (Integer) ast.accept(new ExprResultVisitor());
-                //System.out.println(ast.toString() + " = " + result.intValue());
-            //}
+
+            ASTNode ast = (ASTNode) lpg_parser.parser(); // Parse the token stream to produce an AST
+
+            if (ast == null) { 
+                if (option.expectErrors()) {
+                    System.out.println("****Failure [expected]");
+                } else {
+                    System.out.println("****Unexpected failure!");
+                }
+            } else {
+                JavaActionBlockVisitor visitor;
+                if (option.automaticAST()) { // TODO should probably read this from the grammar options instead
+                    visitor = new JavaActionBlockAutomaticVisitor();
+                } else {
+                    visitor = new JavaActionBlockUserDefinedVisitor();
+                }
+                visitor.reset(lpg_parser);
+                ast.accept(visitor);
+            }
+
+            if (!option.expectErrors() && ast == null) {
+                System.exit(1);
+            }
 
             return;
         }
