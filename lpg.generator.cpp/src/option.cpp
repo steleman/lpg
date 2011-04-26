@@ -2677,7 +2677,7 @@ void Option::CheckAutomaticAst()
 //
 // Change the following static to "true" to enable the new options-processing code
 //
-static bool NEW_OPTIONS_CODE = true;
+static bool NEW_OPTIONS_CODE = false;
 
 void Option::ProcessOptions(const char *parm)
 {
