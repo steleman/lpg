@@ -285,7 +285,15 @@ public class GeneratorTest {
 		runGenerator(lpgGrammarFile);
 		runGenerator(javaGrammarFile);
 		compileParserFiles(grammarDir);
-		runParserOnInputs(grammarDir, new String[] {/*"-a"*/});
+		runParserOnInputs(grammarDir, new IComputeExtraArgs() {
+            public String[] argsFor(File f) {
+                if (f.getName().endsWith("g")) {
+                    // HACK Top-level files (*.g) all use automatic AST generation; included files (*.gi) don't
+                    return new String[] { "-a" };
+                }
+                return null;
+            }
+        });
 	}
 
 	@Test
@@ -307,12 +315,23 @@ public class GeneratorTest {
 //		compareParserOutput(grammarFile);
 	}
 
+	/**
+	 * Interface for classes that compute the necessary additional Main driver class
+	 * cmd-line options for a given test input source file. This is mostly intended
+	 * for the lpgGrammar() test, which invokes a Java parser on each action block:
+	 * it needs to know which files use automatic AST generation so that it knows
+	 * whether to parse the action blocks as class member lists or statement lists.
+	 */
+	interface IComputeExtraArgs {
+	    String[] argsFor(File f);
+	}
 
-    private void runParserOnInputs(File grammarDir) {
+
+	private void runParserOnInputs(File grammarDir) {
         runParserOnInputs(grammarDir, null);
     }
 
-    private void runParserOnInputs(File grammarDir, String extraArgs[]) {
+    private void runParserOnInputs(File grammarDir, IComputeExtraArgs argComputer) {
 		File inputsDir = new File(grammarDir, "parser-inputs");
 
 		Assert.assertTrue("Missing inputs directory: " + inputsDir.getAbsolutePath(), inputsDir.exists());
@@ -324,6 +343,7 @@ public class GeneratorTest {
 		Assert.assertTrue("Empty inputs directory: " + inputsDir.getAbsolutePath(), inputs.length > 0);
 
 		for (File srcFile : inputs) {
+		    String[] extraArgs = (argComputer != null) ? argComputer.argsFor(srcFile) : null;
 			runParserOn(grammarDir, srcFile, false, extraArgs);
 		}
 	}
