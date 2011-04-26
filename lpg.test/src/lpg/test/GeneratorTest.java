@@ -48,6 +48,12 @@ import org.junit.runners.BlockJUnit4ClassRunner;
  *       the generated source is not 
  *   <li>a directory "parser-inputs" containing a set of source files in the
  *       language defined by the grammar
+ *   <li>an optional directory "parser-bad-inputs" containing a set of syntactically
+ *       malformed source files in the target language. If this directory exists,
+ *       the Main driver program for the parser <b>must</b> take an "-e" flag that
+ *       tells the driver that errors are expected. When this flag is not given, any
+ *       failure to produce an AST results in Main producing a non-zero exit code,
+ *       which the test harness interprets as a test failure.
  * </ul>
  * Also assumes that the name of each directory in "lpg.test/tests" is the
  * name of a top-level package containing any auxiliary Java source files.
@@ -56,6 +62,12 @@ import org.junit.runners.BlockJUnit4ClassRunner;
  */
 @RunWith(BlockJUnit4ClassRunner.class)
 public class GeneratorTest {
+    private static final boolean DUMP_TOKENS= false;
+
+    private static final boolean PRINT_TOKENS= false;
+
+    private static final boolean DUMP_KEYWORDS= false;
+
 	/**
 	 * A File referring to the current working directory
 	 */
@@ -292,6 +304,7 @@ public class GeneratorTest {
 		compareGeneratedOutputs(grammarDir);
 		compileParserFiles(grammarDir);
 		runParserOnInputs(grammarDir);
+		runParserOnBadInputs(grammarDir);
 //		compareParserOutput(grammarFile);
 	}
 
@@ -308,23 +321,54 @@ public class GeneratorTest {
 		Assert.assertTrue("Empty inputs directory: " + inputsDir.getAbsolutePath(), inputs.length > 0);
 
 		for (File srcFile : inputs) {
-			runParserOn(grammarDir, srcFile);
+			runParserOn(grammarDir, srcFile, false);
 		}
 	}
 
-	private void runParserOn(File grammarDir, File srcFile) {
+
+    private void runParserOnBadInputs(File grammarDir) {
+        File inputsDir = new File(grammarDir, "parser-bad-inputs");
+
+        if (!inputsDir.exists()) {
+            return;
+        }
+
+        File[] inputs = inputsDir.listFiles(new FileFilter() {
+            public boolean accept(File pathname) {
+                return !pathname.getName().equals("CVS");
+            }
+        });
+        Assert.assertTrue("Empty bad-inputs directory: " + inputsDir.getAbsolutePath(), inputs.length > 0);
+
+        for (File srcFile : inputs) {
+            runParserOn(grammarDir, srcFile, true);
+        }
+    }
+
+
+	private void runParserOn(File grammarDir, File srcFile, boolean expectErrors) {
 		File srcDir = srcFile.getParentFile();
 		List<String> cmdArgList = new LinkedList<String>();
 		cmdArgList.add("java");
 		cmdArgList.add("-cp");
 		cmdArgList.add("../bin:" + sJavaRuntimeDir.getAbsolutePath());
 		cmdArgList.add(grammarDir.getName() + ".Main");
-		cmdArgList.add("-d");
-		cmdArgList.add("-k");
-		cmdArgList.add("-p");
+		if (expectErrors) {
+		    cmdArgList.add("-e");
+		}
+		if (DUMP_TOKENS) {
+		    cmdArgList.add("-d"); // dump tokens
+		}
+		if (DUMP_KEYWORDS) {
+		    cmdArgList.add("-k"); // dump keywords
+		}
+		if (PRINT_TOKENS) {
+		    cmdArgList.add("-p"); // print tokens
+		}
 		cmdArgList.add(srcFile.getAbsolutePath());
 		runCommand(sJavaExecutable, srcDir, cmdArgList.toArray(new String[cmdArgList.size()]));		
 	}
+
 
 	private void compileParserFiles(File grammarDir) {
 		File[] grammarDirJavaFiles = grammarDir.listFiles(new FileFilter() {
@@ -334,10 +378,11 @@ public class GeneratorTest {
 		});
 		File binDir = new File(grammarDir, "bin");
 		checkMakeDir(binDir);
-		List<String> cmdArgList = buildJavaCmdArgs(grammarDirJavaFiles);
+		List<String> cmdArgList = buildJavacCmdArgs(grammarDirJavaFiles);
 		runCommand(sJavacExecutable, grammarDir, cmdArgList.toArray(new String[cmdArgList.size()]));
 		
 	}
+
 
 	private void checkMakeDir(File dir) {
 		if (!dir.exists()) {
@@ -346,7 +391,8 @@ public class GeneratorTest {
 		}
 	}
 
-	private List<String> buildJavaCmdArgs(File[] grammarDirJavaFiles) {
+
+	private List<String> buildJavacCmdArgs(File[] grammarDirJavaFiles) {
 		List<String> cmdArgList = new LinkedList<String>();
 		cmdArgList.add("javac");
 		cmdArgList.add("-cp");
@@ -359,6 +405,7 @@ public class GeneratorTest {
 		return cmdArgList;
 	}
 
+
 	private void compareGeneratedOutputs(File grammarDir) {
 		File goldenDir = new File(grammarDir, "GOLDEN");
 
@@ -368,15 +415,12 @@ public class GeneratorTest {
 //		Assert.assertTrue("Folder 'GOLDEN' does not exist in " + grammarDir, goldenDir.exists());
 
 		File[] goldenFiles= goldenDir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return !pathname.getName().equals("CVS");
+			public boolean accept(File path) {
+				return !path.getName().equals("CVS") && path.getName().endsWith(".java");
 			}
 		});
 
 		for (File goldenFile : goldenFiles) {
-			if (!goldenFile.getName().endsWith(".java")) {
-				System.out.println("Ignoring non-Java golden file: " + goldenFile.getAbsolutePath());
-			}
 			String resultName = goldenFile.getName();
 			File realFile = new File(grammarDir, resultName);
 			Assert.assertTrue("Expected output file " + realFile + " does not exist.", realFile.exists());
@@ -385,6 +429,7 @@ public class GeneratorTest {
 			System.out.println("Generated file " + realFile.getName() + " compared successfully with golden file " + goldenFile.getName());
 		}
 	}
+
 
 	private boolean compareFile(File goldenFile, File realFile) {
 		BufferedReader gbr = null;
@@ -426,12 +471,14 @@ public class GeneratorTest {
 		}
 	}
 
+
 	private File getInputFile(String path) {
 		File file = new File(sTestsDir, path);
 
 		Assert.assertTrue("Resource doesn't exist: " + file, file.exists());
 		return file;
 	}
+
 
 	private void runGenerator(File grammarFile) {
 		File grammarDir = grammarFile.getParentFile();
@@ -464,6 +511,7 @@ public class GeneratorTest {
         return cmdArgs.toArray(new String[cmdArgs.size()]);
     }
 
+
 	private void runCommand(File execFile, File processCWD, String[] cmdArgs) {
 		try {
 			System.out.print("Invoking command with arguments: ");
@@ -495,6 +543,7 @@ public class GeneratorTest {
 		}
 	}
 
+
 	private void processStandardError(Process process) throws IOException {
         InputStream is= process.getErrorStream();
         BufferedReader in= new BufferedReader(new InputStreamReader(is));
@@ -506,6 +555,7 @@ public class GeneratorTest {
         }
         is.close();
     }
+
 
 	private void processStandardOutput(Process process) throws IOException {
         InputStream is= process.getInputStream();
