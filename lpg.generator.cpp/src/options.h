@@ -111,8 +111,6 @@ private:
 
 class IntegerOptionDescriptor : public OptionDescriptor {
 public:
-    IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, int initValue, const char *descrip,
-                            OptionProcessor::ValueHandler handler);
     IntegerOptionDescriptor(const char *word1, int min, int max, int initValue, const char *descrip,
                             OptionProcessor::IntegerValueField, bool valueOpt=false);
     IntegerOptionDescriptor(const char *word1, const char *word2, int min, int max, int initValue, const char *descrip,
@@ -219,7 +217,7 @@ private:
 class PathOptionDescriptor : public StringOptionDescriptor {
 public:
     PathOptionDescriptor(const char *word1, const char *word2, const char *descrip,
-                         const char *defValue,
+                         const char *initValue,
                          OptionProcessor::StringValueField, bool emptyOk=false);
 
     void processSetting(OptionProcessor *, OptionValue *);

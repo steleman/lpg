@@ -221,12 +221,6 @@ BooleanOptionDescriptor::initializeValue(OptionProcessor *processor)
 // =================================================================================
 //
 
-IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, const char *wd2, int initVal, int min, int max,
-                                                 const char *descrip, OptionProcessor::ValueHandler handler)
-: OptionDescriptor(INTEGER, wd1, wd2, descrip, handler, false), initValue(initVal), minValue(min), maxValue(max)
-{
-}
-
 IntegerOptionDescriptor::IntegerOptionDescriptor(const char *wd1, int initVal, int min, int max,
                                                  const char *descrip,
                                                  OptionProcessor::IntegerValueField field, bool valueOpt)
