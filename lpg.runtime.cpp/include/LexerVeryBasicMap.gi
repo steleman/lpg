@@ -20,7 +20,7 @@
     /.  #line $next_line "$input_file$"
 
         $action_class::$action_class(const char* fileName)
-           : LexStream(fileName), lp_(this) { }
+           : CharStream(fileName), lp_(this) { }
 
         int $action_class::getKind(int _c)
         {

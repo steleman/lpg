@@ -20,7 +20,7 @@
 
             inline void makeToken(int kind)
             {
-                prsStream_->makeToken(inputChars_, getLeftSpan(), getRightSpan(), kind);
+                tokenStream_->makeToken(&inputFile_, getLeftSpan(), getRightSpan(), kind);
             }
 
             inline void skipToken()
@@ -34,7 +34,7 @@
     !/
     /.
         $action_class::$action_class(const char* fileName)
-           : LexStream(fileName), lp_(this),
+           : CharStream(fileName), lp_(this),
              kwLexer_(new $kw_lexer_class(inputChars_, $exp_class::$_IDENTIFIER))
         {}
 
