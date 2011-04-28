@@ -65,13 +65,13 @@
         #line $next_line "$input_file$"
 
         #include "lpg/runtime/tuple.h"
-        #include "lpg/runtime/LexStream.h"
+        #include "lpg/runtime/CharStream.h"
         #include "lpg/runtime/LexParser.h"
         #include "$prs_type.h"
 
-        class PrsStream;
+        class TokenStream;
 
-        class $action_class : public LexStream
+        class $action_class : public CharStream
         {
             LexParser<$prs_type, $action_class> lp_;
             $action_class();
@@ -82,7 +82,7 @@
 
             virtual void ruleAction(int ruleNumber);
 
-            virtual int lexer(PrsStream* prsStream);
+            virtual int lexer(TokenStream* tokenStream);
 
             inline int getLeftSpan()
             { return lp_.getToken(1); }
@@ -92,12 +92,12 @@
 
             inline void makeToken(int startOffset, int endOffset, int kind)
             {
-                prsStream_->makeToken(inputChars_, startOffset, endOffset, kind);
+                tokenStream_->makeToken(&inputFile_, startOffset, endOffset, kind);
             }
 
             inline void makeComment(int kind)
             {
-                prsStream_->makeAdjunct(inputChars_, getLeftSpan(), getRightSpan(), kind);
+                tokenStream_->makeAdjunct(&inputFile_, getLeftSpan(), getRightSpan(), kind);
             }
 
             inline int getRhsFirstTokenIndex(int i) {
@@ -125,14 +125,14 @@
 
         $action_class::~$action_class() { }
 
-        int $action_class::lexer(PrsStream* prsStream)
+        int $action_class::lexer(TokenStream* tokenStream)
         {
-            prsStream_ = prsStream;
+            tokenStream_ = tokenStream;
             makeToken(0, -1, 0);
             lp_.parseCharacters();
-            prsStream_->makeToken(inputChars_, getStreamIndex(), getStreamIndex(), ENUM_LPGLexerexp::EOF_TOKEN);
+            tokenStream_->makeToken(&inputFile_, getStreamIndex(), getStreamIndex(), ENUM_LPGLexerexp::EOF_TOKEN);
             return 0;
-        }        
+        }
     ./
 %End
 

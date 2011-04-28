@@ -61,13 +61,13 @@ $Headers
         #include "lpg/runtime/Stacks.h"
         #include "$prs_type.h"
 
-        struct LexStream;
+        struct CharStream;
         class $action_class : public PrsStream
         {
-            LexStream *lexStream_;
+            CharStream *charStream_;
             DeterministicParser<$action_class, $prs_type, $action_class> dtParser_;
         public:
-            $action_class(LexStream* lexStream);
+            $action_class(CharStream* charStream);
             virtual ~$action_class();
             virtual void* parser();
             void ruleAction(int ruleNumber);
@@ -87,10 +87,10 @@ $Headers
         using namespace std;
 
         #include "$action_class.h"
-        #include "lpg/runtime/LexStream.h"
+        #include "lpg/runtime/CharStream.h"
 
-        $action_class::$action_class(LexStream *lexStream)
-           : lexStream_(lexStream), dtParser_(this, this) {}
+        $action_class::$action_class(CharStream *charStream)
+           : charStream_(charStream), dtParser_(this, this) {}
 
         $action_class::~$action_class() {}
 
