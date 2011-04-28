@@ -5,7 +5,7 @@
 
 #include "Array.h"
 
-template<class ParseTable, class TLexStream>
+template<class ParseTable, class TCharStream>
 class LexParser
 {
 public:
@@ -29,20 +29,20 @@ private:
         STACK_INCREMENT = 256,
     };
     
-    TLexStream*  tokStream_;
-    const char*  inputChars_;
+    TCharStream*  charStream_;
+    const char*  inputChars_; // cached from TCharStream
     bool         taking_actions_;
 
 public:
-    LexParser(TLexStream* tokStream)
-      : tokStream_(tokStream) // , tokenStartOffset_(0), tokenEndOffset_(0)
+    LexParser(TCharStream* charStream)
+      : charStream_(charStream)
     {
-        inputChars_ = tokStream_->getInputChars();
+        inputChars_ = charStream_->getInputChars();
     }
     
-    void reset(TLexStream *tokStream)
+    void reset(TCharStream *charStream)
     {
-        this.tokStream_ = tokStream;
+        this.charStream_ = charStream;
     }
 
 private:
@@ -61,7 +61,7 @@ private:
         return;
     }
 
-    int lastToken_, currentAction_, curtok_, starttok_, current_kind_;
+    int lastToken_, currentAction_, curTok_, starttok_, current_kind_;
 
 public:
     inline int getFirstToken(int i)
@@ -112,9 +112,9 @@ public:
         //
         // if i exceeds the upper bound, reset it to point to the last element.
         //
-        tokStream_->reset(i > tokStream_->getStreamLength() ? tokStream_->getStreamLength() : i);
-        curtok_ = tokStream_->getToken();
-        current_kind_ = tokStream_->getKind(curtok_);
+        charStream_->reset(i > charStream_->getStreamLength() ? charStream_->getStreamLength() : i);
+        curTok_ = charStream_->getToken();
+        current_kind_ = charStream_->getKind(curTok_);
         if (stack_.Size() == 0)
             reallocateStacks();
 //        if (action_ == null)
@@ -125,7 +125,7 @@ public:
 //    void parseCharacters(int start_offset, int end_offset)
 //    {
 //        resetTokenStream(start_offset);
-//        while (curtok_ <= end_offset)
+//        while (curTok_ <= end_offset)
 //        {
 //            lexNextToken(end_offset);
 //        }
@@ -140,6 +140,9 @@ public:
 
     void parseCharacters()
     {
+        if (charStream_->getInputChars() == NULL) {
+            return;
+        }
         const int START_SYMBOL = ParseTable :: lhs[0];
         //
         // Indicate that we are running the regular parser and that it's
@@ -147,7 +150,7 @@ public:
         //
         taking_actions_ = true;
         resetTokenStream(0);
-        lastToken_ = tokStream_->getPrevious(curtok_);
+        lastToken_ = charStream_->getPrevious(curTok_);
 
         //
         // Until it reaches the end-of-file token, this outer loop
@@ -157,7 +160,7 @@ public:
         while (current_kind_ != EOFT_SYMBOL) {
             stateStackTop_ = -1;
             currentAction_ = START_STATE;
-            starttok_ = curtok_;
+            starttok_ = curTok_;
 
         ScanToken:
             for ( ; ; ) {
@@ -165,7 +168,7 @@ public:
                     reallocateStacks();
                 }
                 stack_[stateStackTop_] = currentAction_;
-                locationStack_[stateStackTop_] = curtok_;
+                locationStack_[stateStackTop_] = curTok_;
 
                 //
                 // Compute the action on the next character. If it is a reduce action, we do not
@@ -180,13 +183,13 @@ public:
                 // as if we had reached the end of the file (end of the token, since we are really
                 // scanning).
                 // 
-                parseNextCharacter(curtok_, current_kind_);
+                parseNextCharacter(curTok_, current_kind_);
                 if (currentAction_ == ERROR_ACTION && current_kind_ != EOFT_SYMBOL) // if not successful try EOF
                 {
-                    int save_next_token = tokStream_->peek(); // save position after curtok
-                    tokStream_->reset(tokStream_->getStreamLength() - 1); // point to the end of the input
-                    parseNextCharacter(curtok_, EOFT_SYMBOL);
-                    tokStream_->reset(save_next_token); // reset the stream for the next token after curtok
+                    int save_next_token = charStream_->peek(); // save position after curtok
+                    charStream_->reset(charStream_->getStreamLength() - 1); // point to the end of the input
+                    parseNextCharacter(curTok_, EOFT_SYMBOL);
+                    charStream_->reset(save_next_token); // reset the stream for the next token after curtok
                 }
 
                 //
@@ -194,13 +197,13 @@ public:
                 //
                 if (currentAction_ > ERROR_ACTION) // Shift+reduce
                 {
-                    lastToken_ = curtok_;
-                    curtok_ = tokStream_->getToken();
-                    current_kind_ = tokStream_->getKind(curtok_);
+                    lastToken_ = curTok_;
+                    curTok_ = charStream_->getToken();
+                    current_kind_ = charStream_->getKind(curTok_);
                     currentAction_ -= ERROR_ACTION;
                     do {
                         stateStackTop_ -= (ParseTable::rhs[currentAction_] - 1);
-                        tokStream_->ruleAction(currentAction_);
+                        charStream_->ruleAction(currentAction_);
                         int lhs_symbol = ParseTable::lhs[currentAction_];
                         if (lhs_symbol == START_SYMBOL)
                             goto ProcessTokens;
@@ -209,9 +212,9 @@ public:
                 }
                 else if (currentAction_ < ACCEPT_ACTION) // Shift
                 {
-                    lastToken_ = curtok_;
-                    curtok_ = tokStream_->getToken();
-                    current_kind_ = tokStream_->getKind(curtok_);
+                    lastToken_ = curTok_;
+                    curTok_ = charStream_->getToken();
+                    current_kind_ = charStream_->getKind(curTok_);
                 }
                 else if (currentAction_ == ACCEPT_ACTION) // Accept
                     goto ProcessTokens;
@@ -234,16 +237,16 @@ public:
             // scanning on the character on which the problem was
             // detected. In other words, in that case, we do not advance.
             //
-            if (starttok_ == curtok_)
+            if (starttok_ == curTok_)
             {
                 if (current_kind_ == EOFT_SYMBOL)
                     goto ProcessTokens;
-                tokStream_->reportLexicalError(starttok_, curtok_);
-                lastToken_ = curtok_;
-                curtok_ = tokStream_->getToken();
-                current_kind_ = tokStream_->getKind(curtok_);
+                charStream_->reportLexicalError(starttok_, curTok_);
+                lastToken_ = curTok_;
+                curTok_ = charStream_->getToken();
+                current_kind_ = charStream_->getKind(curTok_);
             }
-            else tokStream_->reportLexicalError(starttok_, lastToken_);
+            else charStream_->reportLexicalError(starttok_, lastToken_);
         }
         taking_actions_ = false;
        
@@ -310,7 +313,7 @@ private:
                 stateStackTop_--;
                 do {
                     stateStackTop_ -= (ParseTable::rhs[currentAction_] - 1);
-                    tokStream_->ruleAction(currentAction_);
+                    charStream_->ruleAction(currentAction_);
                     int lhs_symbol = ParseTable::lhs[currentAction_];
                     if (lhs_symbol == START_SYMBOL)
                     {
@@ -334,9 +337,9 @@ private:
     //
     int lookahead(int act, int token)
     {
-        act = ParseTable::look_ahead(act - LA_STATE_OFFSET, tokStream_->getKind(token));
+        act = ParseTable::look_ahead(act - LA_STATE_OFFSET, charStream_->getKind(token));
         return (act > LA_STATE_OFFSET
-                ? lookahead(act, tokStream_->getNext(token))
+                ? lookahead(act, charStream_->getNext(token))
                 : act);
     }
     
@@ -350,7 +353,7 @@ private:
     {
         act = ParseTable::t_action(act, sym);
         return  (act > LA_STATE_OFFSET
-                 ? lookahead(act, tokStream_->peek())
+                 ? lookahead(act, charStream_->peek())
                  : act);
     }
 };

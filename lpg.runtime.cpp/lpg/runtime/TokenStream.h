@@ -1,14 +1,21 @@
-#ifndef LPG_RUNTIME_PRS_STREAM_H
-#define LPG_RUNTIME_PRS_STREAM_H
+#ifndef LPG_RUNTIME_TOKEN_STREAM_H
+#define LPG_RUNTIME_TOKEN_STREAM_H
 
 #include "Tuple.h"
 #include "Token.h"
+#include "Adjunct.h"
 
-class PrsStream
+class TokenStream
 {
 public:
-    PrsStream() : tokens_(12, 16), adjuncts_(12, 16) {}
-    virtual ~PrsStream() {}
+    TokenStream() : tokens_(12, 16), adjuncts_(12, 16) {}
+
+    virtual ~TokenStream() {}
+
+    inline Token* getToken(int i)
+    {
+        return &tokens_[i];
+    }
 
     inline int getNext(int i)
       { return (++i < tokens_.Length() ? i : tokens_.Length() - 1); }
@@ -28,44 +35,32 @@ public:
     inline int getTokenIndex(int end_token)
       { return index_ = (index_ < end_token ? getNext(index_) : tokens_.Length() - 1); }
 
-    inline int badToken()
-      { return 0; }
-
     inline unsigned getKind(int i)
       { return tokens_[i].getKind(); }
+
+    inline int getStreamLength() { return tokens_.Length(); }
 
     inline void resetTokenStream(int size = 0)
       { tokens_.Reset(size); }
 
-    inline void makeToken(const char* inputChars, int startLoc, int endLoc, int kind)
+    inline int badToken()
+      { return 0; }
+
+    inline void makeToken(InputFile *file, int startLoc, int endLoc, int kind)
     {
-        Token token(inputChars, startLoc, endLoc, kind);
+        Token token(file, startLoc, endLoc, kind);
         tokens_.Push(token);
     }
 
-    inline void makeAdjunct(const char* inputChars, int startLoc, int endLoc, int kind)
+    inline void makeAdjunct(InputFile *file, int startLoc, int endLoc, int kind)
     {
-        Adjunct adjunct(inputChars, startLoc, endLoc, kind);
+        Adjunct adjunct(file, startLoc, endLoc, kind);
+
         adjunct.setTokenIndex(tokens_.Length() - 1);
         adjuncts_.Push(adjunct);
     }
 
-    void dump()
-    {
-        printf("TOKENS(%d)\n", tokens_.Length());
-        for (int i = 0; i < tokens_.Length(); i++) {
-            printf("% 4d [%5d..%5d] : [% 4d] %s\n", i, 
-		   tokens_[i].getStartOffset(),
-		   tokens_[i].getEndOffset(),
-                   tokens_[i].getKind(),
-                   tokens_[i].getValue());
-        }
-    }
-
-    inline Token* getToken(int i)
-    {
-        return &tokens_[i];
-    }
+    void dump();
 
 protected:
     Tuple<Token> tokens_;
