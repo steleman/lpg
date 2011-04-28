@@ -22,10 +22,10 @@ main(int ac, char *av[])
         return 1;
     }
     LPGLexer lexer(av[1]);
-    PrsStream ps;
+    TokenStream ts;
 
-    lexer.lexer(&ps);
+    lexer.lexer(&ts);
 
-    ps.dump();
+    ts.dump();
     return 0;
 }
