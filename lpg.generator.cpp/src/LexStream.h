@@ -113,7 +113,7 @@ public:
 
     static unsigned FindColumn(InputFileSymbol *file_symbol, unsigned location)
     {
-        if (! file_symbol -> Buffer());
+        if (! file_symbol -> Buffer())
             file_symbol -> ReadInput();
         int index = FindLine(file_symbol -> LineLocation(), location);
         return (index == 0 ? 0 : Tab::strlen(file_symbol -> Buffer(), file_symbol -> LineLocation(index), location));
@@ -217,13 +217,13 @@ public:
 
     char *InputBuffer(TokenIndex i)
     {
-        if (! token_stream[i].file_symbol -> Buffer());
+        if (! token_stream[i].file_symbol -> Buffer())
             token_stream[i].file_symbol -> ReadInput();
         return token_stream[i].file_symbol -> Buffer();
     }
     int InputBufferLength(TokenIndex i)
     {
-        if (! token_stream[i].file_symbol -> Buffer());
+        if (! token_stream[i].file_symbol -> Buffer())
             token_stream[i].file_symbol -> ReadInput();
         return token_stream[i].file_symbol -> BufferLength();
     }
@@ -294,7 +294,7 @@ public:
 
     inline int LineSegmentLength(TokenIndex i)
     {
-        if (! token_stream[i].file_symbol -> Buffer());
+        if (! token_stream[i].file_symbol -> Buffer())
             token_stream[i].file_symbol -> ReadInput();
         int line_end = token_stream[i].file_symbol -> LineLocation(Line(i) + 1) - 1;
         return Tab::strlen(token_stream[i].file_symbol -> Buffer(), token_stream[i].StartLocation(), line_end);
