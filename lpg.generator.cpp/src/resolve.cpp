@@ -1404,7 +1404,7 @@ int Resolve::state_to_resolve_conflicts(Resolve::SourcesElement &sources, int la
     //
     if (num_shift_actions > 0)
     {
-        Array<int> shift_action(grammar -> num_terminals + 1);
+        Array<int> shift_action(grammar -> num_terminals + 1, Util::OMEGA);
 
         //
         // In this loop, we compute the hash address as the number of
