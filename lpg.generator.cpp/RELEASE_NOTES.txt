@@ -1,6 +1,16 @@
 This file describes changes made to the LPG parser generator tool itself.
 For changes to other parts of the LPG distribution, see the relevant project.
 
+2.0.23:
+    - Fixed a resource management problem (use of already-closed file handles)
+      caught by valgrind that could result in a SEGV on some platforms and
+      unpredictable behavior on others.
+    - Added missing initialization to array shift_action in method
+      Resolve::state_to_resolve_conflicts(...), which caused an out-of-bounds
+      array access (detected by valgrind).
+    - Removed rogue semicolons after if-conditions that caused extra calls to
+      FileSymbol->ReadInput().
+
 2.0.22:
     - Fixed a bug in automatically-generated Java ASTs, for which the generated
       AbstractAstList class contained references to the root AST type "AST",

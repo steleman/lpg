@@ -1,6 +1,9 @@
 This file describes changes made to the LPG Java runtime.
 For changes to other parts of the LPG distribution, see the relevant project.
 
+2.0.23:
+    <no changes>
+
 2.0.22:
     - Added constructor and initialize() flavors to LexStream and LpgLexStream that take
       an explicit character-length argument. Before this change, attempting to scan files
