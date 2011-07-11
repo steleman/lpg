@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Linux_x86 Fragment
 Bundle-SymbolicName: lpg.generator.linux_x86
-Bundle-Version: 2.0.22
-Fragment-Host: lpg.generator;bundle-version="2.0.22"
+Bundle-Version: 2.0.23
+Fragment-Host: lpg.generator;bundle-version="2.0.23"
 Eclipse-PlatformFilter: (& (osgi.os=linux) (osgi.arch=x86))
 Bundle-Vendor: rfuhrer@watson.ibm.com
